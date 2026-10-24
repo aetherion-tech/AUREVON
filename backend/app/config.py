@@ -3,7 +3,7 @@
 from pathlib import Path
 from typing import Literal
 
-from pydantic import SecretStr
+from pydantic import Field, SecretStr
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 BACKEND_DIR = Path(__file__).resolve().parent.parent
@@ -16,6 +16,9 @@ class Settings(BaseSettings):
 
     app_name: str = "AUREVON"
     log_level: Literal["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"] = "INFO"
+    renko_box: float = Field(default=50, gt=0, allow_inf_nan=False)
+    renko_anchor: float | None = Field(default=None, allow_inf_nan=False)
+    renko_mode: Literal["minute_close", "tick"] = "minute_close"
     kite_api_key: SecretStr = SecretStr("")
     kite_api_secret: SecretStr = SecretStr("")
     kite_session_file: Path = BACKEND_DIR / "data" / "kite-session.bin"

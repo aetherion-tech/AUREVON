@@ -3,7 +3,7 @@
 from datetime import date, datetime
 from decimal import Decimal
 
-from sqlalchemy import Date, DateTime, Integer, Numeric, String
+from sqlalchemy import Date, DateTime, Integer, Numeric, String, Text
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
 
@@ -32,3 +32,29 @@ class InstrumentSnapshot(Base):
     exchange: Mapped[str] = mapped_column(String(10), primary_key=True)
     loaded_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
     row_count: Mapped[int] = mapped_column(Integer)
+
+
+class MarketCheckpoint(Base):
+    __tablename__ = "market_checkpoints"
+
+    stream: Mapped[str] = mapped_column(String(160), primary_key=True)
+    revision: Mapped[int] = mapped_column(Integer)
+    configuration: Mapped[str] = mapped_column(Text)
+    state: Mapped[str] = mapped_column(Text)
+
+
+class StoredCandle(Base):
+    __tablename__ = "market_candles"
+
+    stream: Mapped[str] = mapped_column(String(160), primary_key=True)
+    token: Mapped[int] = mapped_column(Integer, primary_key=True)
+    time: Mapped[str] = mapped_column(String(40), primary_key=True)
+    payload: Mapped[str] = mapped_column(Text)
+
+
+class StoredBrick(Base):
+    __tablename__ = "renko_bricks"
+
+    stream: Mapped[str] = mapped_column(String(160), primary_key=True)
+    index: Mapped[int] = mapped_column(Integer, primary_key=True)
+    payload: Mapped[str] = mapped_column(Text)

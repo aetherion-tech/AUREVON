@@ -5,6 +5,7 @@ import json
 import secrets
 from datetime import UTC, datetime, timedelta
 from threading import RLock
+from time import monotonic, sleep
 from typing import Any
 from urllib.parse import urlencode
 from zoneinfo import ZoneInfo
@@ -53,9 +54,57 @@ class KiteAuth:
         )
         self.lock = RLock()
         self.pending: dict[str, datetime] = {}
+        self._historical_next = 0.0
+
+    def historical_data(
+        self,
+        instrument_token: int,
+        interval: str,
+        start: datetime,
+        end: datetime,
+        *,
+        oi: bool = False,
+    ) -> dict[str, Any]:
+        """Read-only historical request, serialized at 2.5 requests per second."""
+        if instrument_token <= 0 or interval not in {"minute", "5minute"}:
+            raise ValueError("Expected a positive token and minute/5minute interval")
+        with self.lock:
+            session = self._load() if self.settings.kite_configured else None
+            if session is None:
+                raise AuthError("Log in to Kite before downloading prices.", 401)
+            sleep(max(0.0, self._historical_next - monotonic()))
+            self._historical_next = monotonic() + 0.4
+            return self._request(
+                "GET",
+                f"/instruments/historical/{instrument_token}/{interval}",
+                token=session["access_token"],
+                params={
+                    "from": start.astimezone(IST).strftime("%Y-%m-%d %H:%M:%S"),
+                    "to": end.astimezone(IST).strftime("%Y-%m-%d %H:%M:%S"),
+                    "continuous": "0",
+                    "oi": "1" if oi else "0",
+                },
+            )
 
     def close(self) -> None:
         self.client.close()
+
+    def create_ticker(self) -> Any:
+        """Create a market-data-only SDK socket without returning credentials."""
+        from kiteconnect import KiteTicker  # type: ignore[import-untyped]
+
+        with self.lock:
+            session = self._load() if self.settings.kite_configured else None
+            if session is None:
+                raise AuthError("Log in to Kite before starting the price feed.", 401)
+            return KiteTicker(
+                self.settings.kite_api_key.get_secret_value().strip(),
+                session["access_token"],
+                reconnect=True,
+                reconnect_max_delay=30,
+                reconnect_max_tries=50,
+                debug=False,
+            )
 
     def download_instruments(self, exchange: str) -> str:
         """Download a read-only CSV without exposing the access token to callers."""
@@ -178,13 +227,16 @@ class KiteAuth:
         *,
         token: str = "",
         data: dict[str, str] | None = None,
+        params: dict[str, str] | None = None,
     ) -> dict[str, Any]:
         headers = {"X-Kite-Version": "3"}
         if token:
             key = self.settings.kite_api_key.get_secret_value().strip()
             headers["Authorization"] = f"token {key}:{token}"
         try:
-            response = self.client.request(method, path, headers=headers, data=data)
+            response = self.client.request(
+                method, path, headers=headers, data=data, params=params
+            )
             payload = response.json()
         except (httpx.HTTPError, ValueError):
             log.warning("kite_connection_failed")
@@ -193,6 +245,8 @@ class KiteAuth:
             raise AuthError("Kite returned an unexpected response.", 502)
         if response.is_error or payload.get("status") != "success":
             log.warning("kite_request_rejected", status_code=response.status_code)
+            if response.status_code == 429:
+                raise AuthError("Kite rate limit reached. Retry later.", 429)
             if payload.get("error_type") == "TokenException" and token:
                 raise AuthError("Kite session is no longer valid.", 401)
             raise AuthError(
