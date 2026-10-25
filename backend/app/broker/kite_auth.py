@@ -66,8 +66,10 @@ class KiteAuth:
         oi: bool = False,
     ) -> dict[str, Any]:
         """Read-only historical request, serialized at 2.5 requests per second."""
-        if instrument_token <= 0 or interval not in {"minute", "5minute"}:
-            raise ValueError("Expected a positive token and minute/5minute interval")
+        if instrument_token <= 0 or interval not in {"minute", "5minute", "day"}:
+            raise ValueError(
+                "Expected a positive token and minute/5minute/day interval"
+            )
         with self.lock:
             session = self._load() if self.settings.kite_configured else None
             if session is None:

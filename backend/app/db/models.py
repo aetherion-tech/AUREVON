@@ -3,7 +3,7 @@
 from datetime import date, datetime
 from decimal import Decimal
 
-from sqlalchemy import Date, DateTime, Integer, Numeric, String, Text
+from sqlalchemy import Date, DateTime, ForeignKey, Integer, Numeric, String, Text
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
 
@@ -58,3 +58,43 @@ class StoredBrick(Base):
     stream: Mapped[str] = mapped_column(String(160), primary_key=True)
     index: Mapped[int] = mapped_column(Integer, primary_key=True)
     payload: Mapped[str] = mapped_column(Text)
+
+
+class HistoricalSpotBatch(Base):
+    __tablename__ = "historical_spot_batches"
+
+    id: Mapped[str] = mapped_column(String(32), primary_key=True)
+    stream: Mapped[str] = mapped_column(String(160))
+    token: Mapped[int] = mapped_column(Integer)
+    provenance: Mapped[str] = mapped_column(Text)
+
+
+class HistoricalSpotCandle(Base):
+    __tablename__ = "historical_spot_candles"
+
+    stream: Mapped[str] = mapped_column(String(160), primary_key=True)
+    token: Mapped[int] = mapped_column(Integer, primary_key=True)
+    time: Mapped[str] = mapped_column(String(40), primary_key=True)
+    completed_at: Mapped[str] = mapped_column(String(40))
+    payload: Mapped[str] = mapped_column(Text)
+    batch_id: Mapped[str] = mapped_column(ForeignKey("historical_spot_batches.id"))
+
+
+class HistoricalContextBatch(Base):
+    __tablename__ = "historical_context_batches"
+
+    id: Mapped[str] = mapped_column(String(32), primary_key=True)
+    stream: Mapped[str] = mapped_column(String(160))
+    provenance: Mapped[str] = mapped_column(Text)
+
+
+class HistoricalContextCandle(Base):
+    __tablename__ = "historical_context_candles"
+
+    stream: Mapped[str] = mapped_column(String(160), primary_key=True)
+    identity: Mapped[str] = mapped_column(String(160), primary_key=True)
+    kind: Mapped[str] = mapped_column(String(20), primary_key=True)
+    time: Mapped[str] = mapped_column(String(40), primary_key=True)
+    completed_at: Mapped[str] = mapped_column(String(40))
+    payload: Mapped[str] = mapped_column(Text)
+    batch_id: Mapped[str] = mapped_column(ForeignKey("historical_context_batches.id"))

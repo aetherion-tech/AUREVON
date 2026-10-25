@@ -79,6 +79,70 @@ class CandleBuilder:
         self._closed_until = candle.end
         return result
 
+    def import_completed(
+        self,
+        candle: MarketCandle,
+        *,
+        session_open: datetime,
+        session_close: datetime,
+        cutoff: datetime,
+    ) -> MarketCandle:
+        """Import direct bar volume, never a cumulative tick counter.
+
+        Append only into an idle builder. Rebuild from source for repeated imports
+        or corrections; do not mix history into an active live interval.
+        """
+        stamps = (candle.time, candle.end, session_open, session_close, cutoff)
+        if any(t.tzinfo is None or t.utcoffset() is None for t in stamps):
+            raise ValueError("Historical candle/session times must include a timezone")
+        start, end, opening, closing, finish = (t.astimezone(IST) for t in stamps)
+        step = timedelta(minutes=self.minutes)
+        if (
+            self.current is not None
+            or opening.date() != closing.date()
+            or not opening <= start < end <= closing
+            or end > finish
+            or end - start != step
+            or (start - opening) % step != timedelta(0)
+            or (self._closed_until is not None and start < self._closed_until)
+        ):
+            raise ValueError("Expected ordered completed candles in an idle session")
+        prices = [
+            number(value, positive=True)
+            for value in (candle.open, candle.high, candle.low, candle.close)
+        ]
+        op, high, low, close = prices
+        if low > min(op, close) or high < max(op, close) or high < low:
+            raise ValueError("Invalid historical OHLC")
+        volume = number(candle.volume) if self.futures else None
+        oi = number(candle.oi) if self.futures and candle.oi is not None else None
+        # All validation precedes mutation.
+        if self.day != start.date():
+            self.day = start.date()
+            self.weighted = Decimal(0)
+            self.total_volume = Decimal(0)
+            self.vwap_partial = start != opening
+        elif self._closed_until != start:
+            self.vwap_partial = True
+        self.vwap_partial = self.vwap_partial or candle.partial
+        self.current = replace(
+            candle,
+            time=start,
+            end=end,
+            open=op,
+            high=high,
+            low=low,
+            close=close,
+            volume=volume,
+            oi=oi,
+        )
+        result = self._finish()
+        self.last_time = end
+        # History cannot prove the exchange counter at the live boundary.
+        self.cumulative = None
+        self._next_partial = True
+        return result
+
     def on_tick(
         self,
         price: object,
@@ -125,6 +189,7 @@ class CandleBuilder:
             assert volume is not None
             if self.cumulative is None:
                 delta = Decimal(0)
+                self.mark_gap()
             elif volume < self.cumulative:
                 self.mark_gap()
                 delta = Decimal(0)

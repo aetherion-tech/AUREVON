@@ -23,12 +23,12 @@ The original project specification is saved in [docs/SPEC.md](docs/SPEC.md).
 
 ## Master task record: backend, frontend and release
 
-**Last reviewed: 2026-10-24. This README is the authoritative task/status record.**
+**Last reviewed: 2026-10-25. This README is the authoritative task/status record.**
 The specification describes intended behavior; an unchecked box in the original
 specification is not evidence that implemented work is missing. The checklist below
 was reconciled with the current application, tests and previous verification notes.
 
-**Task totals: 280 — Completed: 53; Pending: 227.** Frontend: 57 Pending.
+**Task totals: 280 — Completed: 59; Pending: 221.** Frontend: 57 Pending.
 These are checklist counts, not time/effort percentages. Recount them whenever
 rows are added, split or completed.
 
@@ -43,8 +43,8 @@ Status rules:
   IDs are stable references for future work, reviews and AI handoffs.
 - Existing completed work is dated by the verification notes: foundation/auth/catalog
   on 2026-10-23; data tools/recording/persistence on 2026-10-24. The latest recorded
-  backend result is **82 passing tests, Ruff lint/format and mypy passing**. This
-  documentation update does not imply a new test run or real-market verification.
+  backend result is **183 passing tests, Ruff lint/format and mypy passing**
+  (2026-10-25). This does not imply real-market verification.
 
 ### How every future contributor or AI must update this record
 
@@ -52,8 +52,7 @@ Status rules:
    before selecting work. Never restart a Completed task merely because chat history
    is unavailable. Keep the original Pine reference intact.
 2. Select the next Pending task whose prerequisites are satisfied. Report its ID.
-   Default next backend task: **BE-05-01**, followed by the rest of stage 05.
-   Do not start implementation during this documentation-only request.
+   Default next backend task: **BE-05-07**, followed by the rest of stage 05.
 3. Implement the scoped behavior and its meaningful acceptance checks. If only
    part is finished, split the row into stable sub-IDs and leave unfinished parts
    Pending; do not mark a broad phase Completed from a partial implementation.
@@ -74,7 +73,7 @@ Status rules:
 | --- | --- | --- | --- |
 | 00 | References and validation inputs | Pending | Pine saved; chart settings, debug export and reference fixtures still needed |
 | 01–04 | Foundation, auth, instruments, standalone data/storage | Completed | Scoped implementation rows below completed; external checks remain in stage 07 |
-| 05 | Historical warm-up and gap recovery | Pending | Next backend work; trustworthy continuous market state required |
+| 05 | Historical warm-up and gap recovery | Pending | Historical candle/VWAP/Renko initialization completed; live merge at BE-05-07 is next |
 | 06 | Backend lifecycle and market calendar | Pending | One managed worker, scheduled sessions, readiness and stop/restart behavior |
 | 07 | Market-data acceptance gate G1 | Pending | Real downloads/feed, then zero Renko mismatches over ten trading days |
 | 08–09 | Pine indicator port and acceptance gate G2 | Pending | Maths/state/signals/exits implemented and reference-verified |
@@ -187,12 +186,12 @@ has completed and quality checks pass. Reference-data tasks can run alongside th
 
 | ID | Status | Task and completion requirement | Evidence / prerequisite |
 | --- | --- | --- | --- |
-| BE-05-01 | Pending | Add typed warm-up lookback, recovery limits and readiness settings. Define first startup versus checkpoint restart; validate defaults and invalid values. | Next task; current Settings and persistence |
-| BE-05-02 | Pending | Plan exact spot-minute/futures-five-minute ranges from checkpoint and session calendar; include sufficient indicator lookback. | BE-05-01 |
-| BE-05-03 | Pending | Fetch and persist historical spot candles through the existing downloader; retain provenance and completion times. | BE-05-02; historical/storage tools |
-| BE-05-04 | Pending | Fetch/persist matching futures OHLC/volume/OI and daily previous-close/open/high/low context. Handle absent OI explicitly. | BE-05-02; actual contract identity |
-| BE-05-05 | Pending | Import historical candle volumes directly instead of treating them as cumulative tick counters; seed session VWAP correctly. | BE-05-03/04 |
-| BE-05-06 | Pending | Rebuild Renko in timestamp order from completed spot history while execution remains disabled. Make repeat imports idempotent. | BE-05-03; persistent Renko |
+| BE-05-01 | Completed | Add typed warm-up lookback, recovery limits and readiness settings. Define first startup versus checkpoint restart; validate defaults and invalid values. | 2026-10-25: `backend/app/config.py`, `.env.example`, `test_warmup_settings.py`; startup policy below; 100 tests, Ruff and mypy passed |
+| BE-05-02 | Completed | Plan exact spot-minute/futures-five-minute ranges from checkpoint and session calendar; include configured session lookback and the Pine futures-bar minimum; validate Renko brick sufficiency after rebuilding. | 2026-10-25: `backend/app/market/warmup.py`, `test_warmup_plan.py`; explicit calendar coverage and checkpoint boundaries; 115 tests, Ruff and mypy passed |
+| BE-05-03 | Completed | Fetch and persist historical spot candles through the existing downloader; retain provenance and completion times. | 2026-10-25: `app/market/spot_history.py`, historical models/migration `0003_historical_spot.py`, `test_spot_history.py`; 128 tests, Ruff and mypy passed; local migration applied |
+| BE-05-04 | Completed | Fetch/persist matching futures OHLC/volume/OI and daily previous-close/open/high/low context. Handle absent OI explicitly. | 2026-10-25: `app/market/context_history.py`, daily broker support, opt-in missing-OI parser, migration `0004_historical_context.py`; 152 tests, Ruff and mypy passed; local migration applied |
+| BE-05-05 | Completed | Import historical candle volumes directly instead of treating them as cumulative tick counters; seed session VWAP correctly. | 2026-10-25: `CandleBuilder.import_completed`, `app/market/history_import.py`, `test_history_import.py`; direct-volume and session-quality checks; 169 tests, Ruff and mypy passed |
+| BE-05-06 | Completed | Rebuild Renko in timestamp order from completed spot history while execution remains disabled. Make repeat imports idempotent. | 2026-10-25: `app/market/history_renko.py`, `test_history_renko.py`; atomic candles/bricks/checkpoint, no-write repeat and worker restore checks; 183 tests, Ruff and mypy passed |
 | BE-05-07 | Pending | Merge historical and queued live data at an explicit timestamp boundary; prevent duplicate candles/bricks and half-formed closes. | BE-05-05/06 |
 | BE-05-08 | Pending | Detect reconnect, overflow and downtime gaps; track missing ranges and hold entry readiness false. | Existing persistent gap flags |
 | BE-05-09 | Pending | Recover missing minute/five-minute candles, rebuild affected derived state and preserve unrecoverable-quality flags. | BE-05-07/08 |
@@ -529,6 +528,62 @@ claimed before requirements are agreed.
 
 ### Task update history
 
+- **2026-10-25:** Completed BE-05-06: rebuild minute-close Renko from staged
+  spot candles in exchange-close order and atomically initialize candles, bricks
+  and a restorable checkpoint. Identical repeats issue no writes; changed source,
+  configuration, active state and orphaned outputs fail without replacement.
+  Execution stays disabled and checkpoint gap/quality metadata remains explicit.
+  Added 14 tests including reversals, multi-brick closes, cross-day continuity,
+  seed-only history, rollback, idempotency and existing-worker restoration.
+  All 183 tests, Ruff lint/format and strict mypy passed. Recounted 280 tasks:
+  59 Completed, 221 Pending. Next backend task: BE-05-07. No new schema migration
+  is needed. Historical/live merge, indicator readiness and real parity remain Pending.
+
+- **2026-10-25:** Completed BE-05-05: direct-volume historical candle import
+  and deterministic isolated spot/futures seeds from staged history. Session VWAP
+  uses exact HLC3-weighted bar totals, resets per IST session, and preserves missing
+  history flags. Source volume is never treated as a cumulative exchange counter;
+  the first live counter sample retains partial quality. Added 17 tests covering
+  weighted values, gaps, zero volume, restart state, repeat reads, source-boundary
+  validation and conservative live handoff. All 169 tests, Ruff lint/format and
+  strict mypy passed. Recounted 280 tasks: 58 Completed, 222 Pending. Next backend
+  task: BE-05-06. Live adoption, Renko rebuild and readiness remain Pending.
+
+- **2026-10-25:** Completed BE-05-04: atomically stage explicit-contract futures
+  five-minute OHLC/volume/OI and daily spot context. Added daily broker requests,
+  opt-in missing-OI support (null remains distinct from zero), contract identity
+  provenance and migration 0004, applied locally. Current-session context uses
+  completed minutes through the cutoff; missing prior-day values stay unknown.
+  Added 24 tests; all 152 backend tests, Ruff lint/format and strict mypy passed.
+  Recounted 280 tasks: 57 Completed, 223 Pending. Next backend task: BE-05-05.
+  Real broker acceptance, VWAP seeding, derived-state updates and readiness remain
+  Pending. Official Kite historical API documentation was checked for day/OI and
+  explicit contract request semantics.
+
+- **2026-10-25:** Completed BE-05-03: fetch planned spot-minute ranges through
+  the existing downloader and atomically stage exact candles, completion times
+  and source/request provenance. Added migration 0003 and applied it locally.
+  Catalog identity checks, repeat imports, missing minutes, conflicting data and
+  network/database rollback have synthetic acceptance coverage (13 new tests).
+  All 128 backend tests, Ruff lint/format and mypy passed. Recounted 280 tasks:
+  56 Completed, 224 Pending. Next backend task: BE-05-04. No real-market download,
+  indicator warm-up, live merge or readiness claim is made by this task.
+
+- **2026-10-25:** Completed BE-05-02 with pure session-calendar range planning,
+  separate checkpoint boundaries, completed-candle cutoffs, recovery gap limits,
+  current-session futures VWAP context and previous-session daily context date.
+  Added 15 planner checks; all 115 backend tests, Ruff and mypy passed. Recounted
+  280 tasks: 55 Completed, 225 Pending. Next backend task: BE-05-03.
+  Production calendar loading, downloads/imports and post-rebuild indicator
+  readiness remain their separate Pending tasks.
+
+- **2026-10-25:** Completed BE-05-01 with bounded typed warm-up/recovery/readiness
+  settings, environment examples, startup policy and 18 configuration checks.
+  All 100 backend tests, Ruff lint/format and strict mypy passed. Recounted
+  280 tasks: 54 Completed, 226 Pending. Stage 05 remains Pending; next is
+  BE-05-02. Historical fetching, recovery and readiness enforcement are not
+  implemented by this settings task.
+
 - **2026-10-24:** Added the master granular BE/FE/QA/operations/live/future task
   record and completion-update rules (REF-00-08 Completed). Reconciled current
   implementations through persistence against code and recorded 82-test validation.
@@ -744,7 +799,7 @@ adapter; this does not prevent the tests or application from running.
 4. The original Pine reference is already saved at `docs/pine/renko_indicator.pine`.
 5. Record actual chart settings/anchor and export TradingView reference data for
    REF-00-03–07. The comparison tool exists; real parity is still Pending.
-6. Continue implementation at BE-05-01, using the master task record above.
+6. Continue implementation at BE-05-07, using the master task record above.
 
 ## Step 3a: daily instrument catalog
 
@@ -896,7 +951,10 @@ No missing candles are synthesized and no futures rollover is inferred.
 
 The request format follows the [official Kite historical API documentation](https://kite.trade/docs/connect/v3/historical/).
 Intraday futures use the specific contract token, with continuous mode disabled.
-Downloading does not yet warm up the indicator or save candles/bricks to SQLite.
+The CSV downloader does not warm up indicators or write SQLite. The planned
+spot-history service below now stages historical spot candles in SQLite; derived
+live candle integration remains Pending. Cold historical Renko initialization is
+now implemented in the service below.
 
 Verified on 2026-10-24 with fake broker responses; a real authenticated historical
 download and TradingView parity comparison remain to be verified.
@@ -958,9 +1016,9 @@ Spot candles have no inferred volume or OI.
 
 Session VWAP uses `(high + low + close) / 3` weighted by completed futures candle
 volume, matching the source used by `ta.vwap(hlc3)` in the Pine reference. It resets
-by IST session date; zero cumulative volume yields no VWAP. Until historical
-warm-up is integrated, `vwap_partial` remains true because earlier session volume
-may be missing. A mathematically correct calculation does not establish parity
+by IST session date; zero cumulative volume yields no VWAP. The standalone monitor keeps `vwap_partial` true because earlier session volume
+may be missing. The isolated historical seed service below can establish complete
+session VWAP from contiguous staged candles; managed live adoption is still Pending. A mathematically correct calculation does not establish parity
 between broker and TradingView feeds.
 
 Without `--stream`, candles remain in the standalone monitor's memory. Opt-in
@@ -1017,6 +1075,228 @@ same-second updates and gap flags), IST rotation, restart isolation, malformed
 files, sequence errors, credential-field exclusion and disk-failure shutdown.
 Real market-hours recording remains to be verified.
 
+## Warm-up and recovery settings (BE-05-01)
+
+These settings define policy for the upcoming managed warm-up/recovery worker.
+They load from `backend/.env` or environment variables, but do not yet trigger
+downloads, retries or entry readiness in the standalone monitor.
+
+| Environment variable | Default | Valid values / meaning |
+| --- | --- | --- |
+| `WARMUP_LOOKBACK_TRADING_DAYS` | 20 | Integer 1–250; completed trading sessions of initial history, not calendar days |
+| `RECOVERY_MAX_GAP_DAYS` | 30 | Integer 1–365; maximum elapsed calendar-day gap eligible for automatic recovery |
+| `RECOVERY_MAX_ATTEMPTS` | 5 | Integer 1–20; total attempts per recovery request, including the first |
+| `RECOVERY_BACKOFF_SECONDS` | 1 | Finite positive seconds, at most 300; initial retry delay |
+| `RECOVERY_BACKOFF_MAX_SECONDS` | 30 | Finite positive seconds, at most 300 and at least the initial delay; exponential retry cap |
+| `READINESS_ENTRY_DELAY_SECONDS` | 60 | Integer 60–3600; minimum entry hold after successful warm-up/recovery |
+
+Startup contract for subsequent tasks:
+
+- **First startup:** no checkpoint exists for the named stream. Plan completed
+  spot-minute and matching futures-five-minute history for the configured trading
+  sessions, including indicator lookback and daily context. Spot closes drive
+  Renko, consistent with SPEC 8.1/9 and the current persistence implementation;
+  SPEC 8.4's mention of futures as the Renko source is superseded by that mapping.
+  The 20-session default is an initial policy, not proof of sufficient Pine parity.
+- **Checkpoint restart:** restore a valid, configuration-matching checkpoint and
+  plan history from its processed candle boundaries to the completed-history/live
+  handoff. Reuse saved state rather than reseeding Renko. Missing checkpoints use
+  first-start policy; invalid or incompatible checkpoints fail explicitly, as the
+  current persistence layer does. Never silently discard them.
+- **Recovery limits:** the gap limit bounds automatic elapsed-time recovery, not
+  initial lookback or the downloader's chunk size. A longer gap or exhausted
+  attempts requires an explicit rebuild/recovery decision and keeps entries blocked.
+  Retry delays are intended as initial delay times powers of two, capped at the
+  configured maximum; later recovery tasks implement this policy.
+- **Readiness:** remain false during startup, replay and gaps. The delay begins
+  only after history, derived state and queued-live handoff pass quality checks.
+  Entry eligibility additionally requires valid authentication, fresh feed,
+  session eligibility and no unresolved quality gaps. A new gap revokes readiness
+  and requires recovery plus a fresh delay. There is no setting to bypass these
+  checks or enable entries; runtime enforcement belongs to BE-05/06.
+
+## Historical range planner (BE-05-02)
+
+`app.market.warmup.plan_history(settings, calendar, now, checkpoint=None)` returns
+an immutable plan without broker calls or database writes. `SessionCalendar`
+declares an inclusive date coverage and ordered session opening/closing times;
+absent dates within that coverage are non-trading days. Callers must supply
+verified calendar data; there is no weekday fallback. Production calendar loading
+and scheduling remain BE-06 work. Special sessions are supported when their
+same-day bounds align to five minutes.
+
+Cold starts include the configured number of completed trading sessions plus
+any completed candles in the current session. Plans contain one inclusive
+opening-time range per session and instrument, directly matching `download`:
+one-minute spot and five-minute futures. Each range exposes its completed-close
+time. No request includes a candle still forming at the explicit cutoff.
+The previous completed session before today's date is returned for daily context.
+
+Checkpoint restarts accept separate spot/futures next-unprocessed opening times
+from validated restored state: use the active candle opening if present, otherwise
+`closed_until`. Missing boundaries require an explicit rebuild decision. The
+planner rejects naive, future, unaligned, uncovered or over-limit boundaries.
+It also fetches current-session futures context from session open for VWAP;
+this may intentionally overlap saved data. Future import/merge tasks must apply
+that context idempotently and preserve the checkpoint application boundary.
+Planning does not correct existing partial candles or rebuild state itself.
+
+Cold plans require at least 21 completed futures bars for Pine's
+`volume[1] / ta.sma(volume, 20)[1]`. The configured trading-day lookback is also
+included, but elapsed days cannot guarantee enough Renko bricks or recursive
+indicator convergence. Validate brick sufficiency and indicator state after
+BE-05-06/BE-08 rebuilding; extend history or keep readiness false if insufficient.
+Every plan reports `entries_enabled=False`. No downloads, calendar verification,
+indicator parity or runtime readiness are established by synthetic planner tests.
+
+## Planned historical spot storage (BE-05-03)
+
+`app.market.spot_history.fetch_spot_history(auth, engine, stream, token, plan)`
+accepts a BE-05-02 `WarmupPlan`, an existing `KiteAuth`, and the configured database
+engine. The token must match `NSE:NIFTY 50` in the local instrument catalog.
+Refresh the catalog before preparing a plan. This service is callable by the
+upcoming managed worker; it is not yet a web endpoint or automatic startup job.
+
+Migration `0003_historical_spot` adds `historical_spot_batches` and
+`historical_spot_candles`; it was applied locally on 2026-10-25. Run
+`uv run alembic upgrade head` from `backend` on other checkouts before using it.
+The existing historical downloader handles authenticated requests, pacing,
+chunking, OHLC validation and duplicate overlap. All planned spot requests finish
+before one transaction saves the batch and new candles. A later download failure
+writes nothing; a conflict or database failure rolls back the entire batch.
+
+Candles are keyed by stream, token and UTC opening time, with explicit UTC
+completed-close time and exact decimal JSON values. Original broker volume is
+retained as source data; it is not a live cumulative tick counter or inferred
+spot volume. Each new candle links to its original download batch. Batch metadata
+records the source, exchange/symbol, minute interval, request ranges, plan cutoff,
+fetch time and expected/received/missing minute counts, without authentication
+fields. Matching repeated downloads preserve original candles and provenance,
+while adding a new batch audit record; different decimal scale alone is equivalent.
+Conflicting saved values are rejected for the later explicit correction workflow.
+
+Empty or partial responses retain a batch with missing-minute counts; no bars are
+fabricated and no readiness is granted. This staging service does not change live
+`market_candles`, checkpoint revisions, candle builders or Renko bricks itself.
+BE-05-05 reads staged history into isolated candle/VWAP seeds; BE-05-06 can now
+commit those seeds and rebuilt Renko for a cold stream. The later merge/recovery
+tasks apply live handoff and validate derived state. Real authenticated historical acceptance remains Pending under stage 07.
+
+## Futures history and daily context (BE-05-04)
+
+`app.market.context_history.fetch_context_history(auth, engine, stream,
+futures_symbol, plan, calendar)` stages the matching five-minute futures ranges
+and spot daily context in one transaction. Pass the BE-05-02 plan, a verified
+`SessionCalendar`, and the actual NFO futures symbol from the catalog. The calendar
+must include the session immediately before the earliest planned spot/futures
+session so each daily context can reference the correct previous close. Unknown
+calendar coverage, malformed ranges, missing/wrong contracts and expired current
+catalog contracts fail explicitly. No continuous futures or rollover is inferred;
+historical expired-contract identity management remains separate work.
+
+Migration `0004_historical_context` adds `historical_context_batches` and
+`historical_context_candles`; it was applied locally on 2026-10-25. Other checkouts
+must run `uv run alembic upgrade head` from `backend`. Source candles retain exact
+decimal OHLC, direct per-candle volume, nullable OI, UTC opening/completion times,
+and their original batch link. Futures identity includes exchange, symbol and
+expiry; provenance records the requested token and lot size. Repeated identical
+imports preserve source candles; conflicts roll back the entire new batch.
+
+Futures requests use the existing paced/chunked downloader with OI requested.
+Missing OI (an absent field or explicit null) is stored as null with a missing-OI
+count; zero is a supplied value, and invalid/negative/non-finite OI is rejected.
+This tolerance is opt-in for this service; existing strict parsing stays strict.
+Expected/received/missing futures bars are recorded without fabricating bars.
+
+For completed sessions, spot `day` candles provide daily OHLC using calendar close
+times as completion times. For a currently open session, only completed spot
+minute candles through the plan cutoff supply evolving OHLC. Source minutes are
+also retained. Such context is explicitly partial, includes missing-minute counts
+and observed-through time, and leaves today's open unknown if the opening minute
+is missing. Before session open, no current-session context is invented. Missing
+previous-session data stays null, never replaced with an older available close.
+Each batch persists these per-session context snapshots and calendar/request
+provenance. These source rules follow the
+[official Kite historical API](https://kite.trade/docs/connect/v3/historical/).
+
+All broker downloads finish before the database transaction; a failed request,
+invalid response, conflicting source row or database failure leaves earlier data
+intact. This service does not mutate live candles, checkpoints, VWAP or Renko and
+does not enable entries. Managed lifecycle, context updates on live ticks, volume
+live adoption and real-market acceptance remain their later Pending tasks.
+Isolated direct-volume import/VWAP seeding is completed below.
+
+## Historical volume import and VWAP seed (BE-05-05)
+
+`CandleBuilder.import_completed(candle, session_open=..., session_close=...,
+cutoff=...)` accepts a completed candle directly into an idle builder. Futures
+volume is the candle's own traded volume, added once to session accumulators;
+it never passes through tick-counter subtraction. Session VWAP is
+`sum(((high + low + close) / 3) * volume) / sum(volume)` using decimal arithmetic.
+Zero total volume produces no VWAP. Missing OI remains null and does not change
+volume weights. Imported spot candles have no inferred volume, OI or VWAP.
+
+`app.market.history_import.build_historical_seed(engine, stream, spot_token,
+futures_identity, plan, calendar)` reads BE-05-03/04 staged sources in a database
+snapshot and returns isolated builders, completed candles and missing-bar counts.
+Use the exact futures identity from staging, such as `NFO:<symbol>:<expiry>`.
+Ranges, OHLC, alignment and stored opening/completion timestamps are validated.
+The service reads the selected ranges only into its result; it does not write
+live candles, checkpoints or Renko. Rebuilding from unchanged sources produces
+the same seed without double-counting. Appending duplicate/older historical
+candles or importing into an active live interval fails explicitly.
+
+A session beginning at its verified calendar open with contiguous history can
+have `vwap_partial=False`. Starting late, missing an interval, or a source partial
+flag keeps that session's VWAP partial. A missing requested tail also marks the
+returned builder partial. A new session resets its weights and quality; missing
+older-session bars remain reported without tainting a complete later session's
+VWAP. Returned candle quality describes the information available at each close.
+
+History does not establish the exchange cumulative-volume counter at the live
+boundary. Imported builders therefore retain no cumulative tick baseline. The
+first subsequent live tick establishes a baseline without subtracting historical
+bar totals, and conservatively marks the affected candle and VWAP partial.
+Later ticks use normal counter deltas. A verified historical/live handoff remains
+BE-05-07 work; the standalone worker does not automatically adopt these seeds.
+Seed state uses the existing checkpoint serialization, and every returned seed
+reports `entries_enabled=False`. Real feed/TradingView parity remains Pending.
+
+## Historical Renko initialization (BE-05-06)
+
+`app.market.history_renko.rebuild_historical_renko(engine, settings, stream,
+spot_token, future_token, futures_identity, plan, calendar)` initializes a cold
+stream from staged history. It requires `RENKO_MODE=minute_close`, a configured
+chart anchor, distinct catalog-matching tokens and a `cold_start` plan. The exact
+futures identity must match its catalog symbol and expiry. Existing staging and
+market-state tables are reused; no additional migration is required.
+
+The service builds BE-05-05 candle/VWAP seeds in isolation and feeds completed
+spot closes to the existing decimal Renko builder at candle close timestamps.
+The first close seeds the anchored grid without a brick. Subsequent closes may
+emit multiple bricks, including reversals, with indices and grid continuity
+preserved across trading dates. Empty spot history fails explicitly. Missing
+source intervals may produce diagnostic bricks, but missing counts remain in
+the checkpoint and no readiness is granted.
+
+One transaction saves all imported spot/futures candles, generated bricks and
+checkpoint revision 1, including builder/VWAP state, the Renko seed/last brick,
+last processed source time, counts, plan/calendar metadata and source-quality
+counts. A database failure rolls back the whole initialization. Repeating the
+same inputs verifies every stored output and checkpoint and makes no writes;
+`imported=False` identifies that result. Changed inputs or outputs, a checkpoint
+advanced by a worker, and orphaned outputs without a checkpoint are rejected.
+Use the forthcoming merge/recovery workflow or an explicitly prepared new stream
+for those cases; this initializer never replaces existing state.
+
+The existing persistent worker can restore the checkpoint and continue brick
+numbering. The returned result always reports `entries_enabled=False` and the
+checkpoint deliberately keeps `gap=True`, including for complete source data.
+Verified queued-live handoff is BE-05-07 work; recovery, entry-delay enforcement,
+indicator sufficiency and TradingView acceptance remain separate Pending tasks.
+This initializer is a service for the upcoming managed worker, not an automatic
+startup job or dashboard action.
+
 ## Candle/brick persistence and restart recovery
 
 Migration `0002_market_state` adds `market_candles`, `renko_bricks`, and
@@ -1060,7 +1340,8 @@ Restored workers mark downtime as a gap and keep entries disabled. This step
 restores saved state; it does not fetch missed prices or establish TradingView
 parity. Partial candles are retained and can produce diagnostic Renko bricks;
 neither these nor post-gap bricks are validated trading signals. Historical
-warm-up and gap recovery are the next task.
+cold initialization is now available through BE-05-06. Historical/live merge
+and gap recovery remain Pending.
 
 Recording runs that start from a database checkpoint include that initial candle
 state as their first event, so the offline candle replay remains reproducible.

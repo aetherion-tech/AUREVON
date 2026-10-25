@@ -23,8 +23,11 @@ class Candle:
     oi: Decimal | None
 
 
-def parse_candle(row: Any, *, oi: bool) -> Candle:
+def parse_candle(row: Any, *, oi: bool, allow_missing_oi: bool = False) -> Candle:
     try:
+        if oi and allow_missing_oi and isinstance(row, list):
+            if len(row) == 6 or (len(row) == 7 and row[6] is None):
+                return parse_candle(row[:6], oi=False)
         if not isinstance(row, list) or len(row) != (7 if oi else 6):
             raise ValueError
         ts = datetime.fromisoformat(row[0])
@@ -62,6 +65,7 @@ def download(
     interval: Literal["minute", "5minute"] = "minute",
     oi: bool = False,
     now: datetime | None = None,
+    allow_missing_oi: bool = False,
 ) -> list[Candle]:
     """Fetch an inclusive opening-time range; exclude unfinished candles.
 
@@ -86,7 +90,7 @@ def download(
         if not isinstance(rows, list):
             raise ValueError("Kite returned invalid historical data")
         for row in rows:
-            candle = parse_candle(row, oi=oi)
+            candle = parse_candle(row, oi=oi, allow_missing_oi=allow_missing_oi)
             if not cursor <= candle.time <= boundary:
                 raise ValueError("Kite returned a candle outside the requested range")
             if candle.time in candles and candles[candle.time] != candle:

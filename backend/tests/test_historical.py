@@ -36,6 +36,24 @@ def auth_for(tmp_path: Path, handler) -> KiteAuth:
     )
 
 
+def test_daily_request_uses_authenticated_paced_client(tmp_path: Path) -> None:
+    calls: list[httpx.Request] = []
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        calls.append(request)
+        return httpx.Response(200, json={"status": "success", "data": {"candles": []}})
+
+    auth = auth_for(tmp_path, handler)
+    try:
+        with patch.object(auth, "_load", return_value={"access_token": "private"}):
+            assert auth.historical_data(123, "day", START, START)["candles"] == []
+        assert calls[0].url.path == "/instruments/historical/123/day"
+        assert calls[0].url.params["continuous"] == "0"
+        assert calls[0].url.params["oi"] == "0"
+    finally:
+        auth.close()
+
+
 def test_chunks_auth_rate_limit_and_overlap(tmp_path: Path) -> None:
     calls = []
 
