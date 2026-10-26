@@ -15,7 +15,7 @@ def kite_router(auth: KiteAuth) -> APIRouter:
     def status() -> KiteStatus:
         return auth.status()
 
-    @router.get("/login")
+    @router.get("/login", status_code=303, response_class=RedirectResponse)
     def login() -> RedirectResponse:
         url, state = auth.begin_login()
         response = RedirectResponse(url, status_code=303)

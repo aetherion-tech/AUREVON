@@ -7,13 +7,18 @@ from collections.abc import Callable
 from dataclasses import asdict
 from datetime import UTC, datetime, time
 from threading import BoundedSemaphore
+from time import monotonic
 from typing import Any
 
 from app.broker.kite_auth import IST
+from app.config import Settings
 from app.market.candles_5m import CandleBuilder, MarketCandle
 from app.market.gaps import GapReason, GapTracker
-from app.market.persistence import MarketPersistence
+from app.market.persistence import MarketPersistence, PersistenceError
+from app.market.readiness import ResumeGate, validate_history
+from app.market.recovery_progress import RecoveryProgress
 from app.market.tick_recording import TickRecorder
+from app.market.warmup import SessionCalendar
 
 
 class TickerWorker:
@@ -27,14 +32,23 @@ class TickerWorker:
         clock: Callable[[], datetime] | None = None,
         recorder: TickRecorder | None = None,
         persistence: MarketPersistence | None = None,
+        elapsed_clock: Callable[[], float] = monotonic,
+        recovery_progress: RecoveryProgress | None = None,
+        calendar: SessionCalendar | None = None,
     ) -> None:
         if spot_token <= 0 or future_token <= 0 or spot_token == future_token:
             raise ValueError("Supply distinct positive spot and futures tokens")
         if capacity <= 0:
             raise ValueError("Queue capacity must be positive")
+        self.recovery_progress = (
+            recovery_progress if recovery_progress is not None else RecoveryProgress()
+        )
+        self.resume_gate = ResumeGate(60, elapsed_clock)
+        self.calendar = calendar
         self.socket = socket
         self.recorder = recorder
         self.persistence = persistence
+        self.recording_cursor: dict[str, Any] | None = None
         self.tokens = [spot_token, future_token]
         self.gaps = GapTracker(self.tokens)
         self.queue: asyncio.Queue[dict[str, Any]] = asyncio.Queue(capacity)
@@ -56,23 +70,45 @@ class TickerWorker:
         self._history_ready.set()
         self.history_overlap = 0
         self.candles = {
-            spot_token: CandleBuilder(1, futures=False),
-            future_token: CandleBuilder(5, futures=True),
+            spot_token: CandleBuilder(1, futures=False, calendar=calendar),
+            future_token: CandleBuilder(5, futures=True, calendar=calendar),
         }
         self.closed_candles: dict[int, deque[MarketCandle]] = {
             token: deque(maxlen=100) for token in self.tokens
         }
         self.candle_counts = dict.fromkeys(self.tokens, 0)
-        if persistence is not None and persistence.restore(self):
+        restored = persistence is not None and persistence.restore(self)
+        if restored:
+            if self.recording_cursor is not None:
+                from app.market.recording_recovery import reconcile_recording
+
+                reconcile_recording(self)
+            self.recovery_progress.restore_sources(
+                {
+                    t: self.closed_candles[t][-1].end
+                    for t in self.tokens
+                    if self.closed_candles[t]
+                }
+            )
             self._track_gap("downtime", self.clock(), persist=False)
-            if self.recorder is not None:
-                self.recorder.write(
-                    "checkpoint",
-                    self.clock(),
-                    {
-                        "checkpoint": persistence.snapshot(self),
-                    },
-                )
+        if persistence is not None and self.recorder is not None:
+            self._record(
+                "checkpoint",
+                self.clock(),
+                {
+                    "checkpoint": persistence.snapshot(self),
+                    "configuration": persistence.configuration,
+                },
+            )
+            persistence.save(self)
+
+    def _record(self, kind: str, at: datetime, payload: dict[str, Any]) -> None:
+        if self.recorder is not None:
+            self.recorder.write(kind, at, payload)
+            self.recording_cursor = {
+                "session": self.recorder.directory.name,
+                "sequence": self.recorder.sequence - 1,
+            }
 
     async def start(self, *, buffer_only: bool = False) -> None:
         if self.running:
@@ -159,6 +195,8 @@ class TickerWorker:
     def _track_gap(
         self, reason: GapReason, at: datetime, *, persist: bool = True
     ) -> None:
+        self.resume_gate.revoke()
+        self.recovery_progress.invalidate()
         self.gap_required = True
         for token, builder in self.candles.items():
             start = (
@@ -170,7 +208,7 @@ class TickerWorker:
             builder.mark_gap()
         if persist and self._history_ready.is_set():
             if self.recorder is not None:
-                self.recorder.write(
+                self._record(
                     "gap",
                     at,
                     {
@@ -198,7 +236,11 @@ class TickerWorker:
                 self.queue.task_done()
 
     def merge_history(
-        self, persistence: MarketPersistence, boundaries: dict[int, datetime]
+        self,
+        persistence: MarketPersistence,
+        boundaries: dict[int, datetime],
+        *,
+        _validated_revision: int | None = None,
     ) -> None:
         """Adopt history while callbacks keep buffering, then drain in queue order.
 
@@ -217,7 +259,31 @@ class TickerWorker:
             raise ValueError("Historical merge requires an untouched buffering worker")
         if set(boundaries) != set(self.tokens):
             raise ValueError("Supply an explicit boundary for each instrument")
-        restored = TickerWorker(None, *self.tokens, persistence=persistence)
+        if _validated_revision is None:
+            restored = TickerWorker(
+                None, *self.tokens, persistence=persistence, calendar=self.calendar
+            )
+        else:
+            restored = TickerWorker(None, *self.tokens, calendar=self.calendar)
+            if (
+                not persistence.restore(restored)
+                or persistence.revision != _validated_revision
+            ):
+                raise PersistenceError("Checkpoint changed after validation")
+            if self.gaps.snapshot() or self.gap_required:
+                raise PersistenceError("A new feed gap requires recovery")
+            persistence.metadata["validated_recovery"] = {
+                "source_revision": _validated_revision,
+                "retired_gaps": restored.gaps.snapshot(),
+                "completed_through": boundaries,
+                "unfinished_live_bucket_partial": True,
+            }
+            restored.gaps.restore([])
+            restored.gap_required = False
+            for builder in restored.candles.values():
+                # All completed source flags and VWAP totals were independently proved.
+                builder.vwap_partial = False
+                builder._next_partial = True
         if persistence.revision == 0:
             raise ValueError("Historical merge requires a persisted checkpoint")
         for token, boundary in boundaries.items():
@@ -247,18 +313,132 @@ class TickerWorker:
         # Commit fences before changing the live worker or releasing its queue.
         persistence.save(restored)
         if self.recorder is not None:
-            self.recorder.write(
+            self._record(
                 "checkpoint",
                 self.clock(),
-                {"checkpoint": persistence.snapshot(restored)},
+                {
+                    "checkpoint": persistence.snapshot(restored),
+                    "configuration": persistence.configuration,
+                },
             )
         self.candles = restored.candles
         self.closed_candles = restored.closed_candles
         self.candle_counts = restored.candle_counts
         self.gaps = restored.gaps
         self.persistence = persistence
-        self.gap_required = True
+        self.gap_required = _validated_revision is None
+        persistence.save(self)
         self._history_ready.set()
+
+    async def resume_validated_history(
+        self,
+        persistence: MarketPersistence,
+        boundaries: dict[int, datetime],
+        settings: Settings,
+        calendar: SessionCalendar,
+    ) -> None:
+        """Managed handoff: validate sources, adopt, drain, then start entry hold.
+
+        Caller owns the event loop and quiescent persistence writer. Diagnostic
+        merge_history never grants eligibility. Any error requires a fresh worker.
+        """
+        self.resume_gate.revoke()
+        self.resume_gate.delay = settings.readiness_entry_delay_seconds
+        self.recovery_progress.begin()
+        self.recovery_progress.stage("validating")
+        invalid, dropped = self.invalid, self.dropped
+        try:
+            revision = validate_history(
+                persistence, settings, calendar, self.clock(), boundaries
+            )
+            self.merge_history(persistence, boundaries, _validated_revision=revision)
+            self.recovery_progress.stage("draining")
+            drain = asyncio.create_task(self.queue.join())
+            try:
+                if self.task is None:
+                    raise PersistenceError("Managed consumer must be running")
+                await asyncio.wait(
+                    [drain, self.task], return_when=asyncio.FIRST_COMPLETED
+                )
+                if self.task.done():
+                    await self.task
+                    raise PersistenceError("Managed consumer stopped during handoff")
+                await drain
+            finally:
+                drain.cancel()
+            if (
+                self.invalid != invalid
+                or self.dropped != dropped
+                or not self._resume_health()
+            ):
+                raise PersistenceError("Queued live handoff failed quality validation")
+            self.resume_gate.validated()
+            self.recovery_progress.committed(
+                {
+                    t: self.closed_candles[t][-1].end
+                    for t in self.tokens
+                    if self.closed_candles[t]
+                },
+                quality_pending=any(
+                    b.vwap_partial or (b.current is not None and b.current.partial)
+                    for b in self.candles.values()
+                ),
+            )
+        except BaseException as error:
+            self.recovery_progress.failed(
+                "cancelled"
+                if isinstance(error, asyncio.CancelledError)
+                else "handoff_failed"
+            )
+            self.resume_gate.revoke()
+            self._history_ready.clear()
+            raise
+
+    def _resume_health(self) -> bool:
+        now = self.clock()
+        return (
+            self.running
+            and self.connected
+            and self.task is not None
+            and not self.task.done()
+            and not self.exhausted
+            and self._history_ready.is_set()
+            and not self.gap_required
+            and not self.gaps.snapshot()
+            and self.queue.empty()
+            and all(
+                token in self.received
+                and token in self.latest
+                and 0 <= (now - self.received[token]).total_seconds() <= 5
+                and abs((now - self.latest[token]["time"]).total_seconds()) <= 2
+                for token in self.tokens
+            )
+        )
+
+    def _entry_source_quality(self) -> bool:
+        return all(
+            not builder.vwap_partial
+            and (builder.current is None or not builder.current.partial)
+            for builder in self.candles.values()
+        )
+
+    def entry_eligible(
+        self,
+        *,
+        authenticated: bool = False,
+        session_eligible: bool = False,
+        indicators_ready: bool = False,
+    ) -> bool:
+        """Final callers must additionally enforce execution/risk/position rules."""
+        return self.resume_gate.eligible(
+            healthy=(
+                self._resume_health()
+                and self._entry_source_quality()
+                and authenticated
+                and session_eligible
+                and indicators_ready
+            )
+        )
 
     def _accept(self, tick: dict[str, Any], received: datetime) -> None:
         try:
@@ -272,6 +452,10 @@ class TickerWorker:
             # SDK decodes exchange epoch with datetime.fromtimestamp(), producing
             # naive system-local time. astimezone() applies that system timezone.
             ts = ts.astimezone(UTC)
+            if self.calendar is not None and not any(
+                s.opening <= ts < s.closing for s in self.calendar.sessions
+            ):
+                return
             fence = self.candles[token]._closed_until
             if fence is not None and ts < fence:
                 self.history_overlap += 1
@@ -296,10 +480,15 @@ class TickerWorker:
                 "volume": tick.get("volume_traded"),
                 "oi": tick.get("oi"),
             }
+            if (
+                token in self.received
+                and (received - self.received[token]).total_seconds() > 5
+            ):
+                self.resume_gate.revoke()
             self.received[token] = received
             self.accepted += 1
             if self.recorder is not None:
-                self.recorder.write(
+                self._record(
                     "tick",
                     received,
                     {
@@ -317,6 +506,7 @@ class TickerWorker:
             if self.persistence is not None:
                 self.persistence.save(self)
         except (KeyError, TypeError, ValueError, OverflowError):
+            self.resume_gate.revoke()
             self.invalid += 1
 
     def _store_candles(self, token: int, candles: list[MarketCandle]) -> None:
@@ -329,7 +519,7 @@ class TickerWorker:
         if not self._history_ready.is_set():
             raise ValueError("Cannot advance candles while historical merge is pending")
         if self.recorder is not None:
-            self.recorder.write(
+            self._record(
                 "advance",
                 at,
                 {
@@ -347,7 +537,11 @@ class TickerWorker:
     def status(self) -> dict[str, Any]:
         now = self.clock()
         local = now.astimezone(IST)
-        session = local.weekday() < 5 and time(9, 15) <= local.time() < time(15, 30)
+        session = (
+            any(s.opening <= local < s.closing for s in self.calendar.sessions)
+            if self.calendar is not None
+            else local.weekday() < 5 and time(9, 15) <= local.time() < time(15, 30)
+        )
         stale = session and any(
             token not in self.received
             or (now - self.received[token]).total_seconds() > 5
@@ -374,6 +568,10 @@ class TickerWorker:
             "queued": self.queue.qsize(),
             "connections": self.reconnects,
             "entries_enabled": False,
+            "recovery": self.recovery_progress.snapshot(),
+            "readiness": self.resume_gate.snapshot(
+                healthy=self._resume_health() and self._entry_source_quality()
+            ),
             "persisted_stream": self.persistence.stream
             if self.persistence is not None
             else None,
@@ -393,6 +591,20 @@ class TickerWorker:
             if self.recorder is not None
             else None,
         }
+
+    async def drain(self) -> None:
+        """Drain queued work or surface consumer failure."""
+        if self.task is None:
+            raise RuntimeError("Consumer is not running")
+        drain = asyncio.create_task(self.queue.join())
+        try:
+            await asyncio.wait([drain, self.task], return_when=asyncio.FIRST_COMPLETED)
+            if self.task.done():
+                await self.task
+                raise RuntimeError("Consumer stopped while draining")
+            await drain
+        finally:
+            drain.cancel()
 
     async def stop(self) -> None:
         self.running = False

@@ -123,6 +123,7 @@ class MarketPersistence:
         return {
             **self.metadata,
             "version": 1,
+            "recording_cursor": worker.recording_cursor,
             "builders": {t: builder_state(b) for t, b in worker.candles.items()},
             "counts": worker.candle_counts.copy(),
             "gap": worker.gap_required,
@@ -149,9 +150,15 @@ class MarketPersistence:
                 data = json.loads(checkpoint.state)
                 if data["version"] != 1:
                     raise ValueError("Unknown checkpoint version")
+                worker.recording_cursor = data.get("recording_cursor")
                 self.metadata = {
                     key: data[key]
-                    for key in ("historical_import", "recovery")
+                    for key in (
+                        "historical_import",
+                        "recovery",
+                        "validated_recovery",
+                        "replay",
+                    )
                     if key in data
                 }
                 for token in worker.tokens:

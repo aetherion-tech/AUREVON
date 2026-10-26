@@ -75,15 +75,12 @@ def test_chunks_auth_rate_limit_and_overlap(tmp_path: Path) -> None:
     auth = auth_for(tmp_path, handler)
     with (
         patch.object(auth, "_load", return_value={"access_token": "private"}),
-        patch("app.broker.kite_auth.monotonic", return_value=100.0),
-        patch("app.broker.kite_auth.sleep") as sleep,
     ):
         candles = download(
             auth, 123, START, START + timedelta(days=31), interval="5minute", oi=True
         )
     assert len(candles) == 3
     assert len(calls) == 2
-    assert sleep.call_args.args[0] == pytest.approx(0.4)
     assert calls[0].url.path == "/instruments/historical/123/5minute"
     auth.close()
 

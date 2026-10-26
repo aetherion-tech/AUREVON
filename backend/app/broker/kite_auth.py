@@ -6,15 +6,15 @@ import math
 import secrets
 from datetime import UTC, datetime, timedelta
 from threading import RLock
-from time import monotonic, sleep
 from typing import Any
 from urllib.parse import urlencode
 from zoneinfo import ZoneInfo
 
 import httpx
 import structlog
-from pydantic import BaseModel
 
+from app.api.schemas import KiteStatus as KiteStatus
+from app.broker.request_limits import managed_rest
 from app.config import Settings
 
 log = structlog.get_logger("aurevon")
@@ -39,14 +39,6 @@ class AuthError(Exception):
         super().__init__(message)
 
 
-class KiteStatus(BaseModel):
-    configured: bool
-    authenticated: bool = False
-    user_id: str | None = None
-    expires_at: datetime | None = None
-    message: str
-
-
 def session_expiry(now: datetime) -> datetime:
     """Use the next 06:00 IST boundary, including logins before 06:00."""
     local = now.astimezone(IST)
@@ -64,7 +56,6 @@ class KiteAuth:
         )
         self.lock = RLock()
         self.pending: dict[str, datetime] = {}
-        self._historical_next = 0.0
 
     def historical_data(
         self,
@@ -84,8 +75,6 @@ class KiteAuth:
             session = self._load() if self.settings.kite_configured else None
             if session is None:
                 raise AuthError("Log in to Kite before downloading prices.", 401)
-            sleep(max(0.0, self._historical_next - monotonic()))
-            self._historical_next = monotonic() + 0.4
             return self._request(
                 "GET",
                 f"/instruments/historical/{instrument_token}/{interval}",
@@ -96,6 +85,17 @@ class KiteAuth:
                     "continuous": "0",
                     "oi": "1" if oi else "0",
                 },
+            )
+
+    def managed_session(self) -> tuple[str, datetime] | None:
+        """Internal generation marker only; never expose it through API/status."""
+        with self.lock:
+            session = self._load() if self.settings.kite_configured else None
+            if session is None:
+                return None
+            return (
+                hashlib.sha256(session["access_token"].encode()).hexdigest(),
+                datetime.fromisoformat(session["expires_at"]),
             )
 
     def close(self) -> None:
@@ -128,7 +128,8 @@ class KiteAuth:
                 raise AuthError("Log in to Kite before downloading instruments.", 401)
             key = self.settings.kite_api_key.get_secret_value().strip()
             try:
-                response = self.client.get(
+                response = self._send(
+                    "GET",
                     f"/instruments/{exchange}",
                     headers={
                         "X-Kite-Version": "3",
@@ -232,6 +233,14 @@ class KiteAuth:
                 message="Kite session verified. Application remains in PAPER mode.",
             )
 
+    def _send(self, method: str, path: str, **kwargs: Any) -> httpx.Response:
+        def send() -> httpx.Response:
+            response = self.client.request(method, path, **kwargs)
+            self._share_cooldown(response)
+            return response
+
+        return managed_rest.call(send)
+
     def _request(
         self,
         method: str,
@@ -246,7 +255,7 @@ class KiteAuth:
             key = self.settings.kite_api_key.get_secret_value().strip()
             headers["Authorization"] = f"token {key}:{token}"
         try:
-            response = self.client.request(
+            response = self._send(
                 method, path, headers=headers, data=data, params=params
             )
         except httpx.HTTPError:
@@ -256,13 +265,7 @@ class KiteAuth:
                 502,
                 retryable=True,
             ) from None
-        retry_after: float | None = None
-        try:
-            value = float(response.headers.get("Retry-After", ""))
-            if math.isfinite(value) and value >= 0:
-                retry_after = value
-        except ValueError:
-            pass
+        retry_after = self._retry_after(response)
         try:
             payload = response.json()
         except ValueError:
@@ -298,6 +301,22 @@ class KiteAuth:
         if not isinstance(result, dict):
             raise AuthError("Kite returned an unexpected response.", 502)
         return result
+
+    @staticmethod
+    def _retry_after(response: httpx.Response) -> float | None:
+        retry_after: float | None = None
+        try:
+            value = float(response.headers.get("Retry-After", ""))
+            if math.isfinite(value) and value >= 0:
+                retry_after = value
+        except ValueError:
+            pass
+        return retry_after
+
+    @staticmethod
+    def _share_cooldown(response: httpx.Response) -> None:
+        if response.status_code == 429 or response.status_code >= 500:
+            managed_rest.defer(max(0.4, KiteAuth._retry_after(response) or 0.0))
 
     def _save(self, session: dict[str, str]) -> None:
         # DPAPI ties encryption to this Windows user; no extra key in .env.

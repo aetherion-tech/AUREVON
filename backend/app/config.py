@@ -30,6 +30,12 @@ class Settings(BaseSettings):
         default=30, gt=0, le=300, allow_inf_nan=False
     )
     readiness_entry_delay_seconds: int = Field(default=60, ge=60, le=3600)
+    market_service_enabled: bool = False
+    market_poll_seconds: float = Field(default=5, ge=1, le=60)
+    market_stream: str = Field(default="NIFTY-paper", min_length=1, max_length=60)
+    market_calendar_dir: Path = BACKEND_DIR / "app" / "market" / "calendars"
+    market_record_dir: Path = BACKEND_DIR / "data" / "ticks"
+    market_lock_file: Path = BACKEND_DIR / "data" / "market-worker.lock"
     kite_api_key: SecretStr = SecretStr("")
     kite_api_secret: SecretStr = SecretStr("")
     kite_session_file: Path = BACKEND_DIR / "data" / "kite-session.bin"

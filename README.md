@@ -10,7 +10,7 @@ trading with Zerodha Kite market data. Development follows small, testable steps
 | 1. Backend foundation | Completed | FastAPI, settings, health checks, rotating logs |
 | 2. Kite authentication | Completed | Login, encrypted session; real login verified |
 | 3a. Instrument catalog | Completed | Daily NSE/NFO catalog; real download verified |
-| 3b. Price data and Renko | Pending | Tools/storage completed; warm-up, gap recovery, integration and parity pending |
+| 3b. Price data and Renko | Pending | Managed data/recovery core completed; real-market acceptance and TradingView parity pending |
 | 4. Indicator engine | Pending | Pine port and TradingView signal parity |
 | 5. Paper execution | Pending | Option mapping, risk limits, wallet, simulated fills |
 | 6. React dashboard | Pending | Live, History, Wallet, Settings; frontend directory not created |
@@ -23,7 +23,7 @@ The original project specification is saved in [docs/SPEC.md](docs/SPEC.md).
 
 ## Start here - delivery plan v2 (45-day target, 60-day review)
 
-**Plan updated: 2026-10-26. Product status: 64 Completed / 216 Pending of 280.**
+**Plan updated: 2026-10-26. Product status: 82 Completed / 198 Pending of 280.**
 **Cash target: INR 10,000; absolute project ceiling: INR 20,000 including taxes/fees.**
 This replaces the execution schedule, not the product acceptance requirements.
 The original master checklist, stable IDs and all unfinished scope remain below.
@@ -33,13 +33,13 @@ The original master checklist, stable IDs and all unfinished scope remain below.
 | Short next-session handoff | [NEXT_SESSION.md](docs/plans/NEXT_SESSION.md) |
 | Immutable Version 1 backup | [README.v1.md](docs/plans/README.v1.md), [SHA-256](docs/plans/README.v1.sha256) |
 | Plan preparation | Completed on 2026-10-26; documentation only, outside the 280 product tasks |
-| Current implementation slot | D01 code Completed: BE-05-10/11; REF-00-03 Pending user settings. Next ready code: BE-05-12/13 (D02 may start early). |
+| Current implementation slot | D01 code Completed: BE-05-10/11; REF-00-03 Pending user settings. BE-05 (17/17) and BE-06 (11/11) complete; BE-13-01 shared contracts Completed; next ready code: BE-13-02 (dashboard authentication). |
 | Kickoff / elapsed day | 2026-10-26 IST / D01; task carry-over and early batches are recorded without renumbering elapsed days |
 | Existing plan, all-in price, renewal and usage-reset times | Unverified; obtain actual account readings, never assume a reset/renewal date |
 | Cash already spent / reserved / remaining | Unverified; reconcile receipts before proposing any purchase |
 | Paper status | Manual practice can begin with the user's Pine chart; automated paper and formal burn-in not ready |
 | Qualified formal paper sessions | 0 evidenced; dates, release/config identity, shadow checks and reconciliation required |
-| Latest application verification | D01, 2026-10-26: 241 tests, Ruff lint/format and strict mypy passed |
+| Latest application verification | D01, 2026-10-26: 328 tests, Ruff lint/format and strict mypy passed |
 
 ### Delivery scope, day numbering and realistic targets
 
@@ -229,12 +229,12 @@ Day statuses below are separate from the 280 product-task counts.
 
 | Day | Status | Batch / acceptance focus | Primary product IDs | Usage profile | Paper, budget or dependency action |
 | --- | --- | --- | --- | --- | --- |
-| D01 | Pending | Code Completed: correction + bounded retry; input still Pending | BE-05-10, BE-05-11, REF-00-03 | H; extra cash 0 by default | BE-05-10/11 verified with 241 tests; REF-00-03 awaits actual settings. Billing/tokens Unknown; no recharge initiated. Next ready code: D02. |
-| D02 | Pending | REST pacing and recording/checkpoint crash reconciliation | BE-05-12, BE-05-13, REF-00-04 | H; extra cash 0 by default | Separate Pine debug copy; keep original intact; measure repeated context cost. |
-| D03 | Pending | Readiness, delay, recovery checks and explicit tick-fidelity policy | BE-05-14, BE-05-15, BE-05-16, BE-05-17 | H; extra cash 0 by default | Finish first calibration; do not enable entries to meet a date. |
-| D04 | Pending | Managed worker ownership and initial typed contracts | BE-06-01, BE-06-02, BE-06-03, BE-13-01 | H; extra cash 0 by default | Freeze shared schemas; define operator-only paper status/control surface. |
-| D05 | Pending | Expiry, calendar, morning catalog and scheduled sessions | BE-06-04, BE-06-05, BE-06-06, BE-06-07 | H; extra cash 0 by default | Use actual holiday/special-session data; billing baseline still unknown means no purchases. |
-| D06 | Pending | Day context, quality events, production replay and lifecycle tests | BE-06-08, BE-06-09, BE-06-10, BE-06-11 | H; extra cash 0 by default | Begin real recording when a market session is available; retain a short sanitized fixture. |
+| D01 | Pending | Code Completed: correction + bounded retry; input still Pending | BE-05-10, BE-05-11, REF-00-03 | H; extra cash 0 by default | BE-05-10 through BE-05-17 and BE-06-01 through BE-06-11 and BE-13-01 Completed; latest checks below; REF-00-03 awaits actual settings. Billing/tokens Unknown; no recharge initiated. Next ready code: BE-13-02. |
+| D02 | Pending | REST pacing and recording/checkpoint crash reconciliation | BE-05-12, BE-05-13, REF-00-04 | H; extra cash 0 by default | BE-05-12/13 Completed early on D01; REF-00-04 Pending. Keep original Pine intact. |
+| D03 | Completed | Readiness, delay, recovery checks and explicit tick-fidelity policy | BE-05-14, BE-05-15, BE-05-16, BE-05-17 | H; extra cash 0 by default | BE-05-14/15/16/17 verified early on D01 with 290 tests and quality checks. Calibration/account readings remain Unknown; no entries enabled. |
+| D04 | Completed | Managed worker ownership and initial typed contracts | BE-06-01, BE-06-02, BE-06-03, BE-13-01 | H; extra cash 0 by default | BE-06-01/02/03 and BE-13-01 Completed early on D01; 328 tests and quality checks passed. Dashboard auth next; no worker-control route activated. |
+| D05 | Completed | Expiry, calendar, morning catalog and scheduled sessions | BE-06-04, BE-06-05, BE-06-06, BE-06-07 | H; extra cash 0 by default | BE-06-04/05/06/07 verified early on D01 using sourced 2026 calendar and fake broker/socket tests. Account/billing still Unknown; no purchase. |
+| D06 | Pending | Day context, quality events, production replay and lifecycle tests | BE-06-08, BE-06-09, BE-06-10, BE-06-11 | H; extra cash 0 by default | BE-06-08/09/10/11 Completed early on D01 (308 tests); actual market recording/observation remains unperformed, so daily observation acceptance stays Pending. |
 | D07 | Pending | Reference exports and real historical/feed checks | REF-00-05, REF-00-06, REF-00-07, QA-07-01, QA-07-02 | M; extra cash 0 by default | Weekly usage/cash review; input-dependent work stays Pending if exports/feed unavailable. |
 | D08 | Pending | Reconnect evidence and ten-reference-day Renko acceptance | QA-07-03, QA-07-04, QA-07-05, QA-07-06, QA-07-07 | H; extra cash 0 by default | Historical exports can cover past sessions; never substitute synthetic G1 evidence. |
 | D09 | Pending | Pine inputs and streaming RSI/ATR/Supertrend helpers | BE-08-01, BE-08-02, BE-08-03, BE-08-04, BE-08-05, BE-08-06 | H; extra cash 0 by default | Review seeding and equal-boundary behavior; one reusable sequence fixture. |
@@ -336,7 +336,7 @@ The specification describes intended behavior; an unchecked box in the original
 specification is not evidence that implemented work is missing. The checklist below
 was reconciled with the current application, tests and previous verification notes.
 
-**Task totals: 280 — Completed: 64; Pending: 216.** Frontend: 57 Pending.
+**Task totals: 280 — Completed: 82; Pending: 198.** Frontend: 57 Pending.
 These are checklist counts, not time/effort percentages. Recount them whenever
 rows are added, split or completed.
 
@@ -351,7 +351,7 @@ Status rules:
   IDs are stable references for future work, reviews and AI handoffs.
 - Existing completed work is dated by the verification notes: foundation/auth/catalog
   on 2026-10-23; data tools/recording/persistence on 2026-10-24. The latest recorded
-  backend result is **241 passing tests, Ruff lint/format and mypy passing**
+  backend result is **328 passing tests, Ruff lint/format and mypy passing**
   (2026-10-26). This does not imply real-market verification.
 
 ### How every future contributor or AI must update this record
@@ -360,7 +360,7 @@ Status rules:
    before selecting work. Never restart a Completed task merely because chat history
    is unavailable. Keep the original Pine reference intact.
 2. Select the next Pending task whose prerequisites are satisfied. Report its ID.
-   Default next backend task: **BE-05-12**. Use the v2 daily batch and
+   Default next backend task: **BE-13-02**. Use the v2 daily batch and
    `docs/plans/NEXT_SESSION.md` for dependency-ready batching and usage checks.
 3. Implement the scoped behavior and its meaningful acceptance checks. If only
    part is finished, split the row into stable sub-IDs and leave unfinished parts
@@ -385,8 +385,8 @@ Status rules:
 | --- | --- | --- | --- |
 | 00 | References and validation inputs | Pending | Pine saved; chart settings, debug export and reference fixtures still needed |
 | 01–04 | Foundation, auth, instruments, standalone data/storage | Completed | Scoped implementation rows below completed; external checks remain in stage 07 |
-| 05 | Historical warm-up and gap recovery | Pending | Initialization, gap recovery, explicit partial corrections and bounded historical retries completed; request coordination at BE-05-12 is next |
-| 06 | Backend lifecycle and market calendar | Pending | One managed worker, scheduled sessions, readiness and stop/restart behavior |
+| 05 | Historical warm-up and gap recovery | Completed | All 17 core tasks verified; synthetic acceptance matrix, recovery/readiness diagnostics and explicit tick fidelity policy implemented; managed lifecycle and real-market acceptance remain in stages 06/07 |
+| 06 | Backend lifecycle and market calendar | Completed | All 11 managed-data core tasks verified; opt-in lifespan ownership, sourced calendar, recovery/selection/jobs/context/events and replay; real-feed acceptance and trading remain separate |
 | 07 | Market-data acceptance gate G1 | Pending | Real downloads/feed, then zero Renko mismatches over ten trading days |
 | 08–09 | Pine indicator port and acceptance gate G2 | Pending | Maths/state/signals/exits implemented and reference-verified |
 | 10–12 | Strategy, paper execution, wallet and gate G3 | Pending | Reproducible option-spread trades, risk controls and accounting |
@@ -509,12 +509,12 @@ has completed and quality checks pass. Reference-data tasks can run alongside th
 | BE-05-09 | Completed | Recover missing minute/five-minute candles, rebuild affected derived state and preserve unrecoverable-quality flags. | 2026-10-26: `app/market/recovery.py`, persistence metadata retention, `test_recovery.py`; missing-only downloads, atomic source/output/checkpoint rebuild, retained partial/OI/missing flags, rollback/concurrent-writer/retry checks; 221 tests, Ruff and mypy passed |
 | BE-05-10 | Completed | Define correction rules for existing partial candles and downstream bricks; rebuild affected outputs rather than silently retaining stale values. | 2026-10-26: explicit `correct_partial=True` recovery policy; atomic candle/VWAP/Renko rebuild, before/after market and staged-source audit, missing-source retention and rollback/idempotency tests in `test_recovery.py`; 241 tests and quality checks passed |
 | BE-05-11 | Completed | Add bounded recovery retries/backoff for network/429 failures without deleting valid sessions or claiming recovery succeeded. | 2026-10-26: `recovery_requests.py`, safe transient metadata in `KiteAuth`; configured per-read attempts/capped backoff, numeric Retry-After, no retry of auth/validation, exhaustion/session preservation and no-write checks; 241 tests, Ruff and mypy passed |
-| BE-05-12 | Pending | Coordinate request limits across managed REST calls; document standalone-process limits and avoid concurrent recovery storms. | BE-05-11; existing historical-only limiter |
-| BE-05-13 | Pending | Reconcile recording events ahead of the last committed DB checkpoint after a failed transaction/crash; avoid double applying events. | Existing independent file/DB writes |
-| BE-05-14 | Pending | Resume live processing only after warm-up/recovery validation; implement the SPEC post-warm-up entry delay. | BE-05-07–13 |
-| BE-05-15 | Pending | Test cold start, mid-session restart, repeated recovery, day rollover, expired session, partial history and rollback. Preserve source fixtures. | BE-05-01–14 |
-| BE-05-16 | Pending | Expose recovery progress, last successful source time, failure reason and readiness state for later API/UI use. | BE-05-14/15 |
-| BE-05-17 | Pending | Support explicit tick-mode restoration only if lost tick ordering is available; otherwise require rebuild or report unrecoverable fidelity. | Default minute-close path first; no fabricated tick parity |
+| BE-05-12 | Completed | Coordinate request limits across managed REST calls; document standalone-process limits and avoid concurrent recovery storms. | 2026-10-26: process-wide `request_limits.py`; all managed REST paths share pacing/cooldown; fail-fast recovery guard; mixed-client, concurrent-request and overlapping-recovery tests in `test_request_limits.py`; 244 tests, Ruff lint/format and strict mypy passed |
+| BE-05-13 | Completed | Reconcile recording events ahead of the last committed DB checkpoint after a failed transaction/crash; avoid double applying events. | 2026-10-26: atomic recording cursor in `persistence.py`; startup tail reconciliation in `recording_recovery.py`; synced recording appends, seed/config validation and per-event atomic resume; `test_recording_recovery.py` covers rollback, repeat restart, replay interruption, corruption and daily rotation; 257 tests, Ruff lint/format and strict mypy passed |
+| BE-05-14 | Completed | Resume live processing only after warm-up/recovery validation; implement the SPEC post-warm-up entry delay. | 2026-10-26: `readiness.py`, `resume_validated_history`, revision/coverage/quality and candle/VWAP/Renko checks; monotonic entry hold after healthy queue drain; 18 new tests in `test_readiness.py`; all 275 tests, Ruff lint/format and strict mypy passed |
+| BE-05-15 | Completed | Test cold start, mid-session restart, repeated recovery, day rollover, expired session, partial history and rollback. Preserve source fixtures. | 2026-10-26: `docs/testing/BE-05-acceptance.md` maps required cases to preserved source fixtures/tests; new expired-session and validation/adoption race/rollback tests; all 290 tests, Ruff lint/format and strict mypy passed |
+| BE-05-16 | Completed | Expose recovery progress, last successful source time, failure reason and readiness state for later API/UI use. | 2026-10-26: thread-safe `RecoveryProgress` phases/range counts/committed source times/safe failure codes; recovery and worker handoff integration; worker status includes recovery and volatile readiness snapshots; rollback watermark/status tests; 290 tests and quality checks passed |
+| BE-05-17 | Completed | Support explicit tick-mode restoration only if lost tick ordering is available; otherwise require rebuild or report unrecoverable fidelity. | 2026-10-26: `tick_restore.py` full-run rebuild requires explicit complete-order attestation and gap-free validated recording/calendar; equal-time sequence retained in tick Renko; missing ordering/seed/gap/corruption rejected with rebuild-required error; entries disabled; `test_tick_restore.py`; 290 tests and quality checks passed |
 
 ### 06. Managed backend worker, market sessions and scheduling
 
@@ -523,17 +523,17 @@ earlier while trading remains disabled. Reuse existing tools instead of duplicat
 
 | ID | Status | Task and completion requirement | Evidence / prerequisite |
 | --- | --- | --- | --- |
-| BE-06-01 | Pending | Move market worker ownership into FastAPI lifespan/service with one active worker and clean cancellation/disposal. | Standalone worker; stage 05 |
-| BE-06-02 | Pending | Select spot/futures tokens from today's catalog automatically; expose selected contract identity and detect token/contract changes. | BE-03; BE-06-01 |
-| BE-06-03 | Pending | Add controlled worker start/stop/status operations and idempotent handling of repeated requests. | BE-06-01 |
-| BE-06-04 | Pending | Handle broker login expiry/re-login by stopping/replacing the socket safely; recover gaps before declaring ready. | BE-02; BE-05 |
-| BE-06-05 | Pending | Implement IST market sessions, annual holiday data and configured special sessions; replace weekday-only assumptions. | SPEC session rules; sourced calendar |
-| BE-06-06 | Pending | Refresh instruments on the morning schedule with retries and readiness blocking on stale/missing catalogs. | BE-03; BE-06-05 |
-| BE-06-07 | Pending | Schedule login reminders, warm-up, feed start/stop and session rollover without duplicate jobs after restart. | BE-06-04–06 |
-| BE-06-08 | Pending | Calculate previous/current day context and opening-range lifecycle using exchange times; preserve it through restart. | BE-05-04; BE-06-05 |
-| BE-06-09 | Pending | Publish structured health/readiness/quality events for stale feed, clock delay, recovery and session changes. | BE-05-16; managed worker |
-| BE-06-10 | Pending | Add tick-to-candle-to-Renko replay integration using the same production processing path; preserve provenance and partial flags. | BE-04 tools; BE-05 recovery |
-| BE-06-11 | Pending | Test backend startup/shutdown, duplicate starts, token change, session expiry, market close and missing holiday data. | BE-06-01–10 |
+| BE-06-01 | Completed | Move market worker ownership into FastAPI lifespan/service with one active worker and clean cancellation/disposal. | 2026-10-26: lifespan-owned `MarketService`, OS owner lock, one scheduler/worker, off-loop work joined on cancellation; `test_market_service.py`; 308 tests and quality checks passed |
+| BE-06-02 | Completed | Select spot/futures tokens from today's catalog automatically; expose selected contract identity and detect token/contract changes. | 2026-10-26: current NSE/NFO snapshot gate, unique nearest unexpired NIFTY future selection; full metadata fingerprint creates a distinct stream and replaces old socket on token/contract change; integration tests passed |
+| BE-06-03 | Completed | Add controlled worker start/stop/status operations and idempotent handling of repeated requests. | 2026-10-26: serialized in-process start/stop/status on `app.state.market_service`; repeated starts/opens/stops are idempotent; no unprotected HTTP control route; lifecycle tests passed |
+| BE-06-04 | Completed | Handle broker login expiry/re-login by stopping/replacing the socket safely; recover gaps before declaring ready. | 2026-10-26: local expiry/private generation checks plus periodic server verification; stop on missing/expired login, reconcile/recover before replacement handoff and fresh hold; real recovery code tested with fake broker |
+| BE-06-05 | Completed | Implement IST market sessions, annual holiday data and configured special sessions; replace weekday-only assumptions. | 2026-10-26: sourced `calendars/nse_2026.json`, holiday/Budget/Muhurat overrides; missing year blocks; calendar flows into worker/candle processing. Application 15:30 cutoff is distinct from published 15:40 F&O close. Sources in `docs/testing/BE-06-acceptance.md` |
+| BE-06-06 | Completed | Refresh instruments on the morning schedule with retries and readiness blocking on stale/missing catalogs. | 2026-10-26: preparation-window catalog refresh, bounded retries/backoff, current-day snapshot/identity gate; stale or unavailable catalogs stop ownership path; transient success and exhaustion tests passed |
+| BE-06-07 | Completed | Schedule login reminders, warm-up, feed start/stop and session rollover without duplicate jobs after restart. | 2026-10-26: one opt-in coroutine schedules pre-session preparation/login reminder/start/close and day rollover; reminders persist once per day, fresh catalog/checkpoints avoid duplicate jobs; lease prevents duplicate managed owners |
+| BE-06-08 | Completed | Calculate previous/current day context and opening-range lifecycle using exchange times; preserve it through restart. | 2026-10-26: `session_context.py` computes exact prior/current committed-day values and first-15-minute range, retaining partial/missing flags; context persists in migration 0005 lifecycle table; complete/partial/restart/rollover tests passed |
+| BE-06-09 | Completed | Publish structured health/readiness/quality events for stale feed, clock delay, recovery and session changes. | 2026-10-26: bounded structured session/contract/service/recovery/quality/context journal with sequence/run identity, deduplication, defensive snapshots and resync indications; internal producers ready for later API/WS contracts |
+| BE-06-10 | Completed | Add tick-to-candle-to-Renko replay integration using the same production processing path; preserve provenance and partial flags. | 2026-10-26: `production_replay.py` reuses event reader, worker, candle and Renko persistence paths in a new isolated stream; source SHA-256/run/sequence and gap/partial evidence retained; repeat deterministic replay tests passed |
+| BE-06-11 | Completed | Test backend startup/shutdown, duplicate starts, token change, session expiry, market close and missing holiday data. | 2026-10-26: 18 new lifecycle/calendar/replay/migration acceptance cases; `docs/testing/BE-06-acceptance.md`; all 308 tests, Ruff lint/format and strict mypy passed; local additive migration verified at 0005_market_lifecycle |
 
 ### 07. Market-data acceptance and Renko parity — G1
 
@@ -665,7 +665,7 @@ routes remain valid; reconcile naming in the API contract rather than breaking t
 
 | ID | Status | Task and completion requirement | Evidence / prerequisite |
 | --- | --- | --- | --- |
-| BE-13-01 | Pending | Define shared Pydantic request/response/event schemas, error envelope, pagination, IST dates, rupee amounts and API compatibility. | SPEC 14; existing route inventory |
+| BE-13-01 | Completed | Define shared Pydantic request/response/event schemas, error envelope, pagination, IST dates, rupee amounts and API compatibility. | 2026-10-26: `app/api/schemas.py`, existing route response models and shared sanitized error handlers; exact INR strings/IST/date/pagination/typed-event/version contracts; `docs/api/contracts.md`; 20 new cases in `test_api_contracts.py`; all 328 tests, Ruff lint/format and strict mypy passed |
 | BE-13-02 | Pending | Add single-user dashboard password hashing, login/logout/status and secure session cookies; distinguish dashboard login from Kite login. | SPEC 17; not current Kite state cookie |
 | BE-13-03 | Pending | Protect mutating routes and WebSockets with authentication/origin/CSRF rules; implement the specified five-failure login lockout and audit mutations. | BE-13-02 |
 | BE-13-04 | Pending | Configure explicit development origins/proxy and production same-origin serving; never expose secrets to clients. | Frontend development contract |
@@ -840,6 +840,91 @@ claimed before requirements are agreed.
 
 ### Task update history
 
+- **2026-10-26 (D01, D04 contract carry-over):** Completed BE-13-01 and the D04
+  code batch. Shared Pydantic models now describe existing route responses, a
+  sanitized request-correlated error envelope, bounded pagination, distinct IST
+  timestamps/calendar dates, exact two-decimal INR strings and versioned typed
+  events. Existing success shapes stay flat; Kite login's 303 redirect is correctly
+  declared. API version headers and error schemas match runtime responses, including
+  framework validation/HTTP and fixed unexpected-error handling without secret
+  reflection. `docs/api/contracts.md` defines the first formal v1 compatibility
+  policy. Twenty new contract cases; all 328 tests, Ruff lint/format and strict mypy
+  passed (one existing dependency warning). No migration, real account/feed,
+  observation, trade or purchase. Counts: 82 Completed / 198 Pending of 280.
+  Next ready code: BE-13-02 dashboard authentication, distinct from Kite login.
+  REF-00-03/04 remain external/independent work. Usage, cash/headroom and renewals
+  remain Unknown; qualifying paper sessions remain zero.
+
+- **2026-10-26 (D01, early D04-D06 BE-06 work):** Completed all 11 BE-06 tasks.
+  FastAPI lifespan now owns an opt-in market service with a cross-process owner
+  lease, idempotent in-process controls and clean cancellation/disposal. Current
+  catalog identity changes and login replacement stop the old worker and require
+  recovery/validated handoff. One coroutine schedules preparation, catalog retries,
+  durable daily login reminders and session/day cleanup. Sourced 2026 annual and
+  special-session data feeds workers/candles; missing years fail closed. Daily/
+  previous/ORB context persists in migration 0005, structured internal events carry
+  resync/run identity, and isolated replay uses production candle/Renko persistence
+  with source hashes. Integration exposed and fixed the missing audited retirement
+  of fully proven completed gap prefixes; unfinished live fragments remain partial.
+  Added 18 acceptance cases: all 308 tests, Ruff lint/format and strict mypy passed
+  (one existing dependency deprecation warning). Local additive schema upgrade to
+  `0005_market_lifecycle` applied under the owner lock; market data was not replaced.
+  See `docs/testing/BE-06-acceptance.md`. No real socket, observation, trade or purchase.
+  Counts: 81 Completed / 199 Pending of 280. BE-13-01 is next; D04 stays Pending for
+  that shared-contract task. D05 code batch Completed early; D06 code is complete
+  but actual market recording/observation remains Pending. Cash, headroom, tokens
+  and renewals remain Unknown; zero qualifying paper sessions.
+
+- **2026-10-26 (D01, remaining early D03 batch):** Completed BE-05-15/16/17 and
+  the 17-task stage 05 core. The preserved-fixture acceptance matrix is
+  `docs/testing/BE-05-acceptance.md`; new tests cover session rejection and
+  validation/adoption failure. `RecoveryProgress` exposes phases/range counts,
+  committed per-token source times and fixed failure codes; worker snapshots add
+  delay/readiness diagnostics without authorizing entries. Explicit tick restore
+  requires complete captured ordering, validates gap-free files/calendar and
+  preserves same-time sequence. Minute checkpoints, missing ordering and gaps
+  require rebuild; no tick parity or enabled execution is claimed. All 290 tests,
+  Ruff lint/format and strict mypy passed (one existing dependency deprecation
+  warning). No migration, live observation, trade or purchase. Recount: 70 Completed
+  / 210 Pending of 280. D03 Completed early; D01 awaits REF-00-03, D02 awaits
+  REF-00-04. Next: BE-06-01 (D04). Tokens/allowance, cash/headroom and renewals remain
+  Unknown. Zero qualifying paper sessions evidenced.
+
+- **2026-10-26 (D01, early D03 work):** Completed BE-05-14. The explicit managed
+  handoff validates source coverage, quality, builder/VWAP and recomputed Renko,
+  checks the checkpoint revision, then adopts history and drains queued live data.
+  A volatile monotonic hold begins only after a healthy handoff; minimum 60 seconds,
+  no restart reuse. Entry eligibility also requires auth/session/indicator/live
+  quality gates; gaps, invalid data and failed checks revoke it. Partial live
+  volume is never authorized by elapsed time alone. Diagnostic paths stay disabled.
+  Added 18 tests; all 275 tests, Ruff lint/format and strict mypy passed (one existing
+  dependency deprecation warning). No migration, live market observation, trade or
+  purchase. Totals: 67 Completed / 213 Pending of 280. Next: BE-05-15. D01 remains
+  Pending for REF-00-03; D03 still needs BE-05-15/16/17. Usage, spend/headroom and
+  renewal facts remain Unknown; qualifying paper sessions remain zero.
+
+- **2026-10-26 (D01, early D02 work):** Completed BE-05-13. Recording-linked
+  checkpoints now atomically retain the run/sequence cursor. Startup validates
+  the frozen prior run and replays only its uncommitted tail before marking
+  downtime and seeding the next run. Appends flush/fsync; old files stay intact.
+  Thirteen new tests cover failed spot/futures/clock/gap transactions, repeat
+  restart, a second crash during replay, invalid/missing files, daily rotation
+  and same-timestamp updates. All 257 tests, Ruff lint/format and strict mypy
+  passed; one existing dependency deprecation warning. No migration, live feed,
+  trade, purchase or qualifying paper session. Product total: 66 Completed /
+  214 Pending of 280. Next: BE-05-14; REF-00-04 remains independent and Pending.
+  D01 remains Pending for REF-00-03; usage, spend/headroom and renewals Unknown.
+
+- **2026-10-26 (D01, early D02 work):** Completed BE-05-12. All managed REST
+  requests share process-wide serialization, 0.4-second pacing and numeric
+  Retry-After cooldowns applied before releasing the request lock. Overlapping
+  recoveries fail before database/source access and release their guard on errors.
+  Added mixed-client/catalog cooldown, threaded pacing and overlap/failure tests.
+  All 244 tests, Ruff lint/format and strict mypy passed (one existing dependency
+  deprecation warning). No live feed, market observation, purchase or migration.
+  Product totals: 65 Completed / 215 Pending of 280. Next: BE-05-13; D01 remains
+  Pending for REF-00-03. Tokens, allowance, spend/headroom and renewals Unknown.
+
 - **2026-10-26 (D01):** Completed BE-05-10 and BE-05-11. Recovery now supports
   opt-in completed-partial replacement with atomic downstream VWAP/Renko rebuild
   and before/after source provenance. Complete/unfinished bars are not replaced;
@@ -851,7 +936,7 @@ claimed before requirements are agreed.
   tasks: 64 Completed, 216 Pending. D01 stays Pending solely for REF-00-03 actual
   chart input; its template is `docs/pine/chart_reference.md`. Kickoff is 2026-10-26
   IST. Usage/account cash/renewal facts remain Unknown; no readings fabricated.
-  Next ready coding batch: BE-05-12/13, with REF-00-04 independently available.
+  Next ready coding batch: BE-05-13, with REF-00-04 independently available.
 
 - **2026-10-26 (plan v2):** Preserved the exact prior README as
   `docs/plans/README.v1.md` with matching SHA-256. Added a 60-day execution schedule
@@ -964,6 +1049,207 @@ claimed before requirements are agreed.
   implementations through persistence against code and recorded 82-test validation.
   Next backend item is BE-05-01; frontend can independently start at FE-14-01.
   No application features were changed by this documentation task.
+
+## Shared API contracts (BE-13-01)
+
+[API v1 contract rules](docs/api/contracts.md) document the shared models in
+`backend/app/api/schemas.py`: existing response DTOs, safe error envelopes,
+request IDs, aware IST timestamps, explicit exchange dates, exact INR strings,
+pagination and typed event envelopes. Existing route success shapes are retained;
+all HTTP responses advertise `X-AUREVON-API-Version: 1.0`. Errors use the shared
+shape and never return raw validation inputs/context or unexpected exception text.
+Current response models and the Kite login 303 redirect match OpenAPI.
+
+This is the contract foundation. Dashboard authentication, mutation/origin/CSRF
+protection, managed feed APIs and public WebSocket wrapping remain their Pending
+BE-13 tasks. No worker controls or trading routes are exposed by this change.
+
+## Managed market lifecycle (BE-06)
+
+All 11 BE-06 core tasks are complete. [Acceptance evidence and sourced calendar
+policy](docs/testing/BE-06-acceptance.md) records the exact tests and external-data
+boundaries. `create_app` owns `app.state.market_service`; its asynchronous
+`start()`, `stop()` and `status()` operations are trusted in-process controls.
+No public HTTP start/stop route or WebSocket was added before the later shared
+schema/authentication work. `MARKET_SERVICE_ENABLED=false` is the default, so
+normal application startup does not log in, download data or create a market socket.
+
+The opt-in service uses the existing local database and broker client, one owned
+worker and an OS lease (`data/market-worker.lock`) shared across managed processes.
+A second owner fails before opening a socket. One coroutine handles the known
+session's preparation window, bounded catalog refresh retries, one persisted daily
+login reminder, warm-up/feed start, login/token replacement, session close and day
+rollover. Blocking work runs off the event loop and is joined before disposal.
+Fresh current-day NSE/NFO metadata and an exact selected contract are mandatory.
+Contract/token/lot/tick metadata changes create a separate stream fingerprint.
+Original checkpoints and recordings are retained; no current book is overwritten.
+
+Managed startup runs the accepted cold/recovery stages, reconciles original
+recording tails first and catches history up to stable handoff fences. A fresh
+validated drain/hold is required after replacement. Fully checked completed gap
+prefixes now retire with their original incident snapshots, source revision and
+fences retained in checkpoint audit metadata. Partial completed sources, missing
+bars/OI, mismatched VWAP/Renko, unfinished active state and new buffered gaps still
+block validation; fresh live volume fragments remain partial and cannot authorize
+entries merely because a delay elapsed. The service always reports entries false.
+
+The bundled annual data covers 2026, including the Budget Sunday and Muhurat
+session. Session windows propagate to the worker and candle builder, replacing
+weekday-only logic on this managed path. Unknown/missing years block startup,
+including a prior year required by the history window. Update sourced files before
+crossing into an uncovered year. The 15:30 shared processing cutoff is an
+application policy; NSE currently lists a 15:40 normal F&O close. See the linked
+source notes rather than treating an application cutoff as an exchange timetable.
+
+Committed spot minutes and exact prior-session daily sources drive evolving daily
+context and the first-15-minute range. Unknown prior data stays unknown; partial
+range evidence never becomes complete by clock alone. The new lifecycle table
+stores context/reminder facts. Bounded internal quality/recovery/session events
+carry sequence/run identity and resync indications for later APIs. Production
+replay requires a new isolated stream and preserves file hashes, run/sequence,
+source flags and the same candle/Renko persistence path.
+
+Migration `0005_market_lifecycle` is applied to the local database. It adds the
+lifecycle table without replacing market source/output tables. Environment examples
+list the opt-in controls and path defaults; the existing `.env` was not changed.
+Real broker/feed operation, TradingView comparison, operator API authentication,
+indicator integration and paper execution/burn-in remain separate Pending tasks.
+
+## Recovery diagnostics and tick-restoration policy (BE-05-15/16/17)
+
+The [synthetic acceptance matrix](docs/testing/BE-05-acceptance.md) records the
+cold start, mid-session restart, repeated recovery, day rollover, unavailable
+valid broker session, partial history and rollback evidence. Fixtures and original
+Pine content are preserved. These tests do not replace real-feed/parity or paper
+acceptance gates.
+
+Pass a shared `RecoveryProgress` through `recover_missing_history(..., progress=...)`
+and `TickerWorker(..., recovery_progress=...)` to observe planning, downloading,
+rebuilding, committing, validating, draining, complete and failed phases. Download
+progress counts requested source ranges (not HTTP attempts or a percentage of all
+work). Per-token `last_successful_source_time` reports the latest committed source
+candle end; it is not proof of contiguous coverage. Failed downloads/transactions
+do not advance those times. A restored worker recovers committed source diagnostics
+while readiness remains blocked. Duplicate recovery calls fail before disturbing
+an active run's progress. Use one lifecycle owner and quiescent writer.
+
+`worker.status()` includes JSON-ready `recovery` and `readiness` snapshots. Failures
+use fixed public codes, never raw exceptions, credentials or broker response bodies.
+Readiness reports awaiting validation, delay, blocked or elapsed hold, remaining
+seconds and external gates still required; every snapshot leaves entries disabled.
+Snapshots do not advance or authorize a gate. A completed recovery can still have
+quality pending. Progress/failure records are process-local diagnostics; failure
+history is not a durable audit log, and no API route/UI has been activated here.
+
+`restore_tick_renko(paths, box=..., anchor=..., calendar=...,
+ordering_complete=True)` explicitly rebuilds tick-mode Renko from a complete frozen
+recording run. The caller must establish complete captured ordering. The function
+validates recording sequence/tokens/timestamps and calendar eligibility; it rejects
+gaps, truncated/missing/out-of-order files and minute-checkpoint seeds. Equal-time
+spot updates retain recording order, which may materially change bricks. Futures
+updates and clock events do not drive spot Renko. The result contains rebuilt state,
+bricks, sample count, source run and `recorded_order_only` fidelity; entries stay
+false. No exchange-wide tick completeness or TradingView parity is inferred.
+
+Without explicit complete ordering, `TickFidelityError` reports
+`rebuild_required=True`. Candles never synthesize missing tick order. Retain/recover
+complete ordered source files or explicitly rebuild under a new minute-close
+baseline. Persistent database checkpoints and managed resumption remain
+minute-close only; arbitrary tick checkpoint continuation is not supported.
+
+## Validated managed resumption and entry hold (BE-05-14)
+
+`await worker.resume_validated_history(store, boundaries, settings, calendar)` is
+an explicit managed handoff for a fresh running worker started with
+`buffer_only=True`. Call it on the worker event loop with the persistence writer
+quiescent. The existing `merge_history` and standalone monitor remain diagnostic;
+they never start the managed eligibility timer.
+
+Before adopting history, the validator checks the configured completed-session
+lookback plus current completed candles, exact per-token unfinished-bucket fences,
+source counts, quality flags and idle builders. It recomputes candles, futures
+VWAP and all retained spot-close Renko bricks, comparing them with stored outputs
+and checkpoints. Calendar coverage is required for retained source dates. Missing
+history/OI/VWAP, partial source/active state, changed settings, inconsistent derived
+state or unresolved recovery flags block handoff. Retained incident markers can retire for their completed prefix only after full
+affected source coverage and derived-state checks. Original gaps, source revision
+and per-token completed fences are archived in `validated_recovery`; the fresh
+unfinished live bucket remains partial. No missing tick order is inferred.
+Extend history when there are no emitted bricks. This does not prove the future
+indicator engine's lookback sufficiency or TradingView parity.
+
+The checked revision must still match during restore, and any new buffered feed
+gap blocks adoption. Only then is queued processing released. After the queue
+drains, the consumer must still be alive, both feeds fresh and connected, and the
+handoff free of new invalid/dropped data, unresolved gaps and clock/feed delay.
+Failures or cancellation leave the hold revoked and processing paused; stop and
+recover into a fresh worker. Recording reconciliation remains required first.
+
+The configured hold (minimum 60 seconds) starts after that successful drain, using
+a monotonic elapsed clock. No eligible state is restored across restart. New gaps,
+invalid live ticks, observed stale intervals, backward clock readings or a failed
+eligibility check revoke it; a fresh validated handoff and full hold are required.
+`entry_eligible` additionally defaults authentication, session eligibility and
+indicator readiness to false, and checks live feed/queue/consumer and forming
+candle/VWAP quality. In particular, an initial partial live volume fragment still
+blocks entry after the timer expires. Callers must supply verified external gate
+values and enforce final execution, position and risk rules in their later stages.
+
+This task supplies the managed primitive; stage 06 now owns its lifecycle. Stage
+08 indicator integration remains Pending. There is no bypass setting, order path,
+activated paper execution or live-market acceptance evidence. The existing monitor
+still reports `entries_enabled=False`.
+
+## Recording and checkpoint crash reconciliation (BE-05-13)
+
+When persistence and recording are both enabled, `TickerWorker` commits an initial
+recording checkpoint before accepting events. Each subsequent DB transaction stores
+its recording run/sequence cursor together with candle, VWAP, Renko and gap state.
+Recording appends flush and call `fsync` before advancing the cursor. This adds
+synchronous disk I/O; representative-load performance remains a separate gate.
+
+On restart, the worker locates the previous run under the supplied recorder root,
+validates the entire frozen run (sequence, tokens, configuration, timestamps and
+replay payloads), then applies only events beyond the committed cursor. Each event
+and its cursor commit together; a second crash resumes from the last successful
+commit. Old events are not re-recorded. Tick, clock and gap events are supported,
+including same-time updates and daily rotation. Replay finishes before marking
+new downtime uncertainty and committing the new recording seed; entries remain
+outside this recovery service and are not enabled by reconciliation.
+
+Retain all daily files from the referenced run, including its checkpoint seed.
+Missing files, truncated lines, identity/configuration mismatches or a missing
+committed event stop startup before reconciliation writes. Stop the writer and
+retain files for explicit rebuild; do not trim/guess a damaged tail. Use one
+quiescent writer and frozen files: concurrent file edits and other processes are
+not supported. A recording-linked checkpoint requires the original recorder root,
+even when restarting without a live socket. Reconcile before historical correction.
+
+Legacy checkpoints without a recording cursor still restore as before; automatic
+linkage to old independent recordings cannot be inferred. Use explicit replay or
+rebuild for those historical crash tails. No schema migration, real-market replay,
+trade execution or formal paper-session evidence is implied by synthetic tests.
+
+## Managed REST coordination (BE-05-12)
+
+All `KiteAuth` instances in one process share a conservative 0.4-second minimum
+between REST request starts, including login, profile, instruments, historical
+reads and recovery retries. Requests are serialized through completion; numeric
+finite nonnegative Retry-After on 429/service errors extends the shared cooldown
+before another caller can send. Existing bounded recovery retry policy still
+controls whether the recovery retries or fails. This is an application policy,
+not a broker quota guarantee. Run these blocking calls off the async event loop.
+
+Only one managed `recover_missing_history` call may run per process. A concurrent
+call raises `RecoveryBusyError` immediately, before database/source access; retry
+later after the active run finishes. The guard releases on success or failure.
+The stream writer must still be stopped and checkpoint revision checks still apply.
+
+These locks do not coordinate separate processes, external scripts/SDK REST calls,
+or other applications using the same account. Run one backend worker and do not run
+standalone downloads/recovery alongside it; stop managed work first, or implement
+an account-wide external coordinator before adding processes. WebSocket traffic is
+outside the REST limiter. No broker-limit or real-market verification is claimed.
 
 ## Setup and operating instructions
 
@@ -1174,7 +1460,7 @@ adapter; this does not prevent the tests or application from running.
 4. The original Pine reference is already saved at `docs/pine/renko_indicator.pine`.
 5. Record actual chart settings/anchor and export TradingView reference data for
    REF-00-03–07. The comparison tool exists; real parity is still Pending.
-6. Continue implementation at BE-05-12, using the master task record and v2 daily plan above.
+6. Continue implementation at BE-13-02, using the master task record and v2 daily plan above.
 
 ## Step 3a: daily instrument catalog
 
@@ -1252,7 +1538,8 @@ list: [official instrument documentation](https://kite.trade/docs/connect/v3/mar
 
 The builder follows SPEC section 9: fixed boxes (default 50), an explicit grid
 anchor, two-box reversals, inclusive boundaries, and multiple bricks per gap.
-It preserves state across days and ignores duplicate/older source timestamps.
+It preserves state across days. Minute-close mode ignores duplicate/older source
+timestamps; explicit tick mode retains equal-time updates in supplied sequence.
 Prices use decimal arithmetic. Reversal bricks open at the previous brick's
 open; only continuation bricks open at the previous close. No wicks or index
 volume are inferred. The Pine script consumes chart bricks; it does not build
@@ -1452,9 +1739,9 @@ Real market-hours recording remains to be verified.
 
 ## Warm-up and recovery settings (BE-05-01)
 
-These settings define policy for the upcoming managed warm-up/recovery worker.
-They load from `backend/.env` or environment variables, but do not yet trigger
-downloads, retries or entry readiness in the standalone monitor.
+These settings control the opt-in managed warm-up/recovery service. They load
+from `backend/.env` or environment variables; the standalone monitor remains
+diagnostic and does not grant entry readiness.
 
 | Environment variable | Default | Valid values / meaning |
 | --- | --- | --- |
@@ -1529,8 +1816,8 @@ indicator parity or runtime readiness are established by synthetic planner tests
 `app.market.spot_history.fetch_spot_history(auth, engine, stream, token, plan)`
 accepts a BE-05-02 `WarmupPlan`, an existing `KiteAuth`, and the configured database
 engine. The token must match `NSE:NIFTY 50` in the local instrument catalog.
-Refresh the catalog before preparing a plan. This service is callable by the
-upcoming managed worker; it is not yet a web endpoint or automatic startup job.
+Refresh the catalog before preparing a plan. The managed pipeline calls this service when opted in; it is not a standalone
+web endpoint. Default application startup leaves the broker untouched.
 
 Migration `0003_historical_spot` adds `historical_spot_batches` and
 `historical_spot_candles`; it was applied locally on 2026-10-25. Run
@@ -1667,10 +1954,9 @@ for those cases; this initializer never replaces existing state.
 The existing persistent worker can restore the checkpoint and continue brick
 numbering. The returned result always reports `entries_enabled=False` and the
 checkpoint deliberately keeps `gap=True`, including for complete source data.
-Queued-live handoff is implemented below; recovery, entry-delay enforcement,
-indicator sufficiency and TradingView acceptance remain separate Pending tasks.
-This initializer is a service for the upcoming managed worker, not an automatic
-startup job or dashboard action.
+Queued-live handoff, recovery, entry-delay enforcement and managed ownership are
+implemented. Indicator sufficiency and real TradingView acceptance remain Pending.
+The opt-in managed pipeline calls this initializer; no dashboard action is exposed.
 
 ## Historical to queued-live handoff (BE-05-07)
 
@@ -1704,8 +1990,9 @@ the consumer without waiting for a queue that cannot drain. Queue overflow retai
 its dropped count and gap flags. When recording is enabled, the adopted checkpoint
 is the first event and the accepted live events can be replayed deterministically.
 `history_pending` reports buffering state; entries remain disabled and gap quality
-flags are preserved. Gap tracking is implemented below; recovery, managed scheduling, indicator readiness,
-the post-warm-up entry delay and real TradingView parity are separate Pending tasks.
+flags are preserved. Gap tracking, recovery and the managed post-warm-up entry
+delay are implemented below. Managed scheduling, indicator integration and real
+TradingView parity remain Pending.
 
 ## Missing-data tracking (BE-05-08)
 
@@ -1717,7 +2004,7 @@ When no source boundary exists, the incident observation time is used. The SDK
 pending-callback limit and event-loop queue limit both flag overflow. Only bounded,
 locked metadata is updated from the SDK thread; database writes stay on the worker
 thread. Overflow flags reach persistence on the next save/clock event or shutdown.
-Abrupt-crash reconciliation with recording is still BE-05-13.
+Recording/DB crash reconciliation is implemented at BE-05-13 below.
 
 `status()["missing_ranges"]` exposes the raw uncertainty spans, including a
 `resume_after` observation time and `end=None` while the instrument has not resumed.
@@ -1745,7 +2032,7 @@ waits for the seed checkpoint while history buffering is active.
 
 Missing-candle downloads and derived-state rebuilds are implemented below. Existing
 explicit partial-candle corrections and bounded request retries are implemented below;
-request coordination remains BE-05-12 and readiness/entry delay remain BE-05-14.
+request coordination and validated handoff/entry delay are Completed at BE-05-12/14.
 The original Pine reference is unchanged.
 
 ## Missing-candle recovery service (BE-05-09)
@@ -1798,7 +2085,7 @@ tail intervals from being reconstructed from late tick fragments. Gap flags and
 this service does not establish indicator sufficiency or TradingView parity.
 
 Completed-candle corrections and per-read retries are implemented below;
-BE-05-12 covers coordinated request limits; BE-05-13 covers recording/database crash reconciliation;
+BE-05-12 and BE-05-13 implement coordinated requests and recording/database crash reconciliation;
 BE-05-14 covers validated resumption and entry delay. No additional schema migration
 is required. Original Pine contents remain unchanged.
 
@@ -1849,10 +2136,9 @@ attempt count/status and a fixed message; valid stored sessions are never delete
 by this client. A successful spot request is not repeated when a futures request
 needs retry. All downloads still finish before any recovery transaction starts.
 
-The existing historical pacer is used on every attempt. This does not coordinate
-other REST clients or bound retries across concurrent recovery jobs; that remains
-BE-05-12. Reconnect orchestration, recording crash reconciliation and entry-delay
-readiness remain separate Pending work. Broker error classifications were checked
+Every attempt uses the process-wide managed REST pacer added in BE-05-12.
+Overlapping managed recovery calls fail fast; separate processes remain uncoordinated. Recording crash reconciliation is implemented at BE-05-13; reconnect orchestration
+remains separate Pending work; entry-delay enforcement is implemented at BE-05-14. Broker error classifications were checked
 against [official Kite error documentation](https://kite.trade/docs/connect/v3/exceptions/).
 No schema migration is required; original Pine content is unchanged.
 

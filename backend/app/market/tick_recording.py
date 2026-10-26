@@ -1,6 +1,7 @@
 """Versioned, allowlisted market events, split by IST day and recording run."""
 
 import json
+import os
 from datetime import datetime
 from pathlib import Path
 from typing import Any
@@ -42,6 +43,7 @@ class TickRecorder:
             with path.open("a", encoding="utf-8", newline="\n") as stream:
                 stream.write(json.dumps(event, allow_nan=False, default=str) + "\n")
                 stream.flush()
+                os.fsync(stream.fileno())
         except (OSError, ValueError, TypeError):
             raise RecordingError(
                 "Cannot write tick recording; feed monitor stopped"

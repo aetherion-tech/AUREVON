@@ -1,0 +1,48 @@
+{
+  "year": 2026,
+  "reviewed_on": "2026-10-26",
+  "sources": [
+    "https://nsearchives.nseindia.com/content/circulars/FAOP71777.pdf",
+    "https://nsearchives.nseindia.com/content/circulars/CMPT72276.pdf",
+    "https://nsearchives.nseindia.com/content/circulars/FAOP76940.pdf",
+    "https://www.nseindia.com/static/market-data/market-timings",
+    "https://nsearchives.nseindia.com/content/circulars/CMTR76941.pdf",
+    "https://nsearchives.nseindia.com/content/circulars/FAOP72352.pdf"
+  ],
+  "normal_open": "09:15",
+  "processing_close": "15:30",
+  "policy": "Common spot/futures processing window; futures exchange close is not the application cutoff.",
+  "holidays": [
+    "2026-01-15",
+    "2026-01-26",
+    "2026-03-03",
+    "2026-03-26",
+    "2026-03-31",
+    "2026-04-03",
+    "2026-04-14",
+    "2026-05-01",
+    "2026-05-28",
+    "2026-06-26",
+    "2026-09-14",
+    "2026-10-02",
+    "2026-10-20",
+    "2026-11-08",
+    "2026-11-10",
+    "2026-11-24",
+    "2026-12-25"
+  ],
+  "special_sessions": {
+    "2026-11-08": {
+      "open": "14:20",
+      "close": "15:30",
+      "source": "https://nsearchives.nseindia.com/content/circulars/FAOP76940.pdf",
+      "policy": "CTS begins 14:20; application cutoff remains 15:30, before the published 15:40 futures close."
+    },
+    "2026-02-01": {
+      "open": "09:15",
+      "close": "15:30",
+      "source": "https://nsearchives.nseindia.com/content/circulars/FAOP72352.pdf"
+    }
+  },
+  "exchange_futures_close_as_reviewed": "15:40"
+}

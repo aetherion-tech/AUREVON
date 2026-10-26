@@ -35,7 +35,8 @@ class RenkoBuilder:
 
     Decimal prices keep inclusive boundaries exact. The first sample seeds the
     grid without emitting a brick. State continues across session boundaries.
-    Equal/older input timestamps are ignored; one input can emit many bricks.
+    Minute-close mode ignores equal/older timestamps. Tick mode preserves equal-time
+    samples in caller-supplied order; one input can emit many bricks.
     Replay the original input file with identical settings to restore state.
     """
 
@@ -65,7 +66,10 @@ class RenkoBuilder:
         if ts.tzinfo is None or ts.utcoffset() is None:
             raise ValueError("timestamp must include a timezone")
         ts = ts.astimezone(IST)
-        if self.last_timestamp is not None and ts <= self.last_timestamp:
+        if self.last_timestamp is not None and (
+            ts < self.last_timestamp
+            or (ts == self.last_timestamp and self.mode != "tick")
+        ):
             log.warning("renko_sample_ignored", timestamp=ts.isoformat())
             return []
         self.last_timestamp = ts

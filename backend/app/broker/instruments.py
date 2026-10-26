@@ -2,17 +2,18 @@
 
 import csv
 import io
+from collections.abc import Callable
 from datetime import UTC, date, datetime
 from decimal import Decimal, InvalidOperation
 from threading import Lock
 from typing import Any
 
 import structlog
-from pydantic import BaseModel, ConfigDict
 from sqlalchemy import Engine, delete, insert, select
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session
 
+from app.api.schemas import InstrumentView as InstrumentView
 from app.broker.kite_auth import IST, KiteAuth
 from app.db.models import Instrument, InstrumentSnapshot
 
@@ -24,21 +25,6 @@ class InstrumentError(Exception):
         self.message = message
         self.status_code = status_code
         super().__init__(message)
-
-
-class InstrumentView(BaseModel):
-    model_config = ConfigDict(from_attributes=True)
-
-    exchange: str
-    tradingsymbol: str
-    instrument_token: int
-    name: str
-    expiry: date | None
-    strike: Decimal
-    tick_size: Decimal
-    lot_size: int
-    instrument_type: str
-    segment: str
 
 
 def parse_instruments(text: str, exchange: str) -> list[dict[str, Any]]:
@@ -87,13 +73,19 @@ def parse_instruments(text: str, exchange: str) -> list[dict[str, Any]]:
 
 
 class Instruments:
-    def __init__(self, engine: Engine, auth: KiteAuth) -> None:
+    def __init__(
+        self,
+        engine: Engine,
+        auth: KiteAuth,
+        clock: Callable[[], datetime] | None = None,
+    ) -> None:
+        self.clock = clock or (lambda: datetime.now(IST))
         self.engine = engine
         self.auth = auth
         self.refresh_lock = Lock()
 
     def status(self) -> dict[str, Any]:
-        today = datetime.now(IST).date()
+        today = self.clock().astimezone(IST).date()
         try:
             with Session(self.engine) as db:
                 snapshots = db.scalars(select(InstrumentSnapshot)).all()
@@ -138,7 +130,7 @@ class Instruments:
                 )
                 for exchange in ("NSE", "NFO")
             }
-            loaded_at = datetime.now(UTC)
+            loaded_at = self.clock().astimezone(UTC)
             try:
                 with Session(self.engine) as db, db.begin():
                     for exchange, rows in downloads.items():
@@ -167,7 +159,7 @@ class Instruments:
     def nifty(self, expiry: date | None = None) -> dict[str, Any]:
         if not self.status()["ready"]:
             raise InstrumentError("Refresh today's instrument list first.", 409)
-        today = datetime.now(IST).date()
+        today = self.clock().astimezone(IST).date()
         with Session(self.engine) as db:
             spot = db.get(Instrument, ("NSE", "NIFTY 50"))
             futures = db.scalars(

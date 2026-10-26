@@ -98,3 +98,9 @@ class HistoricalContextCandle(Base):
     completed_at: Mapped[str] = mapped_column(String(40))
     payload: Mapped[str] = mapped_column(Text)
     batch_id: Mapped[str] = mapped_column(ForeignKey("historical_context_batches.id"))
+
+
+class MarketLifecycleState(Base):
+    __tablename__ = "market_lifecycle_state"
+    key: Mapped[str] = mapped_column(String(240), primary_key=True)
+    payload: Mapped[str] = mapped_column(Text)

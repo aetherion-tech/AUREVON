@@ -1,46 +1,54 @@
 # Next session - budgeted delivery plan v2
 
-Updated: 2026-10-26. This file is a short handoff; README is authoritative.
+Updated: 2026-10-26. README is authoritative.
 
-- Product tasks: 280 total; 64 Completed; 216 Pending. D01 checks: 241 tests,
-  Ruff lint/format and strict mypy passed (2026-10-26).
-- Version 1: `docs/plans/README.v1.md` (immutable; SHA-256 beside it).
-- Kickoff: 2026-10-26 IST (D01). BE-05-10/11 Completed; D01 stays Pending for
-  REF-00-03 actual TradingView settings. Template: `docs/pine/chart_reference.md`.
-  User has been asked for the real settings; do not repeat/invent them.
-- Next ready code: BE-05-12 then BE-05-13 (D02 batch may start early); REF-00-04
-  debug Pine copy is also independent. Honor dependencies; leave external rows Pending.
-- New behavior: `recover_missing_history(..., correct_partial=True)` explicitly
-  replaces completed partial bars, audits former source payloads and atomically
-  rebuilds VWAP/Renko. Default remains missing-only. Read-only recovery requests
-  now retry classified transient failures under configured attempts/backoff.
-- Mode: one coding agent, existing model at Standard speed; no paid API/credits
-  or extra agents by default. Risky logic gets a focused review, not weaker checks.
-- Next coding profile: H (90k input + 20k output soft checkpoint; not an account quota).
-  Included usage first. Extra cash default INR 0; exception ceiling INR 150,
-  only after actual billing/allowance data, remaining-budget arithmetic and an
-  explicit user purchase decision. No purchase has been made by this plan.
-- Total project cap: INR 20,000 inclusive of taxes/fees. Target INR 10,000.
-  Historical spend, current plan, price, expiry/reset dates and renewal dates:
-  UNVERIFIED. Do not infer an available balance of INR 20,000 or a zero baseline.
-- Outstanding user input (already requested): existing project receipts/total spent; Codex plan and INR
-  renewal price/date; allowance/reset reading; Kite/TradingView entitlements.
-  Missing billing data does not block already-included coding work.
-- Money: `spend-ledger.csv`; day actuals: `daily-log.csv`; paper observations:
-  `paper-journal.csv`. Blank usage/spend means unknown, never zero.
-- Last usage: exact tokens/allowance/cash readings unavailable; recorded Unknown.
-  No purchase/recharge initiated. Do not infer consumption is free or cash balance is zero.
-- Paper: zero qualified sessions evidenced. D01 journal is a BLOCKED development
-  status, not a live market observation or trade. Manual practice was not reported.
-- Morning: record/check feed and paper status before coding. Manual practice
-  can use the user's original Pine chart from Day 1; it is not automated paper
-  execution or formal burn-in. Never invent fills or force a trade without a signal.
-- Targets: automated paper trial around D24-D30 if checks pass; application
-  candidate D45; acceptance review D60 conditional on 20 qualifying paper sessions.
-  Live-money tasks and extensions stay Pending outside this funded milestone.
-- Alerts: report renewal due within 3 days, allowance remaining <=20%, paid-spend
-  thresholds and missing account data at the next active session. No background
-  notification, billing access or token-meter integration is currently installed.
-- Read README's v2 operating rules once; on later sessions read this handoff,
-  current daily row, relevant master rows/code/Pine and ledger changes only.
-  End each batch by updating those records and this handoff with real evidence.
+- Product tasks: 280 total; 82 Completed; 198 Pending. Latest: 328 tests,
+  Ruff lint/format and strict mypy passed. One existing dependency warning.
+- BE-05 complete (17/17); BE-06 complete (11/11), verified early on D01.
+  Evidence: docs/testing/BE-05-acceptance.md and BE-06-acceptance.md.
+- Next dependency-ready code: BE-13-02 (dashboard auth, distinct from Kite login).
+  REF-00-04 separate Pine debug copy remains independent. Preserve original Pine.
+- D01 Pending only for REF-00-03 actual TradingView settings (already requested;
+  do not repeat/invent them). D02 Pending REF-00-04. D03/D05 code batches Completed
+  early; D04 Completed early with BE-13-01. D06 code complete; real market recording/observation
+  not supplied, so its daily observation acceptance remains Pending.
+- BE-13-01 Completed: shared DTOs, safe error envelope/request IDs, pagination,
+  aware IST dates/times, exact INR strings, typed events and API v1 compatibility.
+  Existing response shapes/OpenAPI aligned; docs/api/contracts.md. No public worker
+  control/auth/WS route activated. BE-13-02/03 supply dashboard auth/protection next.
+- Managed service: lifespan-owned app.state.market_service; in-process start/stop/
+  status only. Default MARKET_SERVICE_ENABLED=false; .env unchanged. No public
+  control route/WS before API/auth work. No real broker socket was started.
+- One owned worker/OS lease and one scheduler; current-day catalog and exact
+  contract required. Login/token changes stop old socket and require recovery.
+  Blocking jobs are joined on cancellation before disposal. Local additive migration
+  0005_market_lifecycle applied under owner lock; existing market data retained.
+- Calendar: sourced nse_2026.json includes Budget/Muhurat overrides. Unknown years
+  (including needed prior-year history) block. 15:30 is the common application
+  cutoff, distinct from published 15:40 F&O close. Source notes are in BE-06 evidence.
+- Recovery proves source/derived coverage before retiring completed gap prefixes;
+  original gaps/revision/fences are archived. Fresh unfinished live volume remains
+  partial and entries blocked. Keep all original recording run files for restart.
+- Isolated replay uses production candle/Renko persistence and file-hash provenance.
+  Tick restore requires explicit complete recorded ordering; missing/gapped order
+  or minute seeds require rebuild. No tick parity or enabled trading is claimed.
+- Single coding agent, existing model/Standard speed; no extra agents or paid API.
+  H checkpoint: 90k input + 20k output, soft only, not an account quota. Exact
+  tokens/allowance unavailable: Unknown. Use included allowance; extra cash INR 0.
+- Project ceiling INR 20,000 including fees; target INR 10,000. Historical spend,
+  current plan/price, renewal/expiry/reset and headroom UNVERIFIED, not zero or an
+  available INR 20,000 balance. No purchase/recharge initiated or authorized.
+- Already-requested account inputs remain outstanding: receipts/total spent,
+  Codex plan and INR renewal price/date, allowance/reset, Kite/TradingView access.
+  Missing readings do not block included independent coding. Ledgers: spend-ledger,
+  daily-log and paper-journal CSVs. Blank actuals remain Unknown.
+- Paper: zero qualifying sessions; D01 journal is development BLOCKED, not an
+  observation/trade. Manual practice not reported; no fills/P&L invented. Preserve
+  any market-hour baseline; develop using replay/test DB. Check actual feed/paper
+  state before coding when a real session is in progress.
+- Targets remain conditional: automated trial D24-D30, candidate D45, D60 review
+  only with gates and 20 qualifying sessions. Live-money work stays outside plan.
+- In-session alerts: renewal within 3 days, allowance <=20%, cash thresholds and
+  missing account facts. No billing meter or background renewal notification exists.
+- On next turn read this, current daily row and relevant README/code only. Update
+  evidence/counts/daily rows/handoff together. README.v1.md remains immutable.

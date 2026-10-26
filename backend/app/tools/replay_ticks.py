@@ -3,7 +3,7 @@
 import argparse
 import json
 import sys
-from collections.abc import Iterator
+from collections.abc import Callable, Iterator
 from dataclasses import asdict
 from datetime import datetime
 from pathlib import Path
@@ -20,9 +20,13 @@ def timestamp(value: Any) -> datetime:
     return result
 
 
-def replay_events(paths: list[Path]) -> Iterator[dict[str, Any]]:
+def replay_events(
+    paths: list[Path],
+    *,
+    worker: TickerWorker | None = None,
+    on_event: Callable[[TickerWorker, dict[str, Any]], None] | None = None,
+) -> Iterator[dict[str, Any]]:
     """Stream results, retaining bounded worker state rather than a full day in RAM."""
-    worker: TickerWorker | None = None
     session = None
     sequence = 0
     for path in paths:
@@ -34,8 +38,9 @@ def replay_events(paths: list[Path]) -> Iterator[dict[str, Any]]:
                         raise ValueError("Unsupported recording version")
                     if event["sequence"] != sequence:
                         raise ValueError("Recording sequence missing or out of order")
-                    if worker is None:
+                    if session is None:
                         session = event["session"]
+                    if worker is None:
                         worker = TickerWorker(
                             None, event["spot_token"], event["future_token"]
                         )
@@ -60,6 +65,8 @@ def replay_events(paths: list[Path]) -> Iterator[dict[str, Any]]:
                             worker.candle_counts[token] = state["counts"][str(token)]
                         worker.gap_required = state["gap"]
                         worker.gaps.restore(state.get("gaps", []))
+                        if on_event is not None:
+                            on_event(worker, event)
                         sequence += 1
                         continue
                     if not isinstance(event["gap"], bool):
@@ -70,6 +77,7 @@ def replay_events(paths: list[Path]) -> Iterator[dict[str, Any]]:
                     before = worker.candle_counts.copy()
                     if event["kind"] == "tick":
                         previous_invalid = worker.invalid
+                        previous_accepted = worker.accepted
                         worker._accept(
                             {
                                 "instrument_token": event["token"],
@@ -80,7 +88,10 @@ def replay_events(paths: list[Path]) -> Iterator[dict[str, Any]]:
                             },
                             at,
                         )
-                        if worker.invalid != previous_invalid:
+                        if (
+                            worker.invalid != previous_invalid
+                            or worker.accepted != previous_accepted + 1
+                        ):
                             raise ValueError("Recorded tick failed validation")
                     elif event["kind"] == "gap":
                         worker.gaps.restore(event["gaps"])
@@ -90,6 +101,8 @@ def replay_events(paths: list[Path]) -> Iterator[dict[str, Any]]:
                         worker.advance_candles(at)
                     else:
                         raise ValueError("Unknown recording event")
+                    if on_event is not None:
+                        on_event(worker, event)
                     for token in worker.tokens:
                         count = worker.candle_counts[token] - before[token]
                         if count:

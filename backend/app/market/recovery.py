@@ -11,7 +11,8 @@ from sqlalchemy import CursorResult, Engine, delete, select, update
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session
 
-from app.broker.kite_auth import KiteAuth
+from app.broker.kite_auth import AuthError, KiteAuth
+from app.broker.request_limits import RecoveryBusyError, single_recovery
 from app.config import Settings
 from app.db.models import (
     HistoricalContextBatch,
@@ -34,7 +35,8 @@ from app.market.persistence import (
     encode,
     restore_builder,
 )
-from app.market.recovery_requests import RecoveryHistoryClient
+from app.market.recovery_progress import RecoveryProgress
+from app.market.recovery_requests import RecoveryHistoryClient, RecoveryRequestError
 from app.market.renko_builder import Brick
 from app.market.warmup import HistoryRange, SessionCalendar, local_time
 
@@ -73,6 +75,7 @@ def _missing_ranges(
     return tuple(out)
 
 
+@single_recovery
 def recover_missing_history(
     auth: KiteAuth,
     engine: Engine,
@@ -85,6 +88,61 @@ def recover_missing_history(
     cutoff: datetime,
     *,
     correct_partial: bool = False,
+    progress: RecoveryProgress | None = None,
+) -> RecoveryResult:
+    monitor = progress if progress is not None else RecoveryProgress()
+    monitor.begin()
+    try:
+        return _recover_missing_history(
+            auth,
+            engine,
+            settings,
+            stream,
+            spot_token,
+            future_token,
+            futures_identity,
+            calendar,
+            cutoff,
+            correct_partial=correct_partial,
+            progress=monitor,
+        )
+    except AuthError as error:
+        monitor.failed(
+            "authentication_required"
+            if error.status_code == 401
+            else "source_unavailable"
+        )
+        raise
+    except RecoveryBusyError:
+        monitor.failed("recovery_busy")
+        raise
+    except RecoveryRequestError:
+        monitor.failed("source_unavailable")
+        raise
+    except PersistenceError:
+        monitor.failed("persistence_failed")
+        raise
+    except (ValueError, TypeError, KeyError):
+        monitor.failed("invalid_scope")
+        raise
+    except BaseException:
+        monitor.failed("unexpected_failure")
+        raise
+
+
+def _recover_missing_history(
+    auth: KiteAuth,
+    engine: Engine,
+    settings: Settings,
+    stream: str,
+    spot_token: int,
+    future_token: int,
+    futures_identity: str,
+    calendar: SessionCalendar,
+    cutoff: datetime,
+    *,
+    correct_partial: bool = False,
+    progress: RecoveryProgress,
 ) -> RecoveryResult:
     """Recover a quiescent stream, then restore a NEW worker from its checkpoint.
 
@@ -266,6 +324,9 @@ def recover_missing_history(
     fetched: dict[int, list[Candle]] = {t: [] for t in tokens}
     corrections: dict[tuple[int, str], dict[str, Any]] = {}
     client = RecoveryHistoryClient(auth, settings)
+    total_ranges = sum(len(items) for items in requested.values())
+    completed_ranges = 0
+    progress.stage("downloading", total=total_ranges)
     for token in tokens:
         for item in requested[token]:
             for source in download(
@@ -305,9 +366,12 @@ def recover_missing_history(
                         "after": asdict(recovered),
                     }
                 candles[token][source.time] = recovered
+            completed_ranges += 1
+            progress.stage("downloading", done=completed_ranges, total=total_ranges)
     if not candles[spot_token]:
         raise ValueError("Recovery has no spot source to seed Renko")
 
+    progress.stage("rebuilding", done=completed_ranges, total=total_ranges)
     sessions = {local_time(s.opening).date(): s for s in calendar.sessions}
     rebuilt: dict[int, CandleBuilder] = {}
     outputs: dict[tuple[int, str], str] = {}
@@ -402,6 +466,7 @@ def recover_missing_history(
         or outputs != original
         or brick_payloads != original_bricks
     )
+    progress.stage("committing", done=completed_ranges, total=total_ranges)
     try:
         with Session(engine) as db, db.begin():
             current = db.get(MarketCheckpoint, stream)
@@ -455,6 +520,12 @@ def recover_missing_history(
                     )
     except SQLAlchemyError:
         raise PersistenceError("Recovery save failed; previous data retained") from None
+    progress.committed(
+        {t: max(c.end for c in candles[t].values()) for t in tokens if candles[t]},
+        quality_pending=bool(
+            sum(missing.values()) or partial or oi_missing or tracker.snapshot()
+        ),
+    )
     return RecoveryResult(
         revision + int(imported),
         imported,

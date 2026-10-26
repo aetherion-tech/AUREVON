@@ -5,6 +5,7 @@ from datetime import date, datetime, time, timedelta
 from decimal import Decimal, InvalidOperation
 
 from app.broker.kite_auth import IST
+from app.market.warmup import SessionCalendar
 
 
 @dataclass(frozen=True)
@@ -41,9 +42,16 @@ class CandleBuilder:
     The first bucket and any bucket affected by a detected gap are partial.
     """
 
-    def __init__(self, minutes: int = 5, *, futures: bool = True) -> None:
+    def __init__(
+        self,
+        minutes: int = 5,
+        *,
+        futures: bool = True,
+        calendar: SessionCalendar | None = None,
+    ) -> None:
         if minutes not in (1, 5):
             raise ValueError("Only one-minute and five-minute candles are supported")
+        self.calendar = calendar
         self.minutes = minutes
         self.futures = futures
         self.current: MarketCandle | None = None
@@ -161,7 +169,14 @@ class CandleBuilder:
             return []
         if self._closed_until is not None and local < self._closed_until:
             return []
-        if local.weekday() >= 5 or not time(9, 15) <= local.time() < time(15, 30):
+        if self.calendar is not None:
+            session = next(
+                (s for s in self.calendar.sessions if s.opening <= local < s.closing),
+                None,
+            )
+            if session is None:
+                return []
+        elif local.weekday() >= 5 or not time(9, 15) <= local.time() < time(15, 30):
             return []
         out: list[MarketCandle] = []
         new_day = self.day != local.date()
