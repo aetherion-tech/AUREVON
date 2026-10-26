@@ -11,6 +11,7 @@ from typing import Any
 
 from app.broker.kite_auth import IST
 from app.market.candles_5m import CandleBuilder, MarketCandle
+from app.market.gaps import GapReason, GapTracker
 from app.market.persistence import MarketPersistence
 from app.market.tick_recording import TickRecorder
 
@@ -35,6 +36,7 @@ class TickerWorker:
         self.recorder = recorder
         self.persistence = persistence
         self.tokens = [spot_token, future_token]
+        self.gaps = GapTracker(self.tokens)
         self.queue: asyncio.Queue[dict[str, Any]] = asyncio.Queue(capacity)
         self._pending = BoundedSemaphore(capacity)
         self.clock = clock or (lambda: datetime.now(UTC))
@@ -50,6 +52,9 @@ class TickerWorker:
         self.latest: dict[int, dict[str, Any]] = {}
         self.received: dict[int, datetime] = {}
         self.task: asyncio.Task[None] | None = None
+        self._history_ready = asyncio.Event()
+        self._history_ready.set()
+        self.history_overlap = 0
         self.candles = {
             spot_token: CandleBuilder(1, futures=False),
             future_token: CandleBuilder(5, futures=True),
@@ -59,7 +64,7 @@ class TickerWorker:
         }
         self.candle_counts = dict.fromkeys(self.tokens, 0)
         if persistence is not None and persistence.restore(self):
-            self._disconnected()
+            self._track_gap("downtime", self.clock(), persist=False)
             if self.recorder is not None:
                 self.recorder.write(
                     "checkpoint",
@@ -69,11 +74,16 @@ class TickerWorker:
                     },
                 )
 
-    async def start(self) -> None:
+    async def start(self, *, buffer_only: bool = False) -> None:
         if self.running:
             raise ValueError("Ticker already running")
         self.loop = asyncio.get_running_loop()
         self.running = True
+        if buffer_only:
+            if self.accepted or self.persistence is not None:
+                self.running = False
+                raise ValueError("Historical buffering requires a fresh worker")
+            self._history_ready.clear()
         self.socket.on_ticks = self._on_ticks
         self.socket.on_connect = self._on_connect
         self.socket.on_close = self._on_close
@@ -100,6 +110,16 @@ class TickerWorker:
             else:
                 self.dropped += 1
                 self.gap_required = True
+                # Only bounded, locked metadata is changed on the SDK thread.
+                start = received
+                stamp = tick.get("exchange_timestamp")
+                if isinstance(stamp, datetime):
+                    try:
+                        start = min(received, stamp.astimezone(UTC))
+                    except (ValueError, OverflowError, OSError):
+                        pass
+                for token in self.tokens:
+                    self.gaps.mark(token, "overflow", start, resume_after=received)
 
     def _deliver(self, tick: dict[str, Any], received: datetime) -> None:
         try:
@@ -115,9 +135,7 @@ class TickerWorker:
                 self.queue.put_nowait({"tick": dict(tick), "received": received})
             except asyncio.QueueFull:
                 self.dropped += 1
-                self.gap_required = True
-                for builder in self.candles.values():
-                    builder.mark_gap()
+                self._track_gap("overflow", received)
 
     def _on_connect(self, socket: Any, response: Any) -> None:
         # Always resubscribe, including after SDK reconnects.
@@ -126,6 +144,8 @@ class TickerWorker:
         self._schedule(self._connected)
 
     def _connected(self) -> None:
+        if self.reconnects:
+            self._track_gap("reconnect", self.clock())
         self.connected = True
         self.reconnects += 1
 
@@ -134,9 +154,32 @@ class TickerWorker:
 
     def _disconnected(self) -> None:
         self.connected = False
+        self._track_gap("disconnect", self.clock())
+
+    def _track_gap(
+        self, reason: GapReason, at: datetime, *, persist: bool = True
+    ) -> None:
         self.gap_required = True
-        for builder in self.candles.values():
+        for token, builder in self.candles.items():
+            start = (
+                builder.current.time
+                if builder.current is not None
+                else builder._closed_until or builder.last_time or at
+            )
+            self.gaps.mark(token, reason, min(start, at), resume_after=at)
             builder.mark_gap()
+        if persist and self._history_ready.is_set():
+            if self.recorder is not None:
+                self.recorder.write(
+                    "gap",
+                    at,
+                    {
+                        "gap": True,
+                        "gaps": self.gaps.snapshot(),
+                    },
+                )
+            if self.persistence is not None:
+                self.persistence.save(self)
 
     def _on_exhausted(self, socket: Any) -> None:
         self._schedule(self._mark_exhausted)
@@ -147,11 +190,75 @@ class TickerWorker:
 
     async def _consume(self) -> None:
         while True:
+            await self._history_ready.wait()
             item = await self.queue.get()
             try:
                 self._accept(item["tick"], item["received"])
             finally:
                 self.queue.task_done()
+
+    def merge_history(
+        self, persistence: MarketPersistence, boundaries: dict[int, datetime]
+    ) -> None:
+        """Adopt history while callbacks keep buffering, then drain in queue order.
+
+        Each boundary is an exclusive history end / inclusive live start for that
+        instrument. Use the beginning of the unfinished minute/five-minute bucket,
+        not the wall clock download completion time. Missing history stays gapped.
+        Call on the worker event loop; no consumer or clock may run during adoption.
+        """
+        if (
+            not self.running
+            or self._history_ready.is_set()
+            or self.accepted
+            or self.persistence is not None
+            or (self.recorder is not None and self.recorder.sequence != 0)
+        ):
+            raise ValueError("Historical merge requires an untouched buffering worker")
+        if set(boundaries) != set(self.tokens):
+            raise ValueError("Supply an explicit boundary for each instrument")
+        restored = TickerWorker(None, *self.tokens, persistence=persistence)
+        if persistence.revision == 0:
+            raise ValueError("Historical merge requires a persisted checkpoint")
+        for token, boundary in boundaries.items():
+            builder = restored.candles[token]
+            if boundary.tzinfo is None or boundary.utcoffset() is None:
+                raise ValueError("Historical boundary must include a timezone")
+            local = boundary.astimezone(IST)
+            if (
+                local.second != 0
+                or local.microsecond != 0
+                or local.minute % builder.minutes != 0
+                or builder.current is not None
+                or (
+                    builder._closed_until is not None
+                    and boundary < builder._closed_until
+                )
+            ):
+                raise ValueError("Boundary must follow completed, aligned history")
+        for token, boundary in boundaries.items():
+            builder = restored.candles[token]
+            # Also fence missing tail intervals: never recreate them from a
+            # fragment of queued ticks. Recovery will fill them explicitly.
+            builder._closed_until = boundary
+            builder.last_time = boundary
+        self.gaps.absorb(restored.gaps)
+        restored.gaps = self.gaps
+        # Commit fences before changing the live worker or releasing its queue.
+        persistence.save(restored)
+        if self.recorder is not None:
+            self.recorder.write(
+                "checkpoint",
+                self.clock(),
+                {"checkpoint": persistence.snapshot(restored)},
+            )
+        self.candles = restored.candles
+        self.closed_candles = restored.closed_candles
+        self.candle_counts = restored.candle_counts
+        self.gaps = restored.gaps
+        self.persistence = persistence
+        self.gap_required = True
+        self._history_ready.set()
 
     def _accept(self, tick: dict[str, Any], received: datetime) -> None:
         try:
@@ -165,6 +272,10 @@ class TickerWorker:
             # SDK decodes exchange epoch with datetime.fromtimestamp(), producing
             # naive system-local time. astimezone() applies that system timezone.
             ts = ts.astimezone(UTC)
+            fence = self.candles[token]._closed_until
+            if fence is not None and ts < fence:
+                self.history_overlap += 1
+                return
             if token in self.latest and ts < self.latest[token]["time"]:
                 raise ValueError
             if self.gap_required:
@@ -177,6 +288,7 @@ class TickerWorker:
                 oi=tick.get("oi"),
             )
             self._store_candles(token, closed)
+            self.gaps.resume(token, ts)
             # Distinct updates in the same exchange second are legitimate.
             self.latest[token] = {
                 "time": ts,
@@ -199,6 +311,7 @@ class TickerWorker:
                         else None,
                         "oi": str(tick["oi"]) if tick.get("oi") is not None else None,
                         "gap": self.gap_required,
+                        "gaps": self.gaps.snapshot(),
                     },
                 )
             if self.persistence is not None:
@@ -213,8 +326,17 @@ class TickerWorker:
     def advance_candles(self, now: datetime | None = None) -> None:
         """Call after queued ticks drain, including at the end of the session."""
         at = now or self.clock()
+        if not self._history_ready.is_set():
+            raise ValueError("Cannot advance candles while historical merge is pending")
         if self.recorder is not None:
-            self.recorder.write("advance", at, {"gap": self.gap_required})
+            self.recorder.write(
+                "advance",
+                at,
+                {
+                    "gap": self.gap_required,
+                    "gaps": self.gaps.snapshot(),
+                },
+            )
         for token, builder in self.candles.items():
             if self.gap_required:
                 builder.mark_gap()
@@ -242,8 +364,11 @@ class TickerWorker:
             "session_expected": session,
             "clock_or_feed_delay": drift,
             "gap_requires_replay": self.gap_required,
+            "missing_ranges": self.gaps.snapshot(),
             "reconnect_exhausted": self.exhausted,
             "accepted": self.accepted,
+            "history_pending": not self._history_ready.is_set(),
+            "history_overlap": self.history_overlap,
             "invalid": self.invalid,
             "dropped": self.dropped,
             "queued": self.queue.qsize(),
@@ -274,7 +399,7 @@ class TickerWorker:
         self.connected = False
         try:
             if self.task is not None:
-                if not self.task.done():
+                if not self.task.done() and self._history_ready.is_set():
                     drain = asyncio.create_task(self.queue.join())
                     try:
                         await asyncio.wait(
@@ -287,6 +412,8 @@ class TickerWorker:
                     await self.task
                 except asyncio.CancelledError:
                     pass
+            if self.persistence is not None and self.gaps.snapshot():
+                self.persistence.save(self)
         finally:
             # SDK socket operations run on its Twisted reactor thread.
             from twisted.internet import reactor

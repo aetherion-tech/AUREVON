@@ -29,7 +29,13 @@ def tick(token: int, ts: datetime, price: int, volume: int) -> dict:
 
 def test_recorded_replay_matches_live_candles_and_clock_events(tmp_path: Path) -> None:
     recorder = TickRecorder(tmp_path, 111, 222)
-    worker = TickerWorker(None, 111, 222, recorder=recorder)
+    worker = TickerWorker(
+        None,
+        111,
+        222,
+        recorder=recorder,
+        clock=lambda: START + timedelta(minutes=5),
+    )
     for seconds, price, volume in [
         (0, 24000, 100),
         (30, 24050, 110),
@@ -59,7 +65,7 @@ def test_recorded_replay_matches_live_candles_and_clock_events(tmp_path: Path) -
     text = files[0].read_text()
     assert "must-not-be-recorded" not in text
     assert "private" not in text and "depth" not in text
-    assert len(text.splitlines()) == recorder.sequence == 13
+    assert len(text.splitlines()) == recorder.sequence == 14
 
 
 def test_daily_rotation_ist_sequence_and_restart_isolation(tmp_path: Path) -> None:

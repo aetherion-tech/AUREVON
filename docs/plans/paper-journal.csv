@@ -1,0 +1,2 @@
+date_ist,record_type,mode,release_id,config_id,signal_id,source,entry_ist,exit_ist,entry_price,exit_price,quantity,fees_inr,pnl_inr,readiness,shadow_match,reconciliation,formal_session_eligible,evidence,notes
+2026-10-26,development_status,BLOCKED,,,,D01 implementation session; no live market observation performed,,,,,,,,Paper execution not implemented,,,False,README D01; stages 10-12 Pending,No trade/fill or P&L recorded. User manual-practice activity not supplied.

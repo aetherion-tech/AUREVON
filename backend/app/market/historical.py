@@ -7,9 +7,21 @@ from datetime import datetime, timedelta
 from decimal import Decimal, InvalidOperation
 from pathlib import Path
 from tempfile import NamedTemporaryFile
-from typing import Any, Literal
+from typing import Any, Literal, Protocol
 
-from app.broker.kite_auth import IST, KiteAuth
+from app.broker.kite_auth import IST
+
+
+class HistoricalClient(Protocol):
+    def historical_data(
+        self,
+        instrument_token: int,
+        interval: str,
+        start: datetime,
+        end: datetime,
+        *,
+        oi: bool = False,
+    ) -> dict[str, Any]: ...
 
 
 @dataclass(frozen=True)
@@ -57,7 +69,7 @@ def parse_candle(row: Any, *, oi: bool, allow_missing_oi: bool = False) -> Candl
 
 
 def download(
-    auth: KiteAuth,
+    auth: HistoricalClient,
     token: int,
     start: datetime,
     end: datetime,

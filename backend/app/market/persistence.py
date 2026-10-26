@@ -114,16 +114,19 @@ class MarketPersistence:
         )
         self.revision = 0
         self.counts = {spot: 0, future: 0}
+        self.metadata: dict[str, Any] = {}
 
     def snapshot(
         self, worker: "TickerWorker", renko: RenkoBuilder | None = None
     ) -> dict[str, Any]:
         builder = renko if renko is not None else self.renko
         return {
+            **self.metadata,
             "version": 1,
             "builders": {t: builder_state(b) for t, b in worker.candles.items()},
             "counts": worker.candle_counts.copy(),
             "gap": worker.gap_required,
+            "gaps": worker.gaps.snapshot(),
             "last": asdict(builder.last) if builder.last is not None else None,
             "last_timestamp": builder.last_timestamp,
             "next_index": builder.index,
@@ -146,6 +149,11 @@ class MarketPersistence:
                 data = json.loads(checkpoint.state)
                 if data["version"] != 1:
                     raise ValueError("Unknown checkpoint version")
+                self.metadata = {
+                    key: data[key]
+                    for key in ("historical_import", "recovery")
+                    if key in data
+                }
                 for token in worker.tokens:
                     restore_builder(worker.candles[token], data["builders"][str(token)])
                     worker.candle_counts[token] = data["counts"][str(token)]
@@ -163,6 +171,7 @@ class MarketPersistence:
                         candle_from(json.loads(row.payload)) for row in reversed(rows)
                     )
                 worker.gap_required = data["gap"]
+                worker.gaps.restore(data.get("gaps", []))
                 self.renko.last = brick_from(data["last"]) if data["last"] else None
                 self.renko.last_timestamp = (
                     datetime.fromisoformat(data["last_timestamp"])

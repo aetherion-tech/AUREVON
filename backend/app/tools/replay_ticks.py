@@ -59,11 +59,14 @@ def replay_events(paths: list[Path]) -> Iterator[dict[str, Any]]:
                             )
                             worker.candle_counts[token] = state["counts"][str(token)]
                         worker.gap_required = state["gap"]
+                        worker.gaps.restore(state.get("gaps", []))
                         sequence += 1
                         continue
                     if not isinstance(event["gap"], bool):
                         raise ValueError("Invalid gap marker")
                     worker.gap_required = event["gap"]
+                    if "gaps" in event:
+                        worker.gaps.restore(event["gaps"])
                     before = worker.candle_counts.copy()
                     if event["kind"] == "tick":
                         previous_invalid = worker.invalid
@@ -79,6 +82,10 @@ def replay_events(paths: list[Path]) -> Iterator[dict[str, Any]]:
                         )
                         if worker.invalid != previous_invalid:
                             raise ValueError("Recorded tick failed validation")
+                    elif event["kind"] == "gap":
+                        worker.gaps.restore(event["gaps"])
+                        for builder in worker.candles.values():
+                            builder.mark_gap()
                     elif event["kind"] == "advance":
                         worker.advance_candles(at)
                     else:

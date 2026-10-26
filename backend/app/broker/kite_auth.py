@@ -2,6 +2,7 @@
 
 import hashlib
 import json
+import math
 import secrets
 from datetime import UTC, datetime, timedelta
 from threading import RLock
@@ -23,9 +24,18 @@ IST = ZoneInfo("Asia/Kolkata")
 class AuthError(Exception):
     """Only fixed, safe messages from this exception reach the browser."""
 
-    def __init__(self, message: str, status_code: int = 400) -> None:
+    def __init__(
+        self,
+        message: str,
+        status_code: int = 400,
+        *,
+        retryable: bool = False,
+        retry_after_seconds: float | None = None,
+    ) -> None:
         self.message = message
         self.status_code = status_code
+        self.retryable = retryable
+        self.retry_after_seconds = retry_after_seconds
         super().__init__(message)
 
 
@@ -239,18 +249,48 @@ class KiteAuth:
             response = self.client.request(
                 method, path, headers=headers, data=data, params=params
             )
-            payload = response.json()
-        except (httpx.HTTPError, ValueError):
+        except httpx.HTTPError:
             log.warning("kite_connection_failed")
-            raise AuthError("Cannot reach Kite. Check your connection and retry.", 502)
+            raise AuthError(
+                "Cannot reach Kite. Check your connection and retry.",
+                502,
+                retryable=True,
+            ) from None
+        retry_after: float | None = None
+        try:
+            value = float(response.headers.get("Retry-After", ""))
+            if math.isfinite(value) and value >= 0:
+                retry_after = value
+        except ValueError:
+            pass
+        try:
+            payload = response.json()
+        except ValueError:
+            payload = None
+        # Rate limits and service failures need not return a JSON body.
+        token_error = (
+            isinstance(payload, dict) and payload.get("error_type") == "TokenException"
+        )
+        if token_error and token:
+            raise AuthError("Kite session is no longer valid.", 401)
+        if response.status_code == 429:
+            raise AuthError(
+                "Kite rate limit reached. Retry later.",
+                429,
+                retryable=True,
+                retry_after_seconds=retry_after,
+            )
+        if response.status_code >= 500:
+            raise AuthError(
+                "Kite service is unavailable. Retry later.",
+                502,
+                retryable=True,
+                retry_after_seconds=retry_after,
+            )
         if not isinstance(payload, dict):
             raise AuthError("Kite returned an unexpected response.", 502)
         if response.is_error or payload.get("status") != "success":
             log.warning("kite_request_rejected", status_code=response.status_code)
-            if response.status_code == 429:
-                raise AuthError("Kite rate limit reached. Retry later.", 429)
-            if payload.get("error_type") == "TokenException" and token:
-                raise AuthError("Kite session is no longer valid.", 401)
             raise AuthError(
                 "Kite rejected the request. Check your app and log in again.", 502
             )

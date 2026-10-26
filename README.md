@@ -21,14 +21,322 @@ calculations, and live orders are not implemented in the web application. A
 standalone live price monitor is available as described below.
 The original project specification is saved in [docs/SPEC.md](docs/SPEC.md).
 
+## Start here - delivery plan v2 (45-day target, 60-day review)
+
+**Plan updated: 2026-10-26. Product status: 64 Completed / 216 Pending of 280.**
+**Cash target: INR 10,000; absolute project ceiling: INR 20,000 including taxes/fees.**
+This replaces the execution schedule, not the product acceptance requirements.
+The original master checklist, stable IDs and all unfinished scope remain below.
+
+| Active control | Current value |
+| --- | --- |
+| Short next-session handoff | [NEXT_SESSION.md](docs/plans/NEXT_SESSION.md) |
+| Immutable Version 1 backup | [README.v1.md](docs/plans/README.v1.md), [SHA-256](docs/plans/README.v1.sha256) |
+| Plan preparation | Completed on 2026-10-26; documentation only, outside the 280 product tasks |
+| Current implementation slot | D01 code Completed: BE-05-10/11; REF-00-03 Pending user settings. Next ready code: BE-05-12/13 (D02 may start early). |
+| Kickoff / elapsed day | 2026-10-26 IST / D01; task carry-over and early batches are recorded without renumbering elapsed days |
+| Existing plan, all-in price, renewal and usage-reset times | Unverified; obtain actual account readings, never assume a reset/renewal date |
+| Cash already spent / reserved / remaining | Unverified; reconcile receipts before proposing any purchase |
+| Paper status | Manual practice can begin with the user's Pine chart; automated paper and formal burn-in not ready |
+| Qualified formal paper sessions | 0 evidenced; dates, release/config identity, shadow checks and reconciliation required |
+| Latest application verification | D01, 2026-10-26: 241 tests, Ruff lint/format and strict mypy passed |
+
+### Delivery scope, day numbering and realistic targets
+
+- D01-D45 target the local, single-user NIFTY **paper application** and the 198
+  remaining reference/backend/frontend/paper-release tasks. D46-D60 reserve time
+  for observation, verified defects and acceptance. All dates are targets.
+- D01 is the actual kickoff calendar day in IST, not a billing date. Later day
+  numbers are elapsed calendar slots, not 60 guaranteed trading sessions. Record
+  dates in the daily log; do not silently renumber delays to claim on-time delivery.
+  On weekends/holidays work on replay/UI/tests; no live-session evidence is invented.
+- One-month target: functioning automated paper trial around D24-D30 **if** its
+  prerequisites pass. D45: application candidate. D60: paper acceptance review if
+  at least 20 qualifying paper trading sessions and all other gates are satisfied.
+  Finishing earlier is welcome; never skip a test/gate to meet the target.
+- Phase 20's 15 live-money tasks and phase 21's 5 extensions stay Pending outside
+  this funded milestone. They are neither deleted nor promised within 60 days.
+  Real-order execution, cloud/static-IP deployment and trading capital are not
+  funded by this paper-only budget. New live scope needs a separate funded plan.
+- Planning assumption: the user supplies broker login, chart settings/exports and
+  daily observations, with roughly 2-4 focused review/operation hours on working
+  days. AI coding time/allowance must also be available. Re-estimate after D03,
+  D15 and D30 from accepted batches and actual usage, not task-count percentages.
+
+### Spending envelope - ceilings, not purchase instructions
+
+Use the existing Codex entitlement for coding first. A subscription can be used
+only for coding even if it also includes other products. Keep one coding agent
+and Standard speed by default. No API key, automatic recharge, extra subscription
+or paid model switch is enabled by this document.
+
+| Category, all-in INR allocation | Lean target | Maximum envelope |
+| --- | ---: | ---: |
+| Two monthly Codex-including subscription payments | 5,000 | 5,000 |
+| Two months of Kite data access | 1,200 | 1,200 |
+| Needed TradingView/export/reference access | 2,500 | 4,000 |
+| Optional paid Codex credit top-ups | 0 | 5,000 |
+| Unspent contingency: tax/FX variance, data access or exceptional review | 1,300 | 4,800 |
+| **Total allocation** | **10,000** | **20,000** |
+
+These are inclusive planning allocations, not verified local prices or an available
+account balance. Reserve for existing payments inside the envelope; never count a
+prepaid subscription again when using its included allowance. If needed export
+access costs more than its allocation, use unspent contingency or defer that gate;
+do not buy an annual plan based on its advertised monthly-equivalent price.
+Keep the existing PC/local database; no hosted AI is needed for indicator runtime.
+
+Before any proposed payment calculate:
+
+`headroom = 20000 - confirmed_spend_to_date - committed_unpaid_costs - proposed_payment`
+
+Also reserve known remaining essential subscription/data bills. Unknown baseline
+spend/charges means headroom is **Unknown**, not INR 20,000. Empty ledgers do not
+prove zero spending. Only the user confirms receipts and purchases; this plan
+authorizes development, not subscriptions or money transfers. Stop optional paid
+usage before breaching a category ceiling or the total ceiling. Reallocate only
+after recording the decision, without exceeding INR 20,000.
+
+Receipts go in [spend-ledger.csv](docs/plans/spend-ledger.csv). Subscription charges
+are cash on their charge dates; credit-pack purchases are cash when purchased.
+Credit consumption is a separate usage measurement, not a second cash charge.
+The subscription allowance allocation averages INR 83.33/day over 60 days; it is
+not a daily payment, available credit or a token-price conversion.
+
+### Token and daily paid-usage policy
+
+Included subscription allowance is not a fixed daily token grant. Actual account
+usage/reset readings control availability. Token amounts below are initial **soft
+engineering checkpoints**, not guaranteed quotas, measured past usage, token
+entitlements or hard billing controls. Recalibrate them after the first three
+batches; lower them if useful work fits, raise/re-scope only with measured evidence.
+
+| Profile | Planned total input checkpoint | Planned total output checkpoint | Default new paid cash/day | Exceptional paid cash ceiling/day |
+| --- | ---: | ---: | ---: | ---: |
+| H: state/indicator/accounting/integration | 90,000 | 20,000 | 0 | 150 |
+| M: bounded UI/API/fixture batch | 50,000 | 10,000 | 0 | 100 |
+| L: operational evidence/review | 20,000 | 4,000 | 0 | 0 |
+
+- Each D01-D60 row selects a profile; [daily-log.csv](docs/plans/daily-log.csv)
+  contains its numeric checkpoints plus blank actual fields. Every day starts at
+  **INR 0 extra paid cash**, regardless of the exception ceiling. Ceilings do not
+  accumulate as permission to spend. Combined top-up purchases remain <= INR 5,000.
+  If the offered credit pack exceeds the day's/remaining cap, wait; do not assume
+  custom pack sizes or bypass the cap. Prefer the next included-allowance reset.
+- Track actual input, cached-input subset and output from an available usage meter.
+  Count cached input once inside total input; count reasoning inside total output
+  when the meter includes it. Record a reasoning subset separately only if shown.
+  Never infer billing from visible response length or add these subsets twice.
+- Account percentages, reset times and purchased credits are separate fields.
+  Where exact tokens/cost are unavailable, write `Unknown`/leave actual fields blank
+  and record the source. Never estimate actual spend from an API rate card when
+  using included subscription allowance. No billing/usage integration is installed.
+- At roughly 80% of an observable checkpoint, finish the smallest reviewable
+  change and required checks; save a compact handoff instead of starting a large
+  unrelated task. If token counts are invisible, say so and use bounded scope plus
+  account allowance readings. Safety/correctness checks are never dropped to fit.
+- After two attempts at the same failure, diagnose root cause or narrow the batch;
+  do not repeat full prompts/tests blindly. Use high reasoning only for demonstrated
+  complexity. Keep the current capable coding model for trading/accounting/state;
+  a cheaper available model may handle proven routine work. Do not silently change
+  the user's model or lower critical verification quality to save tokens.
+
+### Renewal and recharge notifications at each active session
+
+The assistant must show `Budget/usage alert: ...` at session start when relevant,
+and repeat unresolved actionable alerts in its final handoff. This is an in-session
+reminder policy: no unattended scheduler, push/email/SMS service or billing access
+has been configured. If the user is absent, no notification is guaranteed.
+
+| Trigger, using actual account data | Required reminder/action |
+| --- | --- |
+| Plan/renewal/expiry/reset/cash baseline unknown | Ask once for the missing readings; keep them Unknown and continue already-included independent work |
+| Subscription or necessary data entitlement renews/expires within 3 calendar days | State exact date, known all-in price, remaining work and headroom; suggest renew/cancel decision, never auto-pay |
+| Allowance remaining <=20%, or a reported rate/weekly limit | State reset time; shorten scope, use included cheaper option if suitable, or wait; no automatic top-up |
+| Short window reset is near | Distinguish that reset from monthly renewal and any weekly limit; renewing is not assumed to reset every limit |
+| Included usage exhausted and a critical acceptance blocker remains | Propose at most the actual offered pack within daily/category/total caps after checking expiry/credit balance; otherwise wait/replan |
+| Confirmed spend reaches INR 10,000 / 15,000 / 18,000 | Report target reached / full forecast review / essential-only reserve respectively |
+| Proposed spend would exceed INR 20,000, or unknown baseline prevents checking | Do not purchase or start new optional paid usage; report the blocker and continue unaffected included/offline work |
+| D07/14/21/28/35/42/49/56, D30, D45, D59 | Reconcile receipts, allowance, renewal dates, qualifying sessions and forecast; do not recharge merely because it is a checkpoint |
+
+At D01 record actual renewal dates. Review the next month before it is charged,
+not automatically on D30. A 60-day run can overlap three billing dates depending
+on the existing cycle: record all actual charges and revise the envelope before
+any additional renewal. Cancel/avoid an unnecessary renewal when coding is done.
+
+### Daily operating loop and paper trading alongside development
+
+1. Read the short handoff, current day, matching master rows and relevant code/Pine.
+   Check `git status` to preserve user edits. Do not reload this entire README,
+   SPEC, Pine or long logs on every turn; use targeted searches/line ranges.
+2. Read latest ledger/usage facts; issue renewal/budget alerts. State the smallest
+   dependency-ready batch, profile, token visibility and INR 0 default extra spend.
+3. Before each actual market session, the user checks login, clock/calendar, feed,
+   source/configuration identity, open paper positions, limits and kill/close route.
+   Record a daily observation even if there are no signals or the system is blocked.
+4. Implement related tasks together, reusing fixtures/contracts and accepted modules.
+   One writer by default. Parallel work needs explicit user authorization, isolated
+   ownership and a measured benefit; no duplicated paid reviews by default.
+5. Run relevant meaningful checks during work and the required broader checks at
+   batch integration. Re-run only after changes/failures/unresolved concerns. Save
+   concise results and first failing evidence, not full repetitive tool output.
+6. Update real master completions/evidence, task totals, day status, actual usage,
+   receipts, paper evidence and `NEXT_SESSION.md` in the same change. A daily row is
+   Completed only when its stated acceptance is met; partial rows stay Pending with
+   done/remaining IDs. Split partial product tasks into stable sub-IDs when needed.
+7. Final report: delivered IDs/checks, next batch, actual tokens or Unknown,
+   cumulative cash/headroom or Unknown, qualifying sessions and next renewal alert.
+
+From D01 the user may manually journal simulated decisions from the original Pine
+chart in [paper-journal.csv](docs/plans/paper-journal.csv), using `MANUAL_PRACTICE`.
+This plan does not implement that execution service, create any trade or claim a
+day's profit. Record real observed prices and assumed fills/costs honestly; a day
+with no signal is `NO_SIGNAL`, unavailable data is `BLOCKED`, and replay is `REPLAY`.
+These are not qualifying automated burn-in sessions and do not become such later.
+
+An **automated paper trial** can start as soon as the managed pipeline, paper fill/
+position/ledger path, readiness/risk gates, manual close/kill and restart checks
+are actually ready, without waiting for all frontend polish. Target D24-D30; use
+authenticated operator APIs/commands first. Before then the current application
+still does not simulate trades. Never place a real order to obtain paper evidence.
+
+**Formal burn-in** starts only after G1/G2/G3, required failure drills and daily
+shadow comparison setup pass. Target the first eligible session after D25. Count
+only real exchange sessions with the documented release/configuration, daily notes,
+shadow evidence and clean reconciliation. A clean zero-trade day may count as an
+observed session. Manual practice, replay, outages and unverified days do not.
+At least 20 qualifying sessions are required; D45/D60 do not waive that minimum.
+
+Keep the market-hour paper release/configuration frozen. Develop against replay or
+a separate test database off-session, without a second production socket/writer.
+Deploy after close with backup/rollback; never restart/delete an active paper book
+for a UI task. Strategy, fill, risk or accounting changes require a versioned new
+baseline and an explicit decision to extend/restart affected observation evidence.
+Expected operation notes continue every session even when coding allowance is
+exhausted. Real defects, unavailable inputs/holidays or lost sessions move acceptance
+later; schedule pressure does not authorize reduced controls.
+
+### Day-by-day task batches and usage checkpoints
+
+The table schedules **all 198** remaining tasks through paper release once as
+primary targets. Work slices mentioned in the last column are not full completion
+claims. Dependencies and actual evidence outrank the order; paired accounting/
+execution work may need to be completed together. On a blocked/non-market slot,
+take a ready independent UI/fixture task from a later day and record the move.
+Do not wait for the next numbered day when a batch finishes early. Protect market
+observation and budget; carry over unfinished IDs rather than buying speed blindly.
+Day statuses below are separate from the 280 product-task counts.
+
+| Day | Status | Batch / acceptance focus | Primary product IDs | Usage profile | Paper, budget or dependency action |
+| --- | --- | --- | --- | --- | --- |
+| D01 | Pending | Code Completed: correction + bounded retry; input still Pending | BE-05-10, BE-05-11, REF-00-03 | H; extra cash 0 by default | BE-05-10/11 verified with 241 tests; REF-00-03 awaits actual settings. Billing/tokens Unknown; no recharge initiated. Next ready code: D02. |
+| D02 | Pending | REST pacing and recording/checkpoint crash reconciliation | BE-05-12, BE-05-13, REF-00-04 | H; extra cash 0 by default | Separate Pine debug copy; keep original intact; measure repeated context cost. |
+| D03 | Pending | Readiness, delay, recovery checks and explicit tick-fidelity policy | BE-05-14, BE-05-15, BE-05-16, BE-05-17 | H; extra cash 0 by default | Finish first calibration; do not enable entries to meet a date. |
+| D04 | Pending | Managed worker ownership and initial typed contracts | BE-06-01, BE-06-02, BE-06-03, BE-13-01 | H; extra cash 0 by default | Freeze shared schemas; define operator-only paper status/control surface. |
+| D05 | Pending | Expiry, calendar, morning catalog and scheduled sessions | BE-06-04, BE-06-05, BE-06-06, BE-06-07 | H; extra cash 0 by default | Use actual holiday/special-session data; billing baseline still unknown means no purchases. |
+| D06 | Pending | Day context, quality events, production replay and lifecycle tests | BE-06-08, BE-06-09, BE-06-10, BE-06-11 | H; extra cash 0 by default | Begin real recording when a market session is available; retain a short sanitized fixture. |
+| D07 | Pending | Reference exports and real historical/feed checks | REF-00-05, REF-00-06, REF-00-07, QA-07-01, QA-07-02 | M; extra cash 0 by default | Weekly usage/cash review; input-dependent work stays Pending if exports/feed unavailable. |
+| D08 | Pending | Reconnect evidence and ten-reference-day Renko acceptance | QA-07-03, QA-07-04, QA-07-05, QA-07-06, QA-07-07 | H; extra cash 0 by default | Historical exports can cover past sessions; never substitute synthetic G1 evidence. |
+| D09 | Pending | Pine inputs and streaming RSI/ATR/Supertrend helpers | BE-08-01, BE-08-02, BE-08-03, BE-08-04, BE-08-05, BE-08-06 | H; extra cash 0 by default | Review seeding and equal-boundary behavior; one reusable sequence fixture. |
+| D10 | Pending | Indicator state, once-only bricks, runs and swings | BE-08-07, BE-08-08, BE-08-09, BE-08-10 | H; extra cash 0 by default | Checkpoint schema first; avoid rewriting helpers already accepted. |
+| D11 | Pending | Futures flow, daily alignment and maths-reference comparison | BE-08-11, BE-08-12, BE-08-13, BE-08-14 | H; extra cash 0 by default | Resolve first divergence before expanding signal logic. |
+| D12 | Pending | CORE, divergence, pullback, breakout and trap signals | BE-09-01, BE-09-02, BE-09-03, BE-09-04, BE-09-05 | H; extra cash 0 by default | Port literal Pine rules; share fixture builders and state transitions. |
+| D13 | Pending | Opening/flow signals, priority, odds, direction and grading | BE-09-06, BE-09-07, BE-09-08, BE-09-09, BE-09-10, BE-09-11 | H; extra cash 0 by default | Review cross-signal interaction in one coherent batch. |
+| D14 | Pending | Trade IDs, indicator entries/exits, text and persistence | BE-09-12, BE-09-13, BE-09-14, BE-09-15, BE-09-16 | H; extra cash 0 by default | Weekly spend/usage/forecast review; no real-order path. |
+| D15 | Pending | Indicator parity CLI, reference coverage and G2 review | BE-09-17, BE-09-18, QA-09-19, QA-09-20 | H; extra cash 0 by default | Reforecast timeline from measured accepted work; parity mismatch blocks formal burn-in. |
+| D16 | Pending | Two-leg plan, option contracts/quotes and spread valuation | BE-10-01, BE-10-02, BE-10-03, BE-10-04, BE-10-05, BE-10-06 | H; extra cash 0 by default | Use catalog lot/expiry/strike data; no fabricated live quotes. |
+| D17 | Pending | Paper wallet primitives and persisted broker/mode models | BE-12-01, BE-12-02, BE-12-03, BE-11-01, BE-11-13 | H; extra cash 0 by default | Use exact currency and migrations before execution implementation. |
+| D18 | Pending | Sizing, margin, strike preview and strategy validation | BE-10-07, BE-10-08, BE-10-09, BE-10-10 | H; extra cash 0 by default | Size from initialized wallet; test missing/stale/illiquid instruments. |
+| D19 | Pending | Paper fills, hedge-first lifecycle and durable idempotency | BE-11-02, BE-11-03, BE-11-04, BE-11-05, BE-11-06, BE-12-07 | H; extra cash 0 by default | Configure current cost assumptions; no blind retry of ambiguous fills. |
+| D20 | Pending | MTM, exits, final entry gates and atomic margin/P&L | BE-11-07, BE-11-08, BE-11-09, BE-11-10, BE-12-04, BE-12-06 | H; extra cash 0 by default | Integrate accounting and execution as one batch; do not mark partial gates complete. |
+| D21 | Pending | Top-ups, returns, summaries, history and ledger reconciliation | BE-12-05, BE-12-08, BE-12-09, BE-12-10, BE-12-11, BE-12-12 | H; extra cash 0 by default | Weekly budget and renewal-date review; prior task evidence decides next batch. |
+| D22 | Pending | Kill/session locks, execution drills, repeatable replay and G3 | BE-11-11, BE-11-12, BE-11-14, QA-11-15, QA-11-16 | H; extra cash 0 by default | Check 20 strike examples; formal paper sessions require accepted G1/G2/G3. |
+| D23 | Pending | Dashboard access and authenticated headless paper controls | BE-13-02, BE-13-03, BE-13-04, BE-13-08, BE-13-11, BE-13-15, BE-13-19 | H; extra cash 0 by default | Operator can inspect/close/kill paper positions before the full dashboard exists. |
+| D24 | Pending | Feed/chart/signal snapshots; shadow-check service slice | BE-13-05, BE-13-06, BE-13-07 | H; extra cash 0 by default | Also build OPS-19-08 ingestion/comparison slice; its UI/master completion is D33. Trial only if ready. |
+| D25 | Pending | Failure drills before formal paper observation | QA-19-11, QA-19-12, QA-19-13 | H; extra cash 0 by default | Prepare OPS-19-02 operator command slice; final packaging is D41. Shadow setup and readiness required. |
+| D26 | Pending | History/settings/preview/alerts APIs; paper observation start target | BE-13-09, BE-13-10, BE-13-12, BE-13-13, BE-13-14 | H; extra cash 0 by default | First eligible exchange session after gates/drills/shadow setup; actual session count starts at zero. |
+| D27 | Pending | Bounded WebSocket delivery, ordering and snapshot resync | BE-13-16, BE-13-17, BE-13-18 | H; extra cash 0 by default | Develop off-session against replay; run the stable paper release during market hours. |
+| D28 | Pending | Frontend scaffold, shared UI, number/time formats and typed client | FE-14-01, FE-14-02, FE-14-03, FE-14-04, FE-14-05, FE-14-06 | M; extra cash 0 by default | Weekly budget review; check renewal due dates, not an assumed monthly reset. |
+| D29 | Pending | Login, Kite status, top bar, wallet chip and kill dialog | FE-14-07, FE-14-08, FE-14-09, FE-14-10, FE-14-11 | M; extra cash 0 by default | Session-time read-only observation; merge UI changes after market close. |
+| D30 | Pending | Socket reducers, shared error states, tests and contract generation | FE-14-12, FE-14-13, FE-14-14, FE-14-15, BE-13-20 | H; extra cash 0 by default | Formal D30 delivery/usage review; discuss second subscription only if actually due and useful. |
+| D31 | Pending | Live Renko chart, history loading and indicator/event overlays | FE-15-01, FE-15-02, FE-15-03, FE-15-04, FE-15-05 | M; extra cash 0 by default | Use stable brick indices and shared fixtures; never redraw entire history per tick. |
+| D32 | Pending | Trade/level overlays, toolbar, direction and active-position actions | FE-15-06, FE-15-07, FE-15-08, FE-15-09, FE-15-10 | M; extra cash 0 by default | Verify manual close/kill result semantics; preserve paper accounting baseline. |
+| D33 | Pending | Live summaries, signals, alerts, resync and shadow UI completion | FE-15-11, FE-15-12, FE-15-13, FE-15-14, FE-15-15, OPS-19-08 | M; extra cash 0 by default | Complete shadow ingestion/comparison/UI row only with full evidence; retain earlier daily comparisons. |
+| D34 | Pending | History cards, P&L charts, period tables and filters | FE-16-01, FE-16-02, FE-16-03, FE-16-04 | M; extra cash 0 by default | Daily paper session/reconciliation note; no strategy tuning during observation. |
+| D35 | Pending | Trade table/details/export and consistency verification | FE-16-05, FE-16-06, FE-16-07, FE-16-08 | M; extra cash 0 by default | Weekly usage/cash and qualifying-session count review. |
+| D36 | Pending | Wallet balances/deposit/withdraw/reset controls | FE-17-01, FE-17-02, FE-17-03, FE-17-04 | M; extra cash 0 by default | Do not reset the observation wallet or erase paper records. |
+| D37 | Pending | Ledger/history options/top-up display and wallet verification | FE-17-05, FE-17-06, FE-17-07, FE-17-08 | M; extra cash 0 by default | Keep optional destructive UI unavailable unless its backend contract exists. |
+| D38 | Pending | Settings forms, Pine defaults and strategy groups | FE-18-01, FE-18-02, FE-18-03, FE-18-04 | M; extra cash 0 by default | Match backend schema rather than duplicate validation rules. |
+| D39 | Pending | Risk/data/display settings and versioned import/export | FE-18-05, FE-18-06, FE-18-07, FE-18-08 | M; extra cash 0 by default | Behavior changes use a new config/baseline; never alter the running burn-in silently. |
+| D40 | Pending | Strike preview, dangerous-change controls and usability checks | FE-18-09, FE-18-10, FE-18-11 | M; extra cash 0 by default | Review whether D45 scope is achievable with remaining budget; retain failed acceptance rows. |
+| D41 | Pending | Local serving, Windows commands/service and backup/restore schedule | OPS-19-01, OPS-19-02, OPS-19-03, OPS-19-04 | H; extra cash 0 by default | Use existing Windows machine; preserve secrets and verify separate-database restore. |
+| D42 | Pending | Retention, access review and dependency audits | OPS-19-05, OPS-19-06, OPS-19-07 | M; extra cash 0 by default | Weekly spend/renewal review; fix actual findings, avoid unrelated rewrites. |
+| D43 | Pending | Browser end-to-end acceptance flows | QA-19-09 | H; extra cash 0 by default | Run focused browser flows against replay; no interference with market-hour observation. |
+| D44 | Pending | Browser/backend recorded-day reconciliation and latency checks | QA-19-10, QA-19-14 | H; extra cash 0 by default | Measure representative load; optimize demonstrated bottlenecks only. |
+| D45 | Pending | Application candidate and verified operational guide | OPS-19-18 | M; extra cash 0 by default | Application target, not automatic G4/G5 acceptance; list remaining rows/session deficit. |
+| D46 | Pending | Paper observation and first reserve-day defect triage | Carry-over/observations only; no new mandatory product IDs | L; extra cash 0 by default | Observe qualified sessions; prioritize safety/accounting defects and preserve evidence. |
+| D47 | Pending | Review daily shadow mismatches and source quality | Carry-over/observations only; no new mandatory product IDs | L; extra cash 0 by default | A no-signal day can be a valid observed session; never invent a trade. |
+| D48 | Pending | Targeted repair of an observed blocker, only if needed | Carry-over/observations only; no new mandatory product IDs | M; extra cash 0 by default | No blocker: use L and spend no extra tokens; record any burn-in extension. |
+| D49 | Pending | Weekly ledger/usage/session-count review | Carry-over/observations only; no new mandatory product IDs | L; extra cash 0 by default | Calculate actual cash plus committed renewals; warn before crossing INR 15,000. |
+| D50 | Pending | Paper session and backup evidence review | Carry-over/observations only; no new mandatory product IDs | L; extra cash 0 by default | Reuse daily operational checks; broad regression only after relevant changes. |
+| D51 | Pending | Targeted remaining acceptance blocker, if present | Carry-over/observations only; no new mandatory product IDs | M; extra cash 0 by default | No blocker: downgrade to L; no paid usage to fill an empty schedule. |
+| D52 | Pending | Paper/shadow review and unresolved-issue audit | Carry-over/observations only; no new mandatory product IDs | L; extra cash 0 by default | Inspect recorded observations, not just aggregate profit or win rate. |
+| D53 | Pending | Review qualified-session count and remaining calendar | Carry-over/observations only; no new mandatory product IDs | L; extra cash 0 by default | Use real holiday/special-session calendar; reforecast if fewer than 20 qualified sessions. |
+| D54 | Pending | Final necessary fixes and affected-path checks only | Carry-over/observations only; no new mandatory product IDs | M; extra cash 0 by default | Behavior-changing fixes may extend/restart observation; preserve old baseline. |
+| D55 | Pending | Freeze release evidence and review readiness | Carry-over/observations only; no new mandatory product IDs | L; extra cash 0 by default | No unused-budget spending or speculative refactor; confirm next actual renewal. |
+| D56 | Pending | Twenty-session and daily shadow evidence review | QA-19-15, QA-19-16 | L; extra cash 0 by default | Complete only if real observed-session/evidence requirements pass; otherwise remain Pending. |
+| D57 | Pending | Paper G4/G5 acceptance review | QA-19-17 | M; extra cash 0 by default | All drills, reconciliation and observation evidence required; calendar date alone proves nothing. |
+| D58 | Pending | Release handoff and remaining scope review | Carry-over/observations only; no new mandatory product IDs | L; extra cash 0 by default | Broader checks only for new changes/unresolved concerns; archive receipts and report actual spend. |
+| D59 | Pending | Subscription/credit expiry and future-renewal decision | Carry-over/observations only; no new mandatory product IDs | L; extra cash 0 by default | Check actual account dates; notify about next charge; never automatically buy a third month. |
+| D60 | Pending | Final scope, cash, observation and unfinished-task handoff | Carry-over/observations only; no new mandatory product IDs | L; extra cash 0 by default | Stop at budget cap; carry unresolved gates forward with dates and reasons, not false completion. |
+
+### Usage ledger, cash records and reassessment
+
+- [daily-log.csv](docs/plans/daily-log.csv): one initialized row per elapsed day;
+  actual dates, inputs/outputs, allowance readings, costs and evidence are blank
+  until observed. Fill `done_ids`, `remaining_ids`, `blocker` and `next_action` at
+  each checkpoint. Do not overwrite earlier evidence or insert imaginary usage.
+- [spend-ledger.csv](docs/plans/spend-ledger.csv): append actual all-in charges,
+  category and sanitized receipt references. The starting history is unverified;
+  reconcile it before reporting a remaining balance. Never store card/account
+  numbers, access tokens, passwords or private callback URLs in these files.
+- [paper-journal.csv](docs/plans/paper-journal.csv): separate manual practice,
+  replay, automated trials and qualifying burn-in. Link large/raw sanitized
+  evidence rather than embedding it in README or passing it all back to the model.
+- D03: use measured tokens/allowance per accepted batch to revise H/M/L checkpoints.
+  D15: resolve data/parity bottlenecks. D30: decide whether integrated paper is on
+  schedule. D45: list every unresolved paper-release row. D60: report actual spend,
+  accepted scope and session count; unresolved work stays Pending without a third
+  month purchase being assumed. Unused budget is saved, not a spending target.
+
+### Official pricing and account checks
+
+Checked 2026-10-26: Plus lists USD 20/month with Codex included; local checkout,
+tax and existing entitlements decide actual cash. Included usage varies by task;
+the usage dashboard (or CLI `/status`) supplies allowance/reset information.
+Purchased-credit rates and API rates are separate from included subscription usage.
+See [official Codex pricing/usage](https://learn.chatgpt.com/docs/pricing?codex-pricing-plans=individual)
+and [API pricing](https://developers.openai.com/api/docs/pricing) only if API use
+is separately chosen. Recheck before renewal or any model/credit purchase.
+Kite and TradingView entitlements must be checked against the actual accounts and
+their current checkout pages; the INR allocations above are not product quotes.
+
+**Next-session prompt:** `Read docs/plans/NEXT_SESSION.md and the current README
+daily row. Check budget/renewal facts, then finish the next dependency-ready batch
+using included Codex usage. Preserve paper observation, run required checks, and
+update master statuses, daily usage, cash evidence and the handoff. Do not purchase
+credits or mark unverified acceptance complete.`
+
+<!-- END V2 EXECUTION PLAN: original product master record follows. -->
+
 ## Master task record: backend, frontend and release
 
-**Last reviewed: 2026-10-25. This README is the authoritative task/status record.**
+**Last reviewed: 2026-10-26. This README is the authoritative task/status record.**
 The specification describes intended behavior; an unchecked box in the original
 specification is not evidence that implemented work is missing. The checklist below
 was reconciled with the current application, tests and previous verification notes.
 
-**Task totals: 280 — Completed: 59; Pending: 221.** Frontend: 57 Pending.
+**Task totals: 280 — Completed: 64; Pending: 216.** Frontend: 57 Pending.
 These are checklist counts, not time/effort percentages. Recount them whenever
 rows are added, split or completed.
 
@@ -43,8 +351,8 @@ Status rules:
   IDs are stable references for future work, reviews and AI handoffs.
 - Existing completed work is dated by the verification notes: foundation/auth/catalog
   on 2026-10-23; data tools/recording/persistence on 2026-10-24. The latest recorded
-  backend result is **183 passing tests, Ruff lint/format and mypy passing**
-  (2026-10-25). This does not imply real-market verification.
+  backend result is **241 passing tests, Ruff lint/format and mypy passing**
+  (2026-10-26). This does not imply real-market verification.
 
 ### How every future contributor or AI must update this record
 
@@ -52,7 +360,8 @@ Status rules:
    before selecting work. Never restart a Completed task merely because chat history
    is unavailable. Keep the original Pine reference intact.
 2. Select the next Pending task whose prerequisites are satisfied. Report its ID.
-   Default next backend task: **BE-05-07**, followed by the rest of stage 05.
+   Default next backend task: **BE-05-12**. Use the v2 daily batch and
+   `docs/plans/NEXT_SESSION.md` for dependency-ready batching and usage checks.
 3. Implement the scoped behavior and its meaningful acceptance checks. If only
    part is finished, split the row into stable sub-IDs and leave unfinished parts
    Pending; do not mark a broad phase Completed from a partial implementation.
@@ -66,6 +375,9 @@ Status rules:
    Do not print credentials, session tokens or private callback URLs as evidence.
 7. Prefer this README over secondary status summaries. Update or link secondary
    notes when their descriptions would conflict with this master record.
+8. Follow v2 budget/renewal/paper-session checks on every future next-task turn.
+   Read the compact handoff and relevant rows first; preserve real evidence,
+   leave invisible usage/cash Unknown, and do not assume this plan buys credits.
 
 ### Ordered phases and frontend starting point
 
@@ -73,7 +385,7 @@ Status rules:
 | --- | --- | --- | --- |
 | 00 | References and validation inputs | Pending | Pine saved; chart settings, debug export and reference fixtures still needed |
 | 01–04 | Foundation, auth, instruments, standalone data/storage | Completed | Scoped implementation rows below completed; external checks remain in stage 07 |
-| 05 | Historical warm-up and gap recovery | Pending | Historical candle/VWAP/Renko initialization completed; live merge at BE-05-07 is next |
+| 05 | Historical warm-up and gap recovery | Pending | Initialization, gap recovery, explicit partial corrections and bounded historical retries completed; request coordination at BE-05-12 is next |
 | 06 | Backend lifecycle and market calendar | Pending | One managed worker, scheduled sessions, readiness and stop/restart behavior |
 | 07 | Market-data acceptance gate G1 | Pending | Real downloads/feed, then zero Renko mismatches over ten trading days |
 | 08–09 | Pine indicator port and acceptance gate G2 | Pending | Maths/state/signals/exits implemented and reference-verified |
@@ -192,11 +504,11 @@ has completed and quality checks pass. Reference-data tasks can run alongside th
 | BE-05-04 | Completed | Fetch/persist matching futures OHLC/volume/OI and daily previous-close/open/high/low context. Handle absent OI explicitly. | 2026-10-25: `app/market/context_history.py`, daily broker support, opt-in missing-OI parser, migration `0004_historical_context.py`; 152 tests, Ruff and mypy passed; local migration applied |
 | BE-05-05 | Completed | Import historical candle volumes directly instead of treating them as cumulative tick counters; seed session VWAP correctly. | 2026-10-25: `CandleBuilder.import_completed`, `app/market/history_import.py`, `test_history_import.py`; direct-volume and session-quality checks; 169 tests, Ruff and mypy passed |
 | BE-05-06 | Completed | Rebuild Renko in timestamp order from completed spot history while execution remains disabled. Make repeat imports idempotent. | 2026-10-25: `app/market/history_renko.py`, `test_history_renko.py`; atomic candles/bricks/checkpoint, no-write repeat and worker restore checks; 183 tests, Ruff and mypy passed |
-| BE-05-07 | Pending | Merge historical and queued live data at an explicit timestamp boundary; prevent duplicate candles/bricks and half-formed closes. | BE-05-05/06 |
-| BE-05-08 | Pending | Detect reconnect, overflow and downtime gaps; track missing ranges and hold entry readiness false. | Existing persistent gap flags |
-| BE-05-09 | Pending | Recover missing minute/five-minute candles, rebuild affected derived state and preserve unrecoverable-quality flags. | BE-05-07/08 |
-| BE-05-10 | Pending | Define correction rules for existing partial candles and downstream bricks; rebuild affected outputs rather than silently retaining stale values. | BE-05-09 |
-| BE-05-11 | Pending | Add bounded recovery retries/backoff for network/429 failures without deleting valid sessions or claiming recovery succeeded. | Historical request client |
+| BE-05-07 | Completed | Merge historical and queued live data at an explicit timestamp boundary; prevent duplicate candles/bricks and half-formed closes. | 2026-10-26: `TickerWorker.start(buffer_only=True)` / `merge_history`, `test_history_renko.py`; explicit per-token fences, overlap filtering, partial-volume flags, failure/overflow and recording replay checks; 188 tests, Ruff and mypy passed |
+| BE-05-08 | Completed | Detect reconnect, overflow and downtime gaps; track missing ranges and hold entry readiness false. | 2026-10-26: `app/market/gaps.py`, worker/persistence/recording integration, `test_gaps.py`; bounded per-token/cause spans, calendar-aware completed recovery ranges, restart and replay checks; 202 tests, Ruff and mypy passed |
+| BE-05-09 | Completed | Recover missing minute/five-minute candles, rebuild affected derived state and preserve unrecoverable-quality flags. | 2026-10-26: `app/market/recovery.py`, persistence metadata retention, `test_recovery.py`; missing-only downloads, atomic source/output/checkpoint rebuild, retained partial/OI/missing flags, rollback/concurrent-writer/retry checks; 221 tests, Ruff and mypy passed |
+| BE-05-10 | Completed | Define correction rules for existing partial candles and downstream bricks; rebuild affected outputs rather than silently retaining stale values. | 2026-10-26: explicit `correct_partial=True` recovery policy; atomic candle/VWAP/Renko rebuild, before/after market and staged-source audit, missing-source retention and rollback/idempotency tests in `test_recovery.py`; 241 tests and quality checks passed |
+| BE-05-11 | Completed | Add bounded recovery retries/backoff for network/429 failures without deleting valid sessions or claiming recovery succeeded. | 2026-10-26: `recovery_requests.py`, safe transient metadata in `KiteAuth`; configured per-read attempts/capped backoff, numeric Retry-After, no retry of auth/validation, exhaustion/session preservation and no-write checks; 241 tests, Ruff and mypy passed |
 | BE-05-12 | Pending | Coordinate request limits across managed REST calls; document standalone-process limits and avoid concurrent recovery storms. | BE-05-11; existing historical-only limiter |
 | BE-05-13 | Pending | Reconcile recording events ahead of the last committed DB checkpoint after a failed transaction/crash; avoid double applying events. | Existing independent file/DB writes |
 | BE-05-14 | Pending | Resume live processing only after warm-up/recovery validation; implement the SPEC post-warm-up entry delay. | BE-05-07–13 |
@@ -528,6 +840,69 @@ claimed before requirements are agreed.
 
 ### Task update history
 
+- **2026-10-26 (D01):** Completed BE-05-10 and BE-05-11. Recovery now supports
+  opt-in completed-partial replacement with atomic downstream VWAP/Renko rebuild
+  and before/after source provenance. Complete/unfinished bars are not replaced;
+  absent correction sources remain partial. The historical read wrapper retries
+  only classified transient failures with configured attempts/capped backoff;
+  exhausted/auth/invalid responses cannot commit sources or derived state. Added
+  20 tests; all 241 tests, Ruff lint/format and strict mypy passed. No migration,
+  live broker request, order, purchase or recharge was performed. Recounted 280
+  tasks: 64 Completed, 216 Pending. D01 stays Pending solely for REF-00-03 actual
+  chart input; its template is `docs/pine/chart_reference.md`. Kickoff is 2026-10-26
+  IST. Usage/account cash/renewal facts remain Unknown; no readings fabricated.
+  Next ready coding batch: BE-05-12/13, with REF-00-04 independently available.
+
+- **2026-10-26 (plan v2):** Preserved the exact prior README as
+  `docs/plans/README.v1.md` with matching SHA-256. Added a 60-day execution schedule
+  with D45 application target, all 198 pending paper-scope tasks mapped, included-
+  usage-first token checkpoints, daily logs, in-session renewal/recharge alerts,
+  INR 10,000 target / INR 20,000 ceiling, and manual/trial/formal paper separation.
+  No subscriptions, reminders, trades or product implementations were activated.
+  All 280 master task rows and statuses retained: 62 Completed, 218 Pending.
+  Billing baseline/renewal and kickoff dates remain unverified. Documentation
+  checks verify backup integrity, ID coverage, day/log/profile consistency and
+  unchanged master rows; inherited application checks remain 221 passing tests.
+
+- **2026-10-26:** Completed BE-05-09: offline `recover_missing_history` reads a
+  consistent persisted stream, fetches only absent completed minute/five-minute
+  candles and replays retained plus recovered sources to rebuild Renko and session
+  VWAP. One revision-guarded transaction stages source provenance and replaces
+  candles, bricks and checkpoint state. Missing source/OI and retained partial-bar
+  flags stay explicit; entries stay disabled. Existing completed partial bars and
+  staged source conflicts require the upcoming correction workflow. Elapsed active
+  fragments are audited; unfinished fragments are retained as partial. Historical
+  import/recovery metadata now survives ordinary checkpoint saves. Added 19 tests
+  for uninterrupted-reference rebuild, idempotency, retries, failure rollback,
+  concurrent writers, calendar/weekend behavior, quality flags and worker restore.
+  All 221 tests, Ruff lint/format and strict mypy passed. Recounted 280 tasks:
+  62 Completed, 218 Pending. Next: BE-05-10. No migration or live broker check was
+  performed; managed startup, retries/backoff and entry readiness remain Pending.
+
+- **2026-10-26:** Completed BE-05-08: detect disconnect/reconnect, bounded
+  callback/queue overflow and checkpoint downtime; track unresolved spans per
+  instrument and cause without clearing quality flags on reconnect. Persist gap
+  metadata on worker saves and connection events, and replay recorded gap events.
+  Older queued ticks cannot close gaps detected later. Calendar-supplied recovery
+  ranges include only completed affected buckets, exclude non-session periods and
+  retain unfinished buckets for later passes. Metadata remains bounded using
+  conservative envelopes, which can include intact intervals between incidents.
+  Added 14 synthetic tests; all 202 backend tests, Ruff lint/format and strict mypy
+  passed. Recounted 280 tasks: 61 Completed, 219 Pending. Next: BE-05-09.
+  No real feed verification, recovery implementation or entry readiness is claimed.
+
+- **2026-10-26:** Completed BE-05-07: the worker can subscribe into a bounded
+  queue while history is initialized, adopt a persisted seed at explicit per-token
+  boundaries and then consume queued ticks in order. Historical overlap is skipped
+  before live state/recording changes; unfinished buckets remain open. Missing tail
+  intervals are fenced for later recovery, and futures volume starts from a fresh
+  cumulative baseline with partial-quality flags. Fences are persisted before queue
+  release; failed adoption stays blocked. Added five tests for overlap, same-second
+  updates, unfinished closes, restore, invalid boundaries, overflow, failed saves,
+  shutdown and recording replay. All 188 tests, Ruff lint/format and strict mypy
+  passed. Recounted 280 tasks: 60 Completed, 220 Pending. Next: BE-05-08.
+  Managed startup, gap recovery, entry delay and real-market parity remain Pending.
+
 - **2026-10-25:** Completed BE-05-06: rebuild minute-close Renko from staged
   spot candles in exchange-close order and atomically initialize candles, bricks
   and a restorable checkpoint. Identical repeats issue no writes; changed source,
@@ -799,7 +1174,7 @@ adapter; this does not prevent the tests or application from running.
 4. The original Pine reference is already saved at `docs/pine/renko_indicator.pine`.
 5. Record actual chart settings/anchor and export TradingView reference data for
    REF-00-03–07. The comparison tool exists; real parity is still Pending.
-6. Continue implementation at BE-05-07, using the master task record above.
+6. Continue implementation at BE-05-12, using the master task record and v2 daily plan above.
 
 ## Step 3a: daily instrument catalog
 
@@ -1258,7 +1633,7 @@ boundary. Imported builders therefore retain no cumulative tick baseline. The
 first subsequent live tick establishes a baseline without subtracting historical
 bar totals, and conservatively marks the affected candle and VWAP partial.
 Later ticks use normal counter deltas. A verified historical/live handoff remains
-BE-05-07 work; the standalone worker does not automatically adopt these seeds.
+implemented by the explicit BE-05-07 handoff below; the standalone CLI does not automatically adopt these seeds.
 Seed state uses the existing checkpoint serialization, and every returned seed
 reports `entries_enabled=False`. Real feed/TradingView parity remains Pending.
 
@@ -1292,10 +1667,194 @@ for those cases; this initializer never replaces existing state.
 The existing persistent worker can restore the checkpoint and continue brick
 numbering. The returned result always reports `entries_enabled=False` and the
 checkpoint deliberately keeps `gap=True`, including for complete source data.
-Verified queued-live handoff is BE-05-07 work; recovery, entry-delay enforcement,
+Queued-live handoff is implemented below; recovery, entry-delay enforcement,
 indicator sufficiency and TradingView acceptance remain separate Pending tasks.
 This initializer is a service for the upcoming managed worker, not an automatic
 startup job or dashboard action.
+
+## Historical to queued-live handoff (BE-05-07)
+
+This is an explicit worker service, not yet wired into the standalone CLI or
+FastAPI startup. On the event loop, create a fresh `TickerWorker` without
+persistence and call `await worker.start(buffer_only=True)`. The socket subscribes
+normally, but the consumer waits while callbacks fill the existing bounded queue.
+Build and persist the historical seed using BE-05-03 through BE-05-06 (run blocking history work
+off the event loop so callbacks can continue). Do not advance candles during buffering.
+
+Call `worker.merge_history(store, boundaries)` with a `MarketPersistence` matching
+the worker tokens and stream, and a timezone-aware boundary for each token. Each
+boundary is the exclusive historical end and inclusive live start, aligned to the
+instrument's one-minute or five-minute buckets. For example, at a 10:02:30 cutoff,
+use 10:02 for spot and 10:00 for futures, with history completed through those
+boundaries. Buffer early enough to retain the unfinished futures bucket. The first
+live bucket remains partial because the feed cannot establish complete coverage or
+the futures cumulative-volume baseline from historical bar volume.
+
+The checkpoint must exist and contain idle builders with no history ending after
+the supplied boundary. Missing tail intervals before a boundary stay missing and
+gapped for explicit recovery; queued fragments never fill them silently. The
+handoff persists the boundaries before releasing the queue. Older ticks are counted
+as `history_overlap` and skipped before updating latest prices, recording or storage.
+Ticks exactly at the boundary, including same-second updates, are live inputs.
+Closes and Renko bricks are produced only at completed candle boundaries.
+
+Invalid handoffs and persistence failures leave consumption blocked. Stop and retry
+with a fresh worker after inspecting the cause. Stopping a buffering worker cancels
+the consumer without waiting for a queue that cannot drain. Queue overflow retains
+its dropped count and gap flags. When recording is enabled, the adopted checkpoint
+is the first event and the accepted live events can be replayed deterministically.
+`history_pending` reports buffering state; entries remain disabled and gap quality
+flags are preserved. Gap tracking is implemented below; recovery, managed scheduling, indicator readiness,
+the post-warm-up entry delay and real TradingView parity are separate Pending tasks.
+
+## Missing-data tracking (BE-05-08)
+
+`TickerWorker.gaps` retains unresolved uncertainty spans for each subscribed token
+and cause: `disconnect`, `reconnect`, `overflow` and `downtime`. Disconnect and
+reconnect incidents start conservatively at an active candle opening or the last
+completed boundary; restored checkpoints add downtime from that same boundary.
+When no source boundary exists, the incident observation time is used. The SDK
+pending-callback limit and event-loop queue limit both flag overflow. Only bounded,
+locked metadata is updated from the SDK thread; database writes stay on the worker
+thread. Overflow flags reach persistence on the next save/clock event or shutdown.
+Abrupt-crash reconciliation with recording is still BE-05-13.
+
+`status()["missing_ranges"]` exposes the raw uncertainty spans, including a
+`resume_after` observation time and `end=None` while the instrument has not resumed.
+Queued exchange timestamps older than `resume_after` cannot close a span. A fresh
+tick closes the open span for that token only; it never clears the unresolved gap
+or enables entries. Multiple incidents with the same token/cause widen one envelope,
+so metadata uses at most eight spans for the two-token worker. Recovery may fetch
+intact candles inside an envelope; this deliberately avoids losing recovery work.
+
+Call `worker.gaps.ranges(token, minutes, calendar, now)` with `minutes=1` for spot
+or `5` for futures and an explicit `SessionCalendar`. It returns ordered,
+deduplicated `HistoryRange` objects with inclusive candle-opening endpoints. Only
+completed affected buckets are returned, including the resumed bucket once it is
+complete. Open gaps extend through the supplied cutoff. Sessions clip the ranges;
+absent dates inside calendar coverage are non-trading dates, with no guessed
+holidays. Insufficient calendar coverage fails explicitly. Calling this method does
+not clear gaps, fetch history, mutate candles or grant readiness.
+
+Gap metadata is backward-compatible with checkpoints/recordings lacking a `gaps`
+field. New checkpoints retain it, new recording tick/clock events include snapshots,
+and connection events record explicit `gap` events. Replay applies gap flags before
+subsequent candles, preserving partial-bar behavior. Historical handoff retains the
+SDK callback tracker and merges seed gaps before releasing the queue. Recording
+waits for the seed checkpoint while history buffering is active.
+
+Missing-candle downloads and derived-state rebuilds are implemented below. Existing
+explicit partial-candle corrections and bounded request retries are implemented below;
+request coordination remains BE-05-12 and readiness/entry delay remain BE-05-14.
+The original Pine reference is unchanged.
+
+## Missing-candle recovery service (BE-05-09)
+
+`app.market.recovery.recover_missing_history(auth, engine, settings, stream,
+spot_token, future_token, futures_identity, calendar, cutoff)` operates on a
+quiescent persisted minute-close stream. Stop its writer before invoking it, and
+restore a **new** worker from the resulting checkpoint afterward. The service does
+not mutate an existing worker or run automatically from the CLI/FastAPI lifecycle.
+Run its blocking network/database work off an event loop that is buffering a new
+feed. The usual explicit chart anchor, stream configuration, catalog tokens and
+exact futures symbol/expiry identity must match. Futures rollover is not inferred.
+
+The service combines tracked gaps, checkpoint downtime and interior holes in the
+retained source coverage. Calendar coverage must include all retained sources and
+the recovery cutoff; only completed buckets in supplied sessions are requested.
+The automatic recovery age limit is enforced before broker requests. Spot is
+requested at one-minute intervals, futures at five-minute intervals with OI,
+through the existing validated/chunked historical downloader. Contiguous absent
+openings share a request. By default, stored completed candles, including partial ones, are not redownloaded.
+Explicit `correct_partial=True` also requests completed partial bars, with audited
+replacement as described below. Complete bars are never correction candidates. No daily-context requests are needed.
+
+Retained and recovered candles are replayed in timestamp order from the stream's
+original source coverage. This preserves the anchored Renko seed and recomputes
+all later brick indices and session HLC3-volume VWAP when an earlier hole is filled.
+The implementation replaces derived outputs in full for correctness; it does not
+download the full history again. In default missing-only mode, existing partial
+candles retain their OHLC/volume and partial flags; derived VWAP is recomputed. Explicit correction may replace completed partial bars and their matching staged
+source values with before/after evidence; other staged conflicts still fail. An elapsed active fragment
+can be superseded by its completed historical bar; its payload remains in recovery
+metadata. Unfinished active fragments remain partial and are never closed early.
+Missing elapsed fragments are not promoted into fabricated completed bars.
+
+One transaction stages recovered source candles and audit batches in the existing
+history tables, replaces completed candle/brick outputs and advances the checkpoint
+revision. Network/validation failures leave all tables unchanged; database failures
+roll back sources and derived state together. A writer advancing the checkpoint
+during download causes recovery to fail without replacing its outputs. Identical
+recovery at the same cutoff and correction policy issues no broker requests or
+database writes once all requested sources are present. A later
+attempt may fill bars that were absent from an earlier broker response.
+
+`RecoveryResult` reports inserted spot/futures bars, remaining missing bars, retained
+partial bars and absent OI. Checkpoint `recovery` metadata retains coverage, cutoff,
+identity, quality counts and elapsed-fragment evidence; ordinary worker saves now
+preserve it and original import provenance. Per-token boundaries prevent missing
+tail intervals from being reconstructed from late tick fragments. Gap flags and
+`entries_enabled=False` remain in force even when all requested bars were recovered;
+this service does not establish indicator sufficiency or TradingView parity.
+
+Completed-candle corrections and per-read retries are implemented below;
+BE-05-12 covers coordinated request limits; BE-05-13 covers recording/database crash reconciliation;
+BE-05-14 covers validated resumption and entry delay. No additional schema migration
+is required. Original Pine contents remain unchanged.
+
+## Completed-partial correction and historical retry policy (BE-05-10/11)
+
+Call `recover_missing_history(..., correct_partial=True)` on a quiescent stream to
+request absent bars plus existing **completed partial** bars inside the validated
+coverage. Default `False` preserves the BE-05-09 missing-only behavior. Full bars
+are never overwritten, and unfinished active candles are not fetched or closed
+prematurely. Missing correction responses retain the old partial candle; missing OI
+remains explicit rather than invented. Existing configuration, identity, calendar,
+cutoff and automatic age limits still apply.
+
+Each returned correction replaces the entire sampled OHLC/volume/OI candle using
+one validated historical source. All retained and recovered spot closes are then
+replayed from the original stream seed, rebuilding later brick values/indices;
+session VWAP and checkpoint accumulators are recomputed from direct bar volumes.
+This avoids retaining downstream values derived from the former partial candle.
+One revision-guarded transaction applies source replacements, derived outputs and
+checkpoint. Any validation, concurrent-writer or database failure rolls it back.
+Restore a new worker afterward; entries remain disabled and gap flags persist.
+
+Existing history-batch provenance stores `market_corrections` with before/after
+market payloads and `staged_replacements` with the former source payload, completion
+time and batch ID plus the replacement payload. Old batches are retained; the
+current staged row points to the new audited source. A staged conflict is allowed
+only at the exact token/time of a completed partial being corrected. Other source
+conflicts still require a separate explicit rebuild/correction decision. Recovery
+metadata retains cumulative `corrected_counts`; `RecoveryResult` distinguishes
+inserted bars, corrected bars, retained partials, absent OI and request retries.
+An identical repeat makes no requests/writes after sources are present.
+
+`RecoveryHistoryClient` wraps only read-only historical requests made by recovery.
+`RECOVERY_MAX_ATTEMPTS` includes the first attempt. Subsequent delays are
+`min(initial_backoff * 2**(attempt-1), maximum_backoff)`, with no sleep after the
+final failure. Numeric nonnegative finite `Retry-After` values raise that delay;
+if the requested wait exceeds the configured maximum, recovery fails for later
+rescheduling instead of retrying too soon. Unsupported/malformed header values use
+the configured backoff. Tests inject sleeps; production calls are blocking and
+must run off the market event loop.
+
+Transport failures, HTTP 429 and HTTP 5xx are classified as transient, including
+non-JSON rate-limit/service responses. Authentication/token errors, bad requests,
+malformed successful data, invalid candles and persistence conflicts are not
+retried. Safe `AuthError` metadata distinguishes these cases even where outward
+HTTP errors share code 502. Retry exhaustion raises `RecoveryRequestError` with
+attempt count/status and a fixed message; valid stored sessions are never deleted
+by this client. A successful spot request is not repeated when a futures request
+needs retry. All downloads still finish before any recovery transaction starts.
+
+The existing historical pacer is used on every attempt. This does not coordinate
+other REST clients or bound retries across concurrent recovery jobs; that remains
+BE-05-12. Reconnect orchestration, recording crash reconciliation and entry-delay
+readiness remain separate Pending work. Broker error classifications were checked
+against [official Kite error documentation](https://kite.trade/docs/connect/v3/exceptions/).
+No schema migration is required; original Pine content is unchanged.
 
 ## Candle/brick persistence and restart recovery
 

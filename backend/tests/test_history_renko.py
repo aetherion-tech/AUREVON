@@ -1,8 +1,10 @@
 """Persistent historical rebuilds use synthetic staged minute candles."""
 
+import asyncio
 import json
 from dataclasses import replace
 from datetime import UTC, date, datetime, timedelta
+from unittest.mock import Mock, patch
 
 import pytest
 from sqlalchemy import event, select
@@ -24,7 +26,9 @@ from app.db.models import (
 from app.db.session import database_engine
 from app.market.history_renko import rebuild_historical_renko
 from app.market.persistence import MarketPersistence, PersistenceError
+from app.market.tick_recording import TickRecorder
 from app.market.warmup import HistoryRange, Session, SessionCalendar, WarmupPlan
+from app.tools.replay_ticks import replay_events
 
 START = datetime(2026, 10, 22, 9, 15, tzinfo=IST)
 IDENTITY = "NFO:NIFTYTESTFUT:2026-10-29"
@@ -348,3 +352,179 @@ def test_idempotent_import_issues_no_insert_update_or_delete(engine):
     finally:
         event.remove(engine, "before_cursor_execute", capture)
     assert writes == []
+
+
+@pytest.mark.asyncio
+async def test_buffered_history_merge_filters_overlap_and_keeps_unfinished_bars(engine):
+    rebuild(engine)
+    store = MarketPersistence(engine, "test", 111, 222, box=10, anchor=100)
+    worker = TickerWorker(Mock(), 111, 222)
+    boundary = START + timedelta(minutes=4)
+    with patch("twisted.internet.reactor.callFromThread"):
+        await worker.start(buffer_only=True)
+        for token, stamp, price, volume in (
+            (111, boundary - timedelta(seconds=1), 999, 0),
+            (222, START - timedelta(seconds=1), 999, 10),
+            (111, boundary, 150, 0),
+            (222, START + timedelta(minutes=4), 150, 1000),
+            (111, boundary, 160, 0),
+            (222, START + timedelta(minutes=4, seconds=59), 160, 1010),
+        ):
+            worker._enqueue(
+                [
+                    {
+                        "instrument_token": token,
+                        "exchange_timestamp": stamp,
+                        "last_price": price,
+                        "volume_traded": volume,
+                        "oi": 20,
+                    }
+                ],
+                boundary,
+            )
+        await asyncio.sleep(0)
+        assert worker.accepted == 0
+        assert worker.queue.qsize() == 6
+        with pytest.raises(ValueError, match="Cannot advance"):
+            worker.advance_candles(boundary)
+        worker.merge_history(store, {111: boundary, 222: START})
+        await worker.queue.join()
+        assert worker.history_overlap == 2
+        assert worker.accepted == 4
+        assert worker.candle_counts == {111: 4, 222: 0}
+        assert worker.candles[222].current.volume == 10
+        assert worker.candles[222].current.partial is True
+        worker.advance_candles(START + timedelta(minutes=4, seconds=59))
+        assert worker.candle_counts == {111: 4, 222: 0}
+        worker.advance_candles(START + timedelta(minutes=5))
+        assert worker.candle_counts == {111: 5, 222: 1}
+        assert store.renko.index == 8
+        assert worker.status()["entries_enabled"] is False
+        assert worker.gap_required is True
+        await worker.stop()
+    restored = TickerWorker(
+        None,
+        111,
+        222,
+        persistence=MarketPersistence(
+            engine,
+            "test",
+            111,
+            222,
+            box=10,
+            anchor=100,
+        ),
+    )
+    assert restored.candle_counts == {111: 5, 222: 1}
+    assert [b[0] for b in snapshot(engine)[1]] == list(range(8))
+
+
+@pytest.mark.asyncio
+async def test_merge_invalid_boundaries_leave_queue_blocked(engine):
+    rebuild(engine)
+    worker = TickerWorker(Mock(), 111, 222)
+    with patch("twisted.internet.reactor.callFromThread"):
+        await worker.start(buffer_only=True)
+        boundary = START + timedelta(minutes=4)
+        for boundaries in (
+            {111: boundary},
+            {111: boundary.replace(tzinfo=None), 222: START},
+            {111: boundary - timedelta(minutes=1), 222: START},
+            {111: boundary, 222: START + timedelta(minutes=1)},
+        ):
+            store = MarketPersistence(engine, "test", 111, 222, box=10, anchor=100)
+            with pytest.raises(ValueError):
+                worker.merge_history(store, boundaries)
+            assert worker.persistence is None
+            assert worker.status()["history_pending"] is True
+        await worker.stop()  # A blocked consumer must not hang on queue.join().
+
+
+@pytest.mark.asyncio
+async def test_buffer_overflow_remains_gapped_after_history_merge(engine):
+    rebuild(engine)
+    worker = TickerWorker(Mock(), 111, 222, capacity=1)
+    boundary = START + timedelta(minutes=4)
+    with patch("twisted.internet.reactor.callFromThread"):
+        await worker.start(buffer_only=True)
+        tick = {
+            "instrument_token": 111,
+            "exchange_timestamp": boundary,
+            "last_price": 150,
+        }
+        worker._enqueue([tick, tick], boundary)
+        assert worker.dropped == 1
+        worker.merge_history(
+            MarketPersistence(engine, "test", 111, 222, box=10, anchor=100),
+            {111: boundary, 222: START},
+        )
+        await worker.queue.join()
+        assert worker.gap_required is True
+        assert worker.candles[111].current.partial is True
+        await worker.stop()
+
+
+@pytest.mark.asyncio
+async def test_handoff_recording_replays_and_missing_tail_is_not_fabricated(
+    engine, tmp_path
+):
+    rebuild(engine)
+    boundary = START + timedelta(minutes=5)
+    recorder = TickRecorder(tmp_path, 111, 222)
+    worker = TickerWorker(Mock(), 111, 222, recorder=recorder, clock=lambda: boundary)
+    with patch("twisted.internet.reactor.callFromThread"):
+        await worker.start(buffer_only=True)
+        # The missing 09:19 minute belongs to recovery, never to a queued fragment.
+        for stamp in (boundary - timedelta(seconds=1), boundary):
+            worker._enqueue(
+                [
+                    {
+                        "instrument_token": 111,
+                        "exchange_timestamp": stamp,
+                        "last_price": 160,
+                    }
+                ],
+                boundary,
+            )
+        worker.merge_history(
+            MarketPersistence(engine, "test", 111, 222, box=10, anchor=100),
+            {111: boundary, 222: boundary},
+        )
+        await worker.queue.join()
+        worker.advance_candles(boundary + timedelta(minutes=1))
+        assert worker.candle_counts == {111: 5, 222: 0}
+        assert worker.closed_candles[111][-1].time == boundary
+        await worker.stop()
+    events = list(replay_events(sorted(recorder.directory.glob("*.jsonl"))))
+    assert len(events) == 1
+    assert events[0]["candle"]["time"] == boundary
+    assert events[0]["candle"]["partial"] is True
+
+
+@pytest.mark.asyncio
+async def test_failed_handoff_save_keeps_live_worker_and_queue_untouched(engine):
+    rebuild(engine)
+    before = snapshot(engine)
+    worker = TickerWorker(Mock(), 111, 222)
+    boundary = START + timedelta(minutes=4)
+    with patch("twisted.internet.reactor.callFromThread"):
+        await worker.start(buffer_only=True)
+        worker._enqueue(
+            [
+                {
+                    "instrument_token": 111,
+                    "exchange_timestamp": boundary,
+                    "last_price": 160,
+                }
+            ],
+            boundary,
+        )
+        store = MarketPersistence(engine, "test", 111, 222, box=10, anchor=100)
+        with patch.object(store, "save", side_effect=PersistenceError("failed")):
+            with pytest.raises(PersistenceError, match="failed"):
+                worker.merge_history(store, {111: boundary, 222: START})
+        assert worker.persistence is None
+        assert worker.status()["history_pending"] is True
+        assert worker.queue.qsize() == 1
+        assert snapshot(engine) == before
+        await worker.stop()
