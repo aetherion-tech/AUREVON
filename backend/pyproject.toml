@@ -5,10 +5,12 @@ requires-python = ">=3.12"
 dependencies = [
     "alembic>=1.20.1",
     "apscheduler>=3.11.3",
+    "argon2-cffi>=25.1.0",
     "fastapi>=0.161.1",
     "httpx>=0.28.1",
     "kiteconnect>=5.2.2",
     "pydantic-settings>=2.16.1",
+    "pyjwt>=2.15.1",
     "pywin32>=312; sys_platform == 'win32'",
     "sqlalchemy>=2.1.6",
     "structlog>=26.1.0",

@@ -1,0 +1,13 @@
+{
+  "name": "aurevon-api-contracts",
+  "private": true,
+  "version": "1.0.0",
+  "scripts": {
+    "generate": "openapi-typescript ../../docs/api/openapi.v1.json -o ../../docs/api/api-v1.d.ts",
+    "check": "openapi-typescript ../../docs/api/openapi.v1.json -o ../../docs/api/api-v1.d.ts --check && tsc --noEmit --strict --lib es2022,dom contract-smoke.ts"
+  },
+  "devDependencies": {
+    "openapi-typescript": "7.13.0",
+    "typescript": "5.9.3"
+  }
+}

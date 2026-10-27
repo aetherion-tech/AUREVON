@@ -7,6 +7,7 @@ from urllib.parse import parse_qs, urlencode, urlparse
 
 import httpx
 import pytest
+from auth_helpers import authenticate, password_hash
 from fastapi.testclient import TestClient
 from pydantic import SecretStr
 
@@ -18,6 +19,8 @@ from app.main import create_app
 def make_settings(tmp_path: Path) -> Settings:
     return Settings(
         _env_file=None,
+        dashboard_password_hash=SecretStr(password_hash()),
+        database_url=f"sqlite:///{(tmp_path / 'auth.db').as_posix()}",
         kite_api_key=SecretStr("fake-key"),
         kite_api_secret=SecretStr("fake-secret"),
         kite_session_file=tmp_path / "session.bin",
@@ -32,12 +35,36 @@ def make_auth(settings: Settings, handler) -> KiteAuth:
 
 
 def login_state(client: TestClient) -> str:
+    authenticate(client)
     response = client.get("/api/auth/kite/login", follow_redirects=False)
     assert response.status_code == 303
     query = parse_qs(urlparse(response.headers["location"]).query)
     assert query["api_key"] == ["fake-key"]
     assert "fake-secret" not in response.headers["location"]
     return parse_qs(query["redirect_params"][0])["state"][0]
+
+
+def test_callback_delegation_revoked_by_dashboard_logout(tmp_path):
+    settings = make_settings(tmp_path)
+
+    def broker(request):
+        pytest.fail("Revoked dashboard delegation cannot contact the broker")
+
+    auth = make_auth(settings, broker)
+    with TestClient(create_app(settings, auth)) as client:
+        state = login_state(client)
+        assert client.post("/api/auth/dashboard/logout").status_code == 200
+        assert (
+            client.get(
+                "/api/auth/kite/callback",
+                params={
+                    "state": state,
+                    "request_token": "sensitive",
+                    "status": "success",
+                },
+            ).status_code
+            == 400
+        )
 
 
 def test_login_encrypts_session_restores_and_verifies_profile(tmp_path: Path) -> None:

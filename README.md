@@ -23,7 +23,7 @@ The original project specification is saved in [docs/SPEC.md](docs/SPEC.md).
 
 ## Start here - delivery plan v2 (45-day target, 60-day review)
 
-**Plan updated: 2026-10-26. Product status: 82 Completed / 198 Pending of 280.**
+**Plan updated: 2026-10-27. Product status: 91 Completed / 189 Pending of 280.**
 **Cash target: INR 10,000; absolute project ceiling: INR 20,000 including taxes/fees.**
 This replaces the execution schedule, not the product acceptance requirements.
 The original master checklist, stable IDs and all unfinished scope remain below.
@@ -33,17 +33,17 @@ The original master checklist, stable IDs and all unfinished scope remain below.
 | Short next-session handoff | [NEXT_SESSION.md](docs/plans/NEXT_SESSION.md) |
 | Immutable Version 1 backup | [README.v1.md](docs/plans/README.v1.md), [SHA-256](docs/plans/README.v1.sha256) |
 | Plan preparation | Completed on 2026-10-26; documentation only, outside the 280 product tasks |
-| Current implementation slot | D01 code Completed: BE-05-10/11; REF-00-03 Pending user settings. BE-05 (17/17) and BE-06 (11/11) complete; BE-13-01 shared contracts Completed; next ready code: BE-13-02 (dashboard authentication). |
-| Kickoff / elapsed day | 2026-10-26 IST / D01; task carry-over and early batches are recorded without renumbering elapsed days |
+| Current implementation slot | D01 code Completed: BE-05-10/11; REF-00-03 Pending user settings. BE-05 (17/17) and BE-06 (11/11) complete; BE-13-01 shared contracts Completed; BE-13 now 10/20 accepted on D02; remaining domain APIs depend on BE-08 through BE-12. Next upstream code: BE-08-01 (Pine input map). |
+| Kickoff / elapsed day | 2026-10-26 IST / current D02 (2026-10-27); task carry-over and early batches are recorded without renumbering elapsed days |
 | Existing plan, all-in price, renewal and usage-reset times | Unverified; obtain actual account readings, never assume a reset/renewal date |
 | Cash already spent / reserved / remaining | Unverified; reconcile receipts before proposing any purchase |
 | Paper status | Manual practice can begin with the user's Pine chart; automated paper and formal burn-in not ready |
 | Qualified formal paper sessions | 0 evidenced; dates, release/config identity, shadow checks and reconciliation required |
-| Latest application verification | D01, 2026-10-26: 328 tests, Ruff lint/format and strict mypy passed |
+| Latest application verification | D02, 2026-10-27: 367 tests, Ruff lint/format, strict mypy, OpenAPI/type drift and TypeScript compilation passed |
 
 ### Delivery scope, day numbering and realistic targets
 
-- D01-D45 target the local, single-user NIFTY **paper application** and the 198
+- D01-D45 target the local, single-user NIFTY **paper application** and the 189
   remaining reference/backend/frontend/paper-release tasks. D46-D60 reserve time
   for observation, verified defects and acceptance. All dates are targets.
 - D01 is the actual kickoff calendar day in IST, not a billing date. Later day
@@ -230,7 +230,7 @@ Day statuses below are separate from the 280 product-task counts.
 | Day | Status | Batch / acceptance focus | Primary product IDs | Usage profile | Paper, budget or dependency action |
 | --- | --- | --- | --- | --- | --- |
 | D01 | Pending | Code Completed: correction + bounded retry; input still Pending | BE-05-10, BE-05-11, REF-00-03 | H; extra cash 0 by default | BE-05-10 through BE-05-17 and BE-06-01 through BE-06-11 and BE-13-01 Completed; latest checks below; REF-00-03 awaits actual settings. Billing/tokens Unknown; no recharge initiated. Next ready code: BE-13-02. |
-| D02 | Pending | REST pacing and recording/checkpoint crash reconciliation | BE-05-12, BE-05-13, REF-00-04 | H; extra cash 0 by default | BE-05-12/13 Completed early on D01; REF-00-04 Pending. Keep original Pine intact. |
+| D02 | Pending | REST pacing and recording/checkpoint crash reconciliation | BE-05-12, BE-05-13, REF-00-04 | H; extra cash 0 by default | BE-05-12/13 complete early D01; BE-13 now 10/20 accepted (367 tests plus generated types). REF-00-04 Pending. Next upstream BE-08-01; no observation/purchase; account facts Unknown. |
 | D03 | Completed | Readiness, delay, recovery checks and explicit tick-fidelity policy | BE-05-14, BE-05-15, BE-05-16, BE-05-17 | H; extra cash 0 by default | BE-05-14/15/16/17 verified early on D01 with 290 tests and quality checks. Calibration/account readings remain Unknown; no entries enabled. |
 | D04 | Completed | Managed worker ownership and initial typed contracts | BE-06-01, BE-06-02, BE-06-03, BE-13-01 | H; extra cash 0 by default | BE-06-01/02/03 and BE-13-01 Completed early on D01; 328 tests and quality checks passed. Dashboard auth next; no worker-control route activated. |
 | D05 | Completed | Expiry, calendar, morning catalog and scheduled sessions | BE-06-04, BE-06-05, BE-06-06, BE-06-07 | H; extra cash 0 by default | BE-06-04/05/06/07 verified early on D01 using sourced 2026 calendar and fake broker/socket tests. Account/billing still Unknown; no purchase. |
@@ -251,11 +251,11 @@ Day statuses below are separate from the 280 product-task counts.
 | D20 | Pending | MTM, exits, final entry gates and atomic margin/P&L | BE-11-07, BE-11-08, BE-11-09, BE-11-10, BE-12-04, BE-12-06 | H; extra cash 0 by default | Integrate accounting and execution as one batch; do not mark partial gates complete. |
 | D21 | Pending | Top-ups, returns, summaries, history and ledger reconciliation | BE-12-05, BE-12-08, BE-12-09, BE-12-10, BE-12-11, BE-12-12 | H; extra cash 0 by default | Weekly budget and renewal-date review; prior task evidence decides next batch. |
 | D22 | Pending | Kill/session locks, execution drills, repeatable replay and G3 | BE-11-11, BE-11-12, BE-11-14, QA-11-15, QA-11-16 | H; extra cash 0 by default | Check 20 strike examples; formal paper sessions require accepted G1/G2/G3. |
-| D23 | Pending | Dashboard access and authenticated headless paper controls | BE-13-02, BE-13-03, BE-13-04, BE-13-08, BE-13-11, BE-13-15, BE-13-19 | H; extra cash 0 by default | Operator can inspect/close/kill paper positions before the full dashboard exists. |
-| D24 | Pending | Feed/chart/signal snapshots; shadow-check service slice | BE-13-05, BE-13-06, BE-13-07 | H; extra cash 0 by default | Also build OPS-19-08 ingestion/comparison slice; its UI/master completion is D33. Trial only if ready. |
+| D23 | Pending | Dashboard access and authenticated headless paper controls | BE-13-02, BE-13-03, BE-13-04, BE-13-08, BE-13-11, BE-13-15, BE-13-19 | H; extra cash 0 by default | BE-13-02/03/04/15/19 Completed early D02; BE-13-08/11 await execution/accounting. No arming or trading enabled. |
+| D24 | Pending | Feed/chart/signal snapshots; shadow-check service slice | BE-13-05, BE-13-06, BE-13-07 | H; extra cash 0 by default | BE-13-05 Completed early D02; BE-13-06 history partial without overlays; BE-13-07 awaits signal/risk services. Shadow slice still Pending. |
 | D25 | Pending | Failure drills before formal paper observation | QA-19-11, QA-19-12, QA-19-13 | H; extra cash 0 by default | Prepare OPS-19-02 operator command slice; final packaging is D41. Shadow setup and readiness required. |
 | D26 | Pending | History/settings/preview/alerts APIs; paper observation start target | BE-13-09, BE-13-10, BE-13-12, BE-13-13, BE-13-14 | H; extra cash 0 by default | First eligible exchange session after gates/drills/shadow setup; actual session count starts at zero. |
-| D27 | Pending | Bounded WebSocket delivery, ordering and snapshot resync | BE-13-16, BE-13-17, BE-13-18 | H; extra cash 0 by default | Develop off-session against replay; run the stable paper release during market hours. |
+| D27 | Completed | Bounded WebSocket delivery, ordering and snapshot resync | BE-13-16, BE-13-17, BE-13-18 | H; extra cash 0 by default | Code batch completed early D02: typed bounded WebSocket transport, ordered resync; 367 tests. Domain producers/real paper observations remain separate Pending gates. |
 | D28 | Pending | Frontend scaffold, shared UI, number/time formats and typed client | FE-14-01, FE-14-02, FE-14-03, FE-14-04, FE-14-05, FE-14-06 | M; extra cash 0 by default | Weekly budget review; check renewal due dates, not an assumed monthly reset. |
 | D29 | Pending | Login, Kite status, top bar, wallet chip and kill dialog | FE-14-07, FE-14-08, FE-14-09, FE-14-10, FE-14-11 | M; extra cash 0 by default | Session-time read-only observation; merge UI changes after market close. |
 | D30 | Pending | Socket reducers, shared error states, tests and contract generation | FE-14-12, FE-14-13, FE-14-14, FE-14-15, BE-13-20 | H; extra cash 0 by default | Formal D30 delivery/usage review; discuss second subscription only if actually due and useful. |
@@ -360,7 +360,7 @@ Status rules:
    before selecting work. Never restart a Completed task merely because chat history
    is unavailable. Keep the original Pine reference intact.
 2. Select the next Pending task whose prerequisites are satisfied. Report its ID.
-   Default next backend task: **BE-13-02**. Use the v2 daily batch and
+   Default next backend task: **BE-08-01** (unblocks remaining BE-13 domain APIs). Use the v2 daily batch and
    `docs/plans/NEXT_SESSION.md` for dependency-ready batching and usage checks.
 3. Implement the scoped behavior and its meaningful acceptance checks. If only
    part is finished, split the row into stable sub-IDs and leave unfinished parts
@@ -666,11 +666,11 @@ routes remain valid; reconcile naming in the API contract rather than breaking t
 | ID | Status | Task and completion requirement | Evidence / prerequisite |
 | --- | --- | --- | --- |
 | BE-13-01 | Completed | Define shared Pydantic request/response/event schemas, error envelope, pagination, IST dates, rupee amounts and API compatibility. | 2026-10-26: `app/api/schemas.py`, existing route response models and shared sanitized error handlers; exact INR strings/IST/date/pagination/typed-event/version contracts; `docs/api/contracts.md`; 20 new cases in `test_api_contracts.py`; all 328 tests, Ruff lint/format and strict mypy passed |
-| BE-13-02 | Pending | Add single-user dashboard password hashing, login/logout/status and secure session cookies; distinguish dashboard login from Kite login. | SPEC 17; not current Kite state cookie |
-| BE-13-03 | Pending | Protect mutating routes and WebSockets with authentication/origin/CSRF rules; implement the specified five-failure login lockout and audit mutations. | BE-13-02 |
-| BE-13-04 | Pending | Configure explicit development origins/proxy and production same-origin serving; never expose secrets to clients. | Frontend development contract |
-| BE-13-05 | Pending | Add managed feed/readiness/status API and initial `/api/live/snapshot` with selected instrument and data-quality state. | BE-06; BE-13-01 |
-| BE-13-06 | Pending | Add paged brick/candle/chart-history queries with indicator overlays and source/configuration identity. | Stored market data; BE-09 results |
+| BE-13-02 | Completed | Add single-user dashboard password hashing, login/logout/status and secure session cookies; distinguish dashboard login from Kite login. | 2026-10-27: Argon2 hashing/local prompt tool; separate dashboard login/logout/status; Secure HttpOnly Strict JWT cookie, rotation/revocation/expiry/restart invalidation; 10 focused cases; 338 tests, Ruff lint/format and strict mypy passed; docs/testing/BE-13-02-acceptance.md |
+| BE-13-03 | Completed | Protect mutating routes and WebSockets with authentication/origin/CSRF rules; implement the specified five-failure login lockout and audit mutations. | 2026-10-27: Persistent five-failure lockout; shared auth/origin/CSRF middleware; durable audit intents/outcomes and session-bound Kite OAuth callback delegation; WebSocket session expiry/logout enforcement; 367 tests and quality/type checks passed; docs/testing/BE-13-acceptance.md |
+| BE-13-04 | Completed | Configure explicit development origins/proxy and production same-origin serving; never expose secrets to clients. | 2026-10-27: Explicit credentialed CORS, HTTPS development proxy contract and optional same-origin static mount; docs/api/dashboard-operations.md; static hosting and rejected-origin checks; 367 tests and quality/type checks passed; docs/testing/BE-13-acceptance.md |
+| BE-13-05 | Completed | Add managed feed/readiness/status API and initial `/api/live/snapshot` with selected instrument and data-quality state. | 2026-10-27: Authenticated managed service status/start/stop and /api/live/snapshot; exact selected contract, real worker quality/recovery/context and source configuration identity; 367 tests and quality/type checks passed; docs/testing/BE-13-acceptance.md |
+| BE-13-06 | Pending | Add paged brick/candle/chart-history queries with indicator overlays and source/configuration identity. | Partial 2026-10-27: bounded keyset brick/candle history plus revision/config hash; indicator overlays still require BE-09. docs/testing/BE-13-acceptance.md |
 | BE-13-07 | Pending | Add signals/decisions endpoints including rejected reasons and explanation text. | BE-09; BE-11 risk decisions |
 | BE-13-08 | Pending | Add open-position, trade-detail, manual-close, decision-confirm and kill endpoints with idempotency and audit. | BE-11; BE-13-03 |
 | BE-13-09 | Pending | Add trade filters/paging/detail and CSV export using the same query filters. | BE-12-10 |
@@ -678,13 +678,13 @@ routes remain valid; reconcile naming in the API contract rather than breaking t
 | BE-13-11 | Pending | Add wallet read/deposit/withdraw/reset endpoints with validation and ledger paging. | BE-12; BE-13-03 |
 | BE-13-12 | Pending | Add settings read/update/defaults/import/export schemas, versioned persistence and audit; require rebuild for grid changes. | BE-08 inputs; BE-13-03 |
 | BE-13-13 | Pending | Add strike preview endpoint with no side effects; show missing quote/expiry/liquidity errors. | BE-10-09; BE-13-12 |
-| BE-13-14 | Pending | Add alerts read/acknowledge service and persisted risk/recovery/reconciliation alerts. | BE-06/11 events |
-| BE-13-15 | Pending | Add mode/status/arming contracts with paper-only behavior until live gate is enabled. | BE-11-13; later stage 20 |
-| BE-13-16 | Pending | Implement one typed event hub and `/ws/live` with tick/brick/signal/trade/position/status/alert messages. | BE-13-01; managed producer services |
-| BE-13-17 | Pending | Throttle high-rate tick events, bound slow-client queues and preserve reliable trade/alert delivery. | BE-13-16; SPEC update rates |
-| BE-13-18 | Pending | Define snapshot/event ordering, sequence IDs and reconnect resync so browsers neither miss nor duplicate state changes. | BE-13-05/16/17 |
-| BE-13-19 | Pending | Expose development replay with PAPER-only restrictions; disable it for armed/live operation. | BE-06-10; access controls |
-| BE-13-20 | Pending | Generate/version OpenAPI and frontend client types; verify schemas and integration tests for auth/actions/WebSocket recovery. | BE-13-01–19; FE-14 tooling |
+| BE-13-14 | Pending | Add alerts read/acknowledge service and persisted risk/recovery/reconciliation alerts. | Partial 2026-10-27: durable alert read/ack and real recovery/source-quality producers; BE-11 risk/reconciliation producers remain missing. |
+| BE-13-15 | Completed | Add mode/status/arming contracts with paper-only behavior until live gate is enabled. | 2026-10-27: PAPER/unarmed mode/status contract; LIVE denied with 403 and all arming denied with 409 until execution/risk integration; no real orders; 367 tests and quality/type checks passed; docs/testing/BE-13-acceptance.md |
+| BE-13-16 | Completed | Implement one typed event hub and `/ws/live` with tick/brick/signal/trade/position/status/alert messages. | 2026-10-27: One public typed hub and /ws/live, seven typed payload kinds; actual worker tick/brick/status and durable alert projection; signal/trade/position producer work remains BE-09/11/12; 367 tests and quality/type checks passed; docs/testing/BE-13-acceptance.md |
+| BE-13-17 | Completed | Throttle high-rate tick events, bound slow-client queues and preserve reliable trade/alert delivery. | 2026-10-27: Global four-per-second spot tick throttle; 256-event journal, reliable-kind bypass, two-second send timeout, explicit cursor-overflow resync/1013; no unbounded per-client queue; 367 tests and quality/type checks passed; docs/testing/BE-13-acceptance.md |
+| BE-13-18 | Completed | Define snapshot/event ordering, sequence IDs and reconnect resync so browsers neither miss nor duplicate state changes. | 2026-10-27: Atomic snapshot/high-water sequence, run IDs, ordered cursor replay, restart/expired/future cursor resync and auth-revocation close; production multi-brick projection test; 367 tests and quality/type checks passed; docs/testing/BE-13-acceptance.md |
+| BE-13-19 | Completed | Expose development replay with PAPER-only restrictions; disable it for armed/live operation. | 2026-10-27: Opt-in authenticated bounded recording replay; separate temporary SQLite production-persistence path; feed/job exclusion, source immutability and joined shutdown; 367 tests and quality/type checks passed; docs/testing/BE-13-acceptance.md |
+| BE-13-20 | Pending | Generate/version OpenAPI and frontend client types; verify schemas and integration tests for auth/actions/WebSocket recovery. | Partial 2026-10-27: docs/api/openapi.v1.json and api-v1.d.ts; locked tools/api-contracts and drift/compile checks. Domain actions and FE-14 integration still required. |
 
 ### 14. Frontend project, shared UI and data foundation
 
@@ -839,6 +839,39 @@ claimed before requirements are agreed.
 | FUT-21-05 | Pending | Design backtesting UI or mobile client only if requested; retain CLI replay as the current testing scope. | Explicit future requirements |
 
 ### Task update history
+
+- **2026-10-27 (D02, early BE-13 infrastructure batches):** Accepted
+  BE-13-03/04/05/15/16/17/18/19. BE-13 now 10/20, not a completed stage.
+  Added persistent login lockout and mutation audit, shared session/CSRF/origin
+  enforcement, session-bound Kite OAuth callback delegation, explicit dev CORS/
+  proxy and same-origin hosting, real managed market snapshot/control, PAPER-only
+  mode, typed bounded WebSocket delivery/order/resync and isolated development
+  replay. History and durable recovery alerts are partial BE-13-06/14; actual
+  OpenAPI/WS schemas and generated TypeScript are partial BE-13-20. Domain APIs
+  still require indicator, strategy/execution and accounting services; no successful
+  trade/wallet/P&L stubs were created. See docs/testing/BE-13-acceptance.md for
+  every row and docs/api/dashboard-operations.md for operation/regeneration.
+  All 367 tests, Ruff lint/format, strict mypy and generated drift/type checks
+  passed; one existing dependency warning. Migration 0006 applied locally under
+  owner lock after SQLite backup; all ten pre-existing table counts preserved.
+  .env and Pine unchanged; no account/feed start, observation, trade or purchase.
+  Totals: 91 Completed / 189 Pending of 280. D27 code Completed early; D02 still
+  Pending REF-00-04. Next upstream BE-08-01 unblocks remaining BE-13 APIs.
+  Usage/allowance, cash/headroom and renewals Unknown; zero qualifying sessions.
+
+- **2026-10-27 (D02, early D23):** Completed BE-13-02 dashboard authentication.
+  Argon2 password hash from configuration, interactive local hash tool, separate
+  dashboard login/logout/status and Secure HttpOnly SameSite=Strict JWT cookie.
+  One process-local session rotates on login and is revoked on logout/restart;
+  default expiry eight hours. Empty configuration disables login; malformed hash
+  fails closed. Basic cross-origin auth rejection; full API protection, five-failure
+  lockout and mutation audit remain BE-13-03. Ten new cases; 338 tests, Ruff
+  lint/format and strict mypy passed (existing dependency warning). Existing
+  migration import spacing normalized for repository-wide Ruff. No migration,
+  broker/feed start, real observation or purchase; .env and Pine untouched.
+  Counts: 83 Completed / 197 Pending. D02 remains Pending for REF-00-04.
+  Tokens, allowance, cash/headroom and renewal dates Unknown; zero qualifying
+  paper sessions. Next ready code BE-13-03.
 
 - **2026-10-26 (D01, D04 contract carry-over):** Completed BE-13-01 and the D04
   code batch. Shared Pydantic models now describe existing route responses, a
@@ -1460,7 +1493,7 @@ adapter; this does not prevent the tests or application from running.
 4. The original Pine reference is already saved at `docs/pine/renko_indicator.pine`.
 5. Record actual chart settings/anchor and export TradingView reference data for
    REF-00-03–07. The comparison tool exists; real parity is still Pending.
-6. Continue implementation at BE-13-02, using the master task record and v2 daily plan above.
+6. Continue implementation at BE-08-01 to unblock remaining BE-13 APIs, using the master task record and v2 daily plan above.
 
 ## Step 3a: daily instrument catalog
 

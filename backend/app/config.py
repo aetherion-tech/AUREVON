@@ -2,6 +2,7 @@
 
 from pathlib import Path
 from typing import Literal
+from urllib.parse import urlsplit
 
 from pydantic import Field, SecretStr, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -31,6 +32,17 @@ class Settings(BaseSettings):
     )
     readiness_entry_delay_seconds: int = Field(default=60, ge=60, le=3600)
     market_service_enabled: bool = False
+    dashboard_password_hash: SecretStr = SecretStr("")
+    dashboard_session_seconds: int = Field(default=28800, ge=60, le=86400)
+    dashboard_lockout_seconds: int = Field(default=900, ge=60, le=86400)
+    dashboard_origins: list[str] = Field(
+        default_factory=lambda: ["https://localhost:5173", "https://127.0.0.1:5173"]
+    )
+    dashboard_frontend_dir: Path | None = None
+    development_replay_enabled: bool = False
+    development_replay_max_bytes: int = Field(
+        default=20_000_000, ge=1024, le=100_000_000
+    )
     market_poll_seconds: float = Field(default=5, ge=1, le=60)
     market_stream: str = Field(default="NIFTY-paper", min_length=1, max_length=60)
     market_calendar_dir: Path = BACKEND_DIR / "app" / "market" / "calendars"
@@ -43,6 +55,19 @@ class Settings(BaseSettings):
 
     @model_validator(mode="after")
     def validate_recovery_backoff(self) -> "Settings":
+        for origin in self.dashboard_origins:
+            parsed = urlsplit(origin)
+            if (
+                parsed.scheme not in ("http", "https")
+                or not parsed.hostname
+                or parsed.username
+                or parsed.password
+                or parsed.path
+                or parsed.query
+                or parsed.fragment
+                or "*" in origin
+            ):
+                raise ValueError("Dashboard origins must be explicit scheme/host/port")
         if self.recovery_backoff_max_seconds < self.recovery_backoff_seconds:
             raise ValueError(
                 "Recovery backoff maximum must be at least the initial delay"

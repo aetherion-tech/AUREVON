@@ -89,6 +89,19 @@ unused future routes are not invented in the current OpenAPI document.
 
 ## Compatibility policy
 
+Dashboard authentication (BE-13-02, 2026-10-27) adds GET
+`/api/auth/dashboard/status` and POST `/api/auth/dashboard/login` / `logout`.
+Login accepts only a JSON `password`; all three return `configured` and
+`authenticated` booleans. Password/token/hash values never appear in response
+JSON. The dashboard Secure HttpOnly SameSite=Strict cookie is distinct from Kite
+login state. Session setup, expiry/revocation and pending BE-13-03 protection are
+documented in [acceptance evidence](../testing/BE-13-02-acceptance.md).
+Subsequent D02 work completed BE-13-03/04/05/15/16/17/18/19 and added versioned
+REST/WS schemas and generated TypeScript for available routes. See
+[dashboard operations](dashboard-operations.md) for CSRF headers, lockout/audit,
+exact origins, snapshot/event recovery and replay restrictions, and the
+[BE-13 matrix](../testing/BE-13-acceptance.md) for domain APIs still Pending.
+
 Keep existing paths and field meanings within major version 1. New endpoints,
 optional fields and optional request parameters may be additive. Consumers should
 ignore unknown response fields; server request DTOs reject unknown inputs. Removing
@@ -97,7 +110,9 @@ changing enum meanings requires an explicit major contract migration and version
 route/negotiation plan. Do not silently reinterpret a rupee string as paise or a
 calendar date as UTC midnight. Future public payloads must bind a concrete generic
 payload model instead of accepting arbitrary dictionary output. Generated frontend
-contracts/OpenAPI artifacts remain BE-13-20 work.
+contracts/OpenAPI artifacts now exist in `openapi.v1.json` and `api-v1.d.ts`.
+BE-13-20 remains Pending until missing domain actions and frontend integration
+are verified. Regenerate/check using the locked `tools/api-contracts` workflow.
 
 Validation: 20 new contract cases in `test_api_contracts.py`; all 328 backend tests,
 Ruff lint/format and strict mypy passed on 2026-10-26. One existing dependency

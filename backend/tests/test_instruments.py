@@ -11,6 +11,7 @@ import pytest
 from alembic.autogenerate import compare_metadata
 from alembic.config import Config
 from alembic.migration import MigrationContext
+from auth_helpers import authenticate, password_hash
 from fastapi.testclient import TestClient
 from pydantic import SecretStr
 from sqlalchemy import select
@@ -212,7 +213,9 @@ def test_refresh_and_nifty_routes_use_daily_cache(tmp_path: Path) -> None:
 
     settings, auth, service = make_service(tmp_path, broker)
     try:
+        settings.dashboard_password_hash = SecretStr(password_hash())
         with TestClient(create_app(settings, auth)) as client:
+            authenticate(client)
             assert client.get("/api/market/nifty").status_code == 409
             response = client.post("/api/market/instruments/refresh")
             assert response.status_code == 200

@@ -1,24 +1,47 @@
 # Next session - budgeted delivery plan v2
 
-Updated: 2026-10-26. README is authoritative.
+Updated: 2026-10-27. README is authoritative.
 
-- Product tasks: 280 total; 82 Completed; 198 Pending. Latest: 328 tests,
+- Product tasks: 280 total; 91 Completed; 189 Pending. Latest: 367 tests,
   Ruff lint/format and strict mypy passed. One existing dependency warning.
 - BE-05 complete (17/17); BE-06 complete (11/11), verified early on D01.
   Evidence: docs/testing/BE-05-acceptance.md and BE-06-acceptance.md.
-- Next dependency-ready code: BE-13-02 (dashboard auth, distinct from Kite login).
+- BE-13 is 10/20 accepted, NOT complete. Accepted 01/02/03/04/05/15/16/17/18/19.
+  Exact remaining requirements: docs/testing/BE-13-acceptance.md.
+- Next upstream code: BE-08-01 (validated Pine input map); BE-08/09/10/11/12
+  are needed for remaining BE-13 domain APIs. Do not restart completed API work.
   REF-00-04 separate Pine debug copy remains independent. Preserve original Pine.
 - D01 Pending only for REF-00-03 actual TradingView settings (already requested;
   do not repeat/invent them). D02 Pending REF-00-04. D03/D05 code batches Completed
-  early; D04 Completed early with BE-13-01. D06 code complete; real market recording/observation
+  early; D04 Completed early with BE-13-01; D27 transport code Completed early D02.
+  D06 code complete; real market recording/observation
   not supplied, so its daily observation acceptance remains Pending.
+- BE-13-02 Completed on D02 (2026-10-27), early D23: Argon2 hash setting and
+  local prompt tool; /api/auth/dashboard/login/logout/status; Secure HttpOnly
+  Strict JWT cookie, eight-hour expiry, rotation/logout/restart invalidation.
+  One active session per process; run one application worker. .env unchanged.
+  HTTPS required; BE-13-04 explicit origins/proxy/same-origin hooks complete.
+  See docs/api/dashboard-operations.md; fetch X-CSRF-Token after login/status.
+  BE-13-03 now protects mutations/WS, persists lockout/audit and revokes OAuth
+  delegations on dashboard logout/rotation/expiry. Evidence:
+  docs/testing/BE-13-02-acceptance.md; 10 focused cases, 338 full tests and checks.
+  D02 remains Pending for REF-00-04. No real observation/feed or purchase.
 - BE-13-01 Completed: shared DTOs, safe error envelope/request IDs, pagination,
   aware IST dates/times, exact INR strings, typed events and API v1 compatibility.
   Existing response shapes/OpenAPI aligned; docs/api/contracts.md. No public worker
-  control/auth/WS route activated. BE-13-02/03 supply dashboard auth/protection next.
+  control/auth/WS route existed then; authenticated routes now added in BE-13.
 - Managed service: lifespan-owned app.state.market_service; in-process start/stop/
-  status only. Default MARKET_SERVICE_ENABLED=false; .env unchanged. No public
-  control route/WS before API/auth work. No real broker socket was started.
+  status plus authenticated status/start/stop/snapshot and typed /ws/live.
+  Default MARKET_SERVICE_ENABLED=false; .env unchanged. No real socket started.
+  Public hub retains 256 events; four spot ticks/second, 2s bounded sends, ordered
+  run/sequence replay and explicit snapshot resync. Domain event producers Pending.
+  BE-13-06 history lacks indicator overlays; BE-13-14 lacks risk/recon producers;
+  BE-13-20 has generated REST/WS types but domain actions/FE integration Pending.
+  BE-13-15 rejects LIVE/arming; BE-13-19 opt-in replay uses a temporary isolated DB
+  and blocks active managed feed/concurrent jobs. Replay job results are ephemeral.
+  Migration 0006_dashboard_api applied locally under owner lock after SQLite backup;
+  all ten pre-existing table counts retained. Backup in backend/data/backups.
+  Code/type/drift checks pass; 367 full tests, one existing dependency warning.
 - One owned worker/OS lease and one scheduler; current-day catalog and exact
   contract required. Login/token changes stop old socket and require recovery.
   Blocking jobs are joined on cancellation before disposal. Local additive migration

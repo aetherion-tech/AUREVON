@@ -1,20 +1,31 @@
 """Application entry point. Run: uv run uvicorn app.main:app --reload."""
 
+import asyncio
 from collections.abc import AsyncIterator, Mapping
-from contextlib import asynccontextmanager
+from contextlib import asynccontextmanager, suppress
 from time import perf_counter
 from uuid import uuid4
 
 import structlog
 from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, RedirectResponse
+from fastapi.staticfiles import StaticFiles
+from sqlalchemy.exc import SQLAlchemyError
 from starlette.exceptions import HTTPException
 from starlette.middleware.base import RequestResponseEndpoint
 from starlette.responses import Response
 
+from app.api.dashboard_routes import DashboardSessions, dashboard_router
+from app.api.event_hub import EventHub
 from app.api.instrument_routes import instrument_router
 from app.api.kite_routes import kite_router
+from app.api.live_routes import live_router
+from app.api.live_service import LiveService
+from app.api.mode_routes import mode_router
+from app.api.openapi import include_websocket_contract
+from app.api.replay_routes import ReplayService, replay_router
 from app.api.schemas import (
     API_VERSION,
     APIError,
@@ -22,6 +33,7 @@ from app.api.schemas import (
     ErrorEnvelope,
     HealthResponse,
 )
+from app.api.security import DashboardSecurity
 from app.broker.instruments import InstrumentError, Instruments
 from app.broker.kite_auth import AuthError, KiteAuth
 from app.config import Settings
@@ -41,6 +53,20 @@ def create_app(
     engine = database_engine(settings.database_url)
     instruments = Instruments(engine, auth)
     market = MarketService(settings, auth, engine, instruments)
+    sessions = DashboardSessions(settings, engine)
+    security = DashboardSecurity(settings, engine, sessions)
+    hub = EventHub()
+    live = LiveService(market, engine, hub)
+    replay = ReplayService(settings, market)
+
+    async def publish_market() -> None:
+        while True:
+            try:
+                live.sample()
+            except Exception:
+                # Storage failures surface to callers; never emit healthy fiction.
+                pass
+            await asyncio.sleep(0.25)
 
     @asynccontextmanager
     async def lifespan(application: FastAPI) -> AsyncIterator[None]:
@@ -52,10 +78,15 @@ def create_app(
             kite_configured=settings.kite_configured,
         )
         await market.open()
+        publisher = asyncio.create_task(publish_market())
         try:
             yield
         finally:
             try:
+                publisher.cancel()
+                with suppress(asyncio.CancelledError):
+                    await publisher
+                await replay.close()
                 await market.close()
             finally:
                 auth.close()
@@ -69,12 +100,36 @@ def create_app(
         lifespan=lifespan,
         responses={
             status: {"model": ErrorEnvelope}
-            for status in (400, 401, 403, 404, 405, 409, 422, 429, 500, 502, 503)
+            for status in (
+                400,
+                401,
+                403,
+                404,
+                405,
+                409,
+                413,
+                415,
+                422,
+                429,
+                500,
+                502,
+                503,
+            )
         },
     )
     application.state.market_service = market
-    application.include_router(kite_router(auth))
+    application.state.dashboard_sessions = sessions
+    application.state.dashboard_security = security
+    application.state.database_engine = engine
+    application.state.live_service = live
+    application.state.event_hub = hub
+    application.state.replay_service = replay
+    application.include_router(dashboard_router(settings, sessions))
+    application.include_router(kite_router(auth, sessions))
     application.include_router(instrument_router(instruments))
+    application.include_router(live_router(live, security))
+    application.include_router(replay_router(replay, security))
+    application.include_router(mode_router(security))
 
     def error_response(
         request: Request,
@@ -150,14 +205,53 @@ def create_app(
         request_id = uuid4().hex
         request.state.request_id = request_id
         started = perf_counter()
+        audit_id: str | None = None
         try:
+            guarded = (
+                request.url.path.startswith("/api/")
+                and request.url.path != "/api/health"
+                and (
+                    request.method not in ("GET", "HEAD", "OPTIONS")
+                    or request.url.path
+                    in ("/api/auth/kite/login", "/api/auth/kite/callback")
+                )
+            )
+            if guarded:
+                # No mutation may begin without a committed audit intent.
+                audit_id = security.begin_audit(request)
+                security.authorize(request)
             response = await call_next(request)
+        except HTTPException as error:
+            response = error_response(
+                request,
+                "http_error",
+                "Access denied.",
+                error.status_code,
+                headers=error.headers,
+            )
+        except SQLAlchemyError:
+            response = error_response(
+                request,
+                "storage_unavailable",
+                "Required dashboard storage is unavailable.",
+                503,
+            )
         except Exception:
             # Exception text and query strings can contain authentication tokens.
             log.error("request_failed", request_id=request_id, method=request.method)
             response = error_response(
                 request, "internal_error", "Internal server error.", 500
             )
+        if audit_id is not None:
+            try:
+                security.finish_audit(audit_id, response.status_code)
+            except Exception:
+                response = error_response(
+                    request,
+                    "audit_unavailable",
+                    "Audit completion unavailable; inspect pending audit before retry.",
+                    503,
+                )
         log.info(
             "request_completed",
             request_id=request_id,
@@ -179,6 +273,24 @@ def create_app(
     def health() -> HealthResponse:
         return HealthResponse(application=settings.app_name)
 
+    if settings.dashboard_frontend_dir is not None:
+        root = settings.dashboard_frontend_dir.resolve(strict=True)
+        if not (root / "index.html").is_file():
+            raise ValueError("Dashboard build must contain index.html")
+        application.mount(
+            "/dashboard", StaticFiles(directory=root, html=True), name="dashboard"
+        )
+
+    application.add_middleware(
+        CORSMiddleware,
+        allow_origins=settings.dashboard_origins,
+        allow_credentials=True,
+        allow_methods=["GET", "POST", "PUT", "DELETE", "PATCH"],
+        allow_headers=["Content-Type", "X-CSRF-Token", "Idempotency-Key"],
+        expose_headers=["X-CSRF-Token", "X-Request-ID", "X-AUREVON-API-Version"],
+    )
+
+    include_websocket_contract(application)
     return application
 
 

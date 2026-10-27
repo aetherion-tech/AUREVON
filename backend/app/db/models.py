@@ -104,3 +104,30 @@ class MarketLifecycleState(Base):
     __tablename__ = "market_lifecycle_state"
     key: Mapped[str] = mapped_column(String(240), primary_key=True)
     payload: Mapped[str] = mapped_column(Text)
+
+
+class DashboardSecurityState(Base):
+    __tablename__ = "dashboard_security_state"
+    key: Mapped[str] = mapped_column(String(40), primary_key=True)
+    failures: Mapped[int] = mapped_column(Integer)
+    locked_until: Mapped[str | None] = mapped_column(String(40), nullable=True)
+
+
+class AuditEntry(Base):
+    __tablename__ = "audit_log"
+    id: Mapped[str] = mapped_column(String(32), primary_key=True)
+    at: Mapped[str] = mapped_column(String(40), index=True)
+    action: Mapped[str] = mapped_column(String(200))
+    actor: Mapped[str] = mapped_column(String(40))
+    status: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    request_id: Mapped[str] = mapped_column(String(32))
+
+
+class DashboardAlert(Base):
+    __tablename__ = "dashboard_alerts"
+    id: Mapped[str] = mapped_column(String(32), primary_key=True)
+    source_key: Mapped[str] = mapped_column(String(100), index=True)
+    level: Mapped[str] = mapped_column(String(20))
+    code: Mapped[str] = mapped_column(String(80))
+    at: Mapped[str] = mapped_column(String(40), index=True)
+    acknowledged_at: Mapped[str | None] = mapped_column(String(40), nullable=True)

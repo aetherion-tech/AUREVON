@@ -1,6 +1,7 @@
 """Persist managed lifecycle/session context without altering market checkpoints."""
 
 import sqlalchemy as sa
+
 from alembic import op
 
 revision = "0005_market_lifecycle"
