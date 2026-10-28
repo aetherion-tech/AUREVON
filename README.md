@@ -23,7 +23,7 @@ The original project specification is saved in [docs/SPEC.md](docs/SPEC.md).
 
 ## Start here - delivery plan v2 (45-day target, 60-day review)
 
-**Plan updated: 2026-10-27. Product status: 91 Completed / 189 Pending of 280.**
+**Plan updated: 2026-10-28. Product status: 132 Completed / 148 Pending of 280.**
 **Cash target: INR 10,000; absolute project ceiling: INR 20,000 including taxes/fees.**
 This replaces the execution schedule, not the product acceptance requirements.
 The original master checklist, stable IDs and all unfinished scope remain below.
@@ -33,17 +33,17 @@ The original master checklist, stable IDs and all unfinished scope remain below.
 | Short next-session handoff | [NEXT_SESSION.md](docs/plans/NEXT_SESSION.md) |
 | Immutable Version 1 backup | [README.v1.md](docs/plans/README.v1.md), [SHA-256](docs/plans/README.v1.sha256) |
 | Plan preparation | Completed on 2026-10-26; documentation only, outside the 280 product tasks |
-| Current implementation slot | D01 code Completed: BE-05-10/11; REF-00-03 Pending user settings. BE-05 (17/17) and BE-06 (11/11) complete; BE-13-01 shared contracts Completed; BE-13 now 10/20 accepted on D02; remaining domain APIs depend on BE-08 through BE-12. Next upstream code: BE-08-01 (Pine input map). |
-| Kickoff / elapsed day | 2026-10-26 IST / current D02 (2026-10-27); task carry-over and early batches are recorded without renumbering elapsed days |
+| Current implementation slot | D01 code Completed: BE-05-10/11; REF-00-03 Pending user settings. BE-05 (17/17) and BE-06 (11/11) complete; BE-13-01 shared contracts Completed; BE-13 now 10/20 accepted on D02; remaining domain APIs depend on BE-08 through BE-12. BE-08-01 through BE-08-13 complete; BE-08-14 awaits REF-00-07 debug export. BE-09-01 through BE-09-18 complete; QA-09-19/20 await actual reference exports/G2. BE-10 complete (10/10): nonexecuting exact-decimal option planning/quotes/preview. Next independent code: BE-11-01. |
+| Kickoff / elapsed day | 2026-10-26 IST / current D03 (2026-10-28); task carry-over and early batches are recorded without renumbering elapsed days |
 | Existing plan, all-in price, renewal and usage-reset times | Unverified; obtain actual account readings, never assume a reset/renewal date |
 | Cash already spent / reserved / remaining | Unverified; reconcile receipts before proposing any purchase |
 | Paper status | Manual practice can begin with the user's Pine chart; automated paper and formal burn-in not ready |
 | Qualified formal paper sessions | 0 evidenced; dates, release/config identity, shadow checks and reconciliation required |
-| Latest application verification | D02, 2026-10-27: 367 tests, Ruff lint/format, strict mypy, OpenAPI/type drift and TypeScript compilation passed |
+| Latest application verification | D03, 2026-10-28: 598 tests (74 new BE-10), Ruff lint/format and strict mypy passed; OpenAPI drift, generated TypeScript drift and compilation passed; one existing dependency warning. |
 
 ### Delivery scope, day numbering and realistic targets
 
-- D01-D45 target the local, single-user NIFTY **paper application** and the 189
+- D01-D45 target the local, single-user NIFTY **paper application** and the 148
   remaining reference/backend/frontend/paper-release tasks. D46-D60 reserve time
   for observation, verified defects and acceptance. All dates are targets.
 - D01 is the actual kickoff calendar day in IST, not a billing date. Later day
@@ -237,16 +237,16 @@ Day statuses below are separate from the 280 product-task counts.
 | D06 | Pending | Day context, quality events, production replay and lifecycle tests | BE-06-08, BE-06-09, BE-06-10, BE-06-11 | H; extra cash 0 by default | BE-06-08/09/10/11 Completed early on D01 (308 tests); actual market recording/observation remains unperformed, so daily observation acceptance stays Pending. |
 | D07 | Pending | Reference exports and real historical/feed checks | REF-00-05, REF-00-06, REF-00-07, QA-07-01, QA-07-02 | M; extra cash 0 by default | Weekly usage/cash review; input-dependent work stays Pending if exports/feed unavailable. |
 | D08 | Pending | Reconnect evidence and ten-reference-day Renko acceptance | QA-07-03, QA-07-04, QA-07-05, QA-07-06, QA-07-07 | H; extra cash 0 by default | Historical exports can cover past sessions; never substitute synthetic G1 evidence. |
-| D09 | Pending | Pine inputs and streaming RSI/ATR/Supertrend helpers | BE-08-01, BE-08-02, BE-08-03, BE-08-04, BE-08-05, BE-08-06 | H; extra cash 0 by default | Review seeding and equal-boundary behavior; one reusable sequence fixture. |
-| D10 | Pending | Indicator state, once-only bricks, runs and swings | BE-08-07, BE-08-08, BE-08-09, BE-08-10 | H; extra cash 0 by default | Checkpoint schema first; avoid rewriting helpers already accepted. |
-| D11 | Pending | Futures flow, daily alignment and maths-reference comparison | BE-08-11, BE-08-12, BE-08-13, BE-08-14 | H; extra cash 0 by default | Resolve first divergence before expanding signal logic. |
-| D12 | Pending | CORE, divergence, pullback, breakout and trap signals | BE-09-01, BE-09-02, BE-09-03, BE-09-04, BE-09-05 | H; extra cash 0 by default | Port literal Pine rules; share fixture builders and state transitions. |
-| D13 | Pending | Opening/flow signals, priority, odds, direction and grading | BE-09-06, BE-09-07, BE-09-08, BE-09-09, BE-09-10, BE-09-11 | H; extra cash 0 by default | Review cross-signal interaction in one coherent batch. |
-| D14 | Pending | Trade IDs, indicator entries/exits, text and persistence | BE-09-12, BE-09-13, BE-09-14, BE-09-15, BE-09-16 | H; extra cash 0 by default | Weekly spend/usage/forecast review; no real-order path. |
-| D15 | Pending | Indicator parity CLI, reference coverage and G2 review | BE-09-17, BE-09-18, QA-09-19, QA-09-20 | H; extra cash 0 by default | Reforecast timeline from measured accepted work; parity mismatch blocks formal burn-in. |
-| D16 | Pending | Two-leg plan, option contracts/quotes and spread valuation | BE-10-01, BE-10-02, BE-10-03, BE-10-04, BE-10-05, BE-10-06 | H; extra cash 0 by default | Use catalog lot/expiry/strike data; no fabricated live quotes. |
+| D09 | Completed | Pine inputs and streaming RSI/ATR/Supertrend helpers | BE-08-01, BE-08-02, BE-08-03, BE-08-04, BE-08-05, BE-08-06 | H; extra cash 0 by default | Completed early D03: BE-08-01 through 06; hand-calculated seeding, boundaries and missing values; 54 focused cases. |
+| D10 | Completed | Indicator state, once-only bricks, runs and swings | BE-08-07, BE-08-08, BE-08-09, BE-08-10 | H; extra cash 0 by default | Completed early D03: BE-08-07 through 10; versioned persisted snapshots, ordering, runs and exact swing transitions. |
+| D11 | Pending | Futures flow, daily alignment and maths-reference comparison | BE-08-11, BE-08-12, BE-08-13, BE-08-14 | H; extra cash 0 by default | BE-08-11/12/13 Completed early D03; BE-08-14 Pending actual REF-00-07 debug export. Next independent code BE-09-01; no G2 parity claim. |
+| D12 | Completed | CORE, divergence, pullback, breakout and trap signals | BE-09-01, BE-09-02, BE-09-03, BE-09-04, BE-09-05 | H; extra cash 0 by default | Completed early D03: matching BE-09 implementation IDs verified; docs/testing/BE-09-acceptance.md. No real reference/paper observation. |
+| D13 | Completed | Opening/flow signals, priority, odds, direction and grading | BE-09-06, BE-09-07, BE-09-08, BE-09-09, BE-09-10, BE-09-11 | H; extra cash 0 by default | Completed early D03: matching BE-09 implementation IDs verified; docs/testing/BE-09-acceptance.md. No real reference/paper observation. |
+| D14 | Completed | Trade IDs, indicator entries/exits, text and persistence | BE-09-12, BE-09-13, BE-09-14, BE-09-15, BE-09-16 | H; extra cash 0 by default | Completed early D03: matching BE-09 implementation IDs verified; docs/testing/BE-09-acceptance.md. No real reference/paper observation. |
+| D15 | Pending | Indicator parity CLI, reference coverage and G2 review | BE-09-17, BE-09-18, QA-09-19, QA-09-20 | H; extra cash 0 by default | BE-09-17/18 Completed early D03; QA-09-19/20 Pending actual ten-session debug export and G1/G2 acceptance. Next independent code BE-10-01. |
+| D16 | Completed | Two-leg plan, option contracts/quotes and spread valuation | BE-10-01, BE-10-02, BE-10-03, BE-10-04, BE-10-05, BE-10-06 | H; extra cash 0 by default | Completed early D03: matching BE-10 code IDs; 74 synthetic cases; paper margin estimate/capital contract only; no real quotes/fills or wallet mutation. |
 | D17 | Pending | Paper wallet primitives and persisted broker/mode models | BE-12-01, BE-12-02, BE-12-03, BE-11-01, BE-11-13 | H; extra cash 0 by default | Use exact currency and migrations before execution implementation. |
-| D18 | Pending | Sizing, margin, strike preview and strategy validation | BE-10-07, BE-10-08, BE-10-09, BE-10-10 | H; extra cash 0 by default | Size from initialized wallet; test missing/stale/illiquid instruments. |
+| D18 | Completed | Sizing, margin, strike preview and strategy validation | BE-10-07, BE-10-08, BE-10-09, BE-10-10 | H; extra cash 0 by default | Completed early D03: matching BE-10 code IDs; 74 synthetic cases; paper margin estimate/capital contract only; no real quotes/fills or wallet mutation. |
 | D19 | Pending | Paper fills, hedge-first lifecycle and durable idempotency | BE-11-02, BE-11-03, BE-11-04, BE-11-05, BE-11-06, BE-12-07 | H; extra cash 0 by default | Configure current cost assumptions; no blind retry of ambiguous fills. |
 | D20 | Pending | MTM, exits, final entry gates and atomic margin/P&L | BE-11-07, BE-11-08, BE-11-09, BE-11-10, BE-12-04, BE-12-06 | H; extra cash 0 by default | Integrate accounting and execution as one batch; do not mark partial gates complete. |
 | D21 | Pending | Top-ups, returns, summaries, history and ledger reconciliation | BE-12-05, BE-12-08, BE-12-09, BE-12-10, BE-12-11, BE-12-12 | H; extra cash 0 by default | Weekly budget and renewal-date review; prior task evidence decides next batch. |
@@ -351,8 +351,8 @@ Status rules:
   IDs are stable references for future work, reviews and AI handoffs.
 - Existing completed work is dated by the verification notes: foundation/auth/catalog
   on 2026-10-23; data tools/recording/persistence on 2026-10-24. The latest recorded
-  backend result is **328 passing tests, Ruff lint/format and mypy passing**
-  (2026-10-26). This does not imply real-market verification.
+  backend result is **598 passing tests, Ruff lint/format and strict mypy passing**
+  (2026-10-28). This does not imply real-market verification.
 
 ### How every future contributor or AI must update this record
 
@@ -360,7 +360,7 @@ Status rules:
    before selecting work. Never restart a Completed task merely because chat history
    is unavailable. Keep the original Pine reference intact.
 2. Select the next Pending task whose prerequisites are satisfied. Report its ID.
-   Default next backend task: **BE-08-01** (unblocks remaining BE-13 domain APIs). Use the v2 daily batch and
+   Default next independent backend task: **BE-11-01**; BE-08-14 and QA-09-19/20 await actual reference exports/G1/G2 acceptance. Use the v2 daily batch and
    `docs/plans/NEXT_SESSION.md` for dependency-ready batching and usage checks.
 3. Implement the scoped behavior and its meaningful acceptance checks. If only
    part is finished, split the row into stable sub-IDs and leave unfinished parts
@@ -552,50 +552,53 @@ until real reference comparisons pass. Never substitute synthetic tests for it.
 
 ### 08. Pine maths, state and market context
 
-Use `docs/pine/renko_indicator.pine` as the source of truth. These modules do not
-exist yet. Build pure streaming functions with reference tests and explicit warm-up.
+Use `docs/pine/renko_indicator.pine` as the source of truth. The replay-only modules in `backend/app/indicator` implement inputs, maths, state
+and context. BE-08 is 13/14 complete; exported TradingView maths parity remains
+Pending. Evidence: `docs/testing/BE-08-acceptance.md`.
 
 | ID | Status | Task and completion requirement | Evidence / prerequisite |
 | --- | --- | --- | --- |
-| BE-08-01 | Pending | Map Pine inputs/defaults to validated indicator settings without changing trading semantics. | Original Pine; SPEC input map |
-| BE-08-02 | Pending | Implement SMA-seeded Wilder RMA with Pine-compatible missing-value/warm-up behavior. | Unit sequences; debug fixtures when available |
-| BE-08-03 | Pending | Implement streaming RSI using the same smoothing and zero-gain/loss handling as Pine. | BE-08-02 |
-| BE-08-04 | Pending | Implement true range and ATR on Renko OHLC with Pine seeding. | BE-08-02; brick OHLC |
-| BE-08-05 | Pending | Implement Supertrend carry/flip rules and Pine direction convention; test equal-boundary behavior. | BE-08-04 |
-| BE-08-06 | Pending | Implement crossover, crossunder, barssince, rolling sums/averages and series-history access with warm-up tests. | Pine helper semantics |
-| BE-08-07 | Pending | Define persistent indicator state for all Pine `var` values and versioned snapshots. | Original Pine variable inventory |
-| BE-08-08 | Pending | Process each completed brick once, in deterministic order; reject duplicate/out-of-order execution events. | BE-08-07; market pipeline |
-| BE-08-09 | Pending | Track brick color, same-color runs, trend flips and trend age exactly as Pine. | BE-08-05/07/08 |
-| BE-08-10 | Pending | Track swing tops/bottoms, prices, RSI values and brick ages at the exact Pine transition. | BE-08-03/09 |
-| BE-08-11 | Pending | Build futures rolling price/OI windows, VWAP-side and prior-volume/SMA ratio with correct completed-bar alignment. | Stage 05 futures context; Pine flow timeframe |
-| BE-08-12 | Pending | Implement futures build-up classifications, day comparison and final flow score; define missing-OI behavior. | BE-08-11 |
-| BE-08-13 | Pending | Expose daily close/open/high/low and opening-range context to each brick using exchange-time alignment. | BE-06-08 |
-| BE-08-14 | Pending | Verify RSI/Supertrend values against exported debug columns and stated tolerance; report first divergence. | REF-00-07; BE-08-03/05 |
+| BE-08-01 | Completed | Map Pine inputs/defaults to validated indicator settings without changing trading semantics. | 2026-10-28: app/indicator; 54 focused tests; docs/testing/BE-08-acceptance.md |
+| BE-08-02 | Completed | Implement SMA-seeded Wilder RMA with Pine-compatible missing-value/warm-up behavior. | 2026-10-28: app/indicator; 54 focused tests; docs/testing/BE-08-acceptance.md |
+| BE-08-03 | Completed | Implement streaming RSI using the same smoothing and zero-gain/loss handling as Pine. | 2026-10-28: app/indicator; 54 focused tests; docs/testing/BE-08-acceptance.md |
+| BE-08-04 | Completed | Implement true range and ATR on Renko OHLC with Pine seeding. | 2026-10-28: app/indicator; 54 focused tests; docs/testing/BE-08-acceptance.md |
+| BE-08-05 | Completed | Implement Supertrend carry/flip rules and Pine direction convention; test equal-boundary behavior. | 2026-10-28: app/indicator; 54 focused tests; docs/testing/BE-08-acceptance.md |
+| BE-08-06 | Completed | Implement crossover, crossunder, barssince, rolling sums/averages and series-history access with warm-up tests. | 2026-10-28: app/indicator; 54 focused tests; docs/testing/BE-08-acceptance.md |
+| BE-08-07 | Completed | Define persistent indicator state for all Pine `var` values and versioned snapshots. | 2026-10-28: app/indicator; 54 focused tests; docs/testing/BE-08-acceptance.md |
+| BE-08-08 | Completed | Process each completed brick once, in deterministic order; reject duplicate/out-of-order execution events. | 2026-10-28: app/indicator; 54 focused tests; docs/testing/BE-08-acceptance.md |
+| BE-08-09 | Completed | Track brick color, same-color runs, trend flips and trend age exactly as Pine. | 2026-10-28: app/indicator; 54 focused tests; docs/testing/BE-08-acceptance.md |
+| BE-08-10 | Completed | Track swing tops/bottoms, prices, RSI values and brick ages at the exact Pine transition. | 2026-10-28: app/indicator; 54 focused tests; docs/testing/BE-08-acceptance.md |
+| BE-08-11 | Completed | Build futures rolling price/OI windows, VWAP-side and prior-volume/SMA ratio with correct completed-bar alignment. | 2026-10-28: app/indicator; 54 focused tests; docs/testing/BE-08-acceptance.md |
+| BE-08-12 | Completed | Implement futures build-up classifications, day comparison and final flow score; define missing-OI behavior. | 2026-10-28: app/indicator; 54 focused tests; docs/testing/BE-08-acceptance.md |
+| BE-08-13 | Completed | Expose daily close/open/high/low and opening-range context to each brick using exchange-time alignment. | 2026-10-28: app/indicator; 54 focused tests; docs/testing/BE-08-acceptance.md |
+| BE-08-14 | Pending | Verify RSI/Supertrend values against exported debug columns and stated tolerance; report first divergence. | Blocked: REF-00-07 actual debug export absent. First-divergence CLI implemented; synthetic tests do not satisfy reference parity. |
 
 ### 09. Signals, grading, indicator trade engine and parity — G2
 
 Depends on stage 08. Indicator trade state is distinct from actual option positions.
+BE-09-01 through BE-09-18 are implemented for isolated replay; QA-09-19/20
+remain Pending. Evidence and operation: `docs/testing/BE-09-acceptance.md`.
 
 | ID | Status | Task and completion requirement | Evidence / prerequisite |
 | --- | --- | --- | --- |
-| BE-09-01 | Pending | Port CORE's Supertrend-flip alignment window and once-per-flip behavior. | BE-08-09; Pine CORE block |
-| BE-09-02 | Pending | Port regular bullish/bearish divergence, equal/extreme price rules, RSI thresholds and max-gap expiration. | BE-08-10 |
-| BE-09-03 | Pending | Port hidden and forming divergence with cross-day reset behavior. | BE-09-02; Pine divergence state |
-| BE-09-04 | Pending | Port PB pullback-resume conditions and minimum trend age. | BE-08-09 |
-| BE-09-05 | Pending | Port BRK swing crossing/age and TRAP failed-breakout windows. | BE-08-10; crossover helpers |
-| BE-09-06 | Pending | Port ORB range, minimum boxes and IST cutoff rules. | BE-08-13; market calendar |
-| BE-09-07 | Pending | Port SRG onset window, flow threshold and volume-spike requirement. | BE-08-12 |
-| BE-09-08 | Pending | Resolve simultaneous signal priorities per direction and apply cooldown exceptions exactly as Pine. | BE-09-01–07 |
-| BE-09-09 | Pending | Port outlook brick statistics, sample thresholds, support/resistance and stretch calculations. | Pine outlook block; state storage |
-| BE-09-10 | Pending | Calculate ten-factor direction score, bias hysteresis and strong-bias threshold. | BE-08/09 factors |
-| BE-09-11 | Pending | Port DIV/TRAP evidence grading and other-signal scoring, late-entry penalties and minimum-strength filtering. | BE-09-09/10 |
-| BE-09-12 | Pending | Generate Pine-compatible five-character trade IDs and accepted/rejected signal explanations. | Pine ID/text helpers |
-| BE-09-13 | Pending | Implement one-position indicator entry, same-direction ignore and T1/T2 targets from index price. | BE-09-08/11/12 |
-| BE-09-14 | Pending | Evaluate exits before entries; implement opposite-brick, T2 and optional safety exits without same-entry-brick exits. | BE-09-13 |
-| BE-09-15 | Pending | Track per-family/direction outcomes and reproduce explanation/tooltip text as structured data. | BE-09-12–14 |
-| BE-09-16 | Pending | Persist indicator snapshots, results, signals and trade events with migrations and restart recovery. | BE-08-07; BE-09-15 |
-| BE-09-17 | Pending | Extend parity CLI to maths, bias, flow, signal grades, IDs and ENTRY/T1/EXIT events. | REF-00 debug fixtures; BE-09-16 |
-| BE-09-18 | Pending | Test all eight signals, priorities, cooldowns, missing context, day reset and exit/re-entry on the same brick. | BE-09-01–17 |
+| BE-09-01 | Completed | Port CORE's Supertrend-flip alignment window and once-per-flip behavior. | 2026-10-28: app/indicator; signal/trade/restart/failure/parity-tool tests; docs/testing/BE-09-acceptance.md |
+| BE-09-02 | Completed | Port regular bullish/bearish divergence, equal/extreme price rules, RSI thresholds and max-gap expiration. | 2026-10-28: app/indicator; signal/trade/restart/failure/parity-tool tests; docs/testing/BE-09-acceptance.md |
+| BE-09-03 | Completed | Port hidden and forming divergence with cross-day reset behavior. | 2026-10-28: app/indicator; signal/trade/restart/failure/parity-tool tests; docs/testing/BE-09-acceptance.md |
+| BE-09-04 | Completed | Port PB pullback-resume conditions and minimum trend age. | 2026-10-28: app/indicator; signal/trade/restart/failure/parity-tool tests; docs/testing/BE-09-acceptance.md |
+| BE-09-05 | Completed | Port BRK swing crossing/age and TRAP failed-breakout windows. | 2026-10-28: app/indicator; signal/trade/restart/failure/parity-tool tests; docs/testing/BE-09-acceptance.md |
+| BE-09-06 | Completed | Port ORB range, minimum boxes and IST cutoff rules. | 2026-10-28: app/indicator; signal/trade/restart/failure/parity-tool tests; docs/testing/BE-09-acceptance.md |
+| BE-09-07 | Completed | Port SRG onset window, flow threshold and volume-spike requirement. | 2026-10-28: app/indicator; signal/trade/restart/failure/parity-tool tests; docs/testing/BE-09-acceptance.md |
+| BE-09-08 | Completed | Resolve simultaneous signal priorities per direction and apply cooldown exceptions exactly as Pine. | 2026-10-28: app/indicator; signal/trade/restart/failure/parity-tool tests; docs/testing/BE-09-acceptance.md |
+| BE-09-09 | Completed | Port outlook brick statistics, sample thresholds, support/resistance and stretch calculations. | 2026-10-28: app/indicator; signal/trade/restart/failure/parity-tool tests; docs/testing/BE-09-acceptance.md |
+| BE-09-10 | Completed | Calculate ten-factor direction score, bias hysteresis and strong-bias threshold. | 2026-10-28: app/indicator; signal/trade/restart/failure/parity-tool tests; docs/testing/BE-09-acceptance.md |
+| BE-09-11 | Completed | Port DIV/TRAP evidence grading and other-signal scoring, late-entry penalties and minimum-strength filtering. | 2026-10-28: app/indicator; signal/trade/restart/failure/parity-tool tests; docs/testing/BE-09-acceptance.md |
+| BE-09-12 | Completed | Generate Pine-compatible five-character trade IDs and accepted/rejected signal explanations. | 2026-10-28: app/indicator; signal/trade/restart/failure/parity-tool tests; docs/testing/BE-09-acceptance.md |
+| BE-09-13 | Completed | Implement one-position indicator entry, same-direction ignore and T1/T2 targets from index price. | 2026-10-28: app/indicator; signal/trade/restart/failure/parity-tool tests; docs/testing/BE-09-acceptance.md |
+| BE-09-14 | Completed | Evaluate exits before entries; implement opposite-brick, T2 and optional safety exits without same-entry-brick exits. | 2026-10-28: app/indicator; signal/trade/restart/failure/parity-tool tests; docs/testing/BE-09-acceptance.md |
+| BE-09-15 | Completed | Track per-family/direction outcomes and reproduce explanation/tooltip text as structured data. | 2026-10-28: app/indicator; signal/trade/restart/failure/parity-tool tests; docs/testing/BE-09-acceptance.md |
+| BE-09-16 | Completed | Persist indicator snapshots, results, signals and trade events with migrations and restart recovery. | 2026-10-28: app/indicator; signal/trade/restart/failure/parity-tool tests; docs/testing/BE-09-acceptance.md |
+| BE-09-17 | Completed | Extend parity CLI to maths, bias, flow, signal grades, IDs and ENTRY/T1/EXIT events. | 2026-10-28: app/indicator; signal/trade/restart/failure/parity-tool tests; docs/testing/BE-09-acceptance.md |
+| BE-09-18 | Completed | Test all eight signals, priorities, cooldowns, missing context, day reset and exit/re-entry on the same brick. | 2026-10-28: app/indicator; signal/trade/restart/failure/parity-tool tests; docs/testing/BE-09-acceptance.md |
 | QA-09-19 | Pending | Match every ENTRY/EXIT and required indicator series across ten reference trading days; retain mismatch/regression reports. | G1; REF-00 fixtures; BE-09-17/18 |
 | QA-09-20 | Pending | Accept G2 and freeze the reference baseline/settings once parity passes; preserve later changes in a changelog. | QA-09-19 |
 
@@ -603,19 +606,22 @@ Depends on stage 08. Indicator trade state is distinct from actual option positi
 
 Depends on catalog, reliable live option quotes and indicator events. Use catalog
 lot sizes, strikes and expiry dates; never hard-code them from SPEC examples.
+All ten BE-10 implementation tasks are complete for nonexecuting planning/preview.
+Evidence and boundaries: `docs/testing/BE-10-acceptance.md`. No execution/wallet
+reservation or real quote/margin observation is claimed.
 
 | ID | Status | Task and completion requirement | Evidence / prerequisite |
 | --- | --- | --- | --- |
-| BE-10-01 | Pending | Define versioned signal-to-strategy input and two-leg TradePlan models. | BE-09 event contract; SPEC 11 |
-| BE-10-02 | Pending | Select eligible expiry and enforce configured expiry-day policy. | Catalog expiries and session date |
-| BE-10-03 | Pending | Select short/hedge strikes for bullish PE and bearish CE spreads using available strike grid. | BE-10-02; spot price |
-| BE-10-04 | Pending | Subscribe candidate/traded option quotes with depth and track quote freshness. | Managed ticker; BE-06 |
-| BE-10-05 | Pending | Reject unavailable/illiquid/wide-spread legs and invalid net credit; save reasons. | BE-10-03/04 |
-| BE-10-06 | Pending | Calculate spread credit, defined maximum loss, stop/target references and leg quantities using exact amounts. | BE-10-05 |
-| BE-10-07 | Pending | Size lots from settings and free capital; apply lot/tick rounding and configured caps. | BE-10-06; wallet/free-margin contract |
-| BE-10-08 | Pending | Estimate required margin with configured buffer; separate paper estimates from broker-reported live margin. | BE-10-07 |
-| BE-10-09 | Pending | Expose nonexecuting strike preview using the same selector/risk checks as actual plans. | BE-10-01–08; settings API later |
-| BE-10-10 | Pending | Test both directions, absent strike/hedge, expiry day, changing lot size, stale quotes and insufficient credit. | BE-10-01–09 |
+| BE-10-01 | Completed | Define versioned signal-to-strategy input and two-leg TradePlan models. | 2026-10-28: app/strategy; managed option quotes; protected preview; 74 focused cases; docs/testing/BE-10-acceptance.md |
+| BE-10-02 | Completed | Select eligible expiry and enforce configured expiry-day policy. | 2026-10-28: app/strategy; managed option quotes; protected preview; 74 focused cases; docs/testing/BE-10-acceptance.md |
+| BE-10-03 | Completed | Select short/hedge strikes for bullish PE and bearish CE spreads using available strike grid. | 2026-10-28: app/strategy; managed option quotes; protected preview; 74 focused cases; docs/testing/BE-10-acceptance.md |
+| BE-10-04 | Completed | Subscribe candidate/traded option quotes with depth and track quote freshness. | 2026-10-28: app/strategy; managed option quotes; protected preview; 74 focused cases; docs/testing/BE-10-acceptance.md |
+| BE-10-05 | Completed | Reject unavailable/illiquid/wide-spread legs and invalid net credit; save reasons. | 2026-10-28: app/strategy; managed option quotes; protected preview; 74 focused cases; docs/testing/BE-10-acceptance.md |
+| BE-10-06 | Completed | Calculate spread credit, defined maximum loss, stop/target references and leg quantities using exact amounts. | 2026-10-28: app/strategy; managed option quotes; protected preview; 74 focused cases; docs/testing/BE-10-acceptance.md |
+| BE-10-07 | Completed | Size lots from settings and free capital; apply lot/tick rounding and configured caps. | 2026-10-28: app/strategy; managed option quotes; protected preview; 74 focused cases; docs/testing/BE-10-acceptance.md |
+| BE-10-08 | Completed | Estimate required margin with configured buffer; separate paper estimates from broker-reported live margin. | 2026-10-28: app/strategy; managed option quotes; protected preview; 74 focused cases; docs/testing/BE-10-acceptance.md |
+| BE-10-09 | Completed | Expose nonexecuting strike preview using the same selector/risk checks as actual plans. | 2026-10-28: app/strategy; managed option quotes; protected preview; 74 focused cases; docs/testing/BE-10-acceptance.md |
+| BE-10-10 | Completed | Test both directions, absent strike/hedge, expiry day, changing lot size, stale quotes and insufficient credit. | 2026-10-28: app/strategy; managed option quotes; protected preview; 74 focused cases; docs/testing/BE-10-acceptance.md |
 
 ### 11. Paper broker, positions and risk
 
@@ -676,7 +682,7 @@ routes remain valid; reconcile naming in the API contract rather than breaking t
 | BE-13-09 | Pending | Add trade filters/paging/detail and CSV export using the same query filters. | BE-12-10 |
 | BE-13-10 | Pending | Add P&L summary, daily series, period tables and by-family statistics endpoints. | BE-12-09 |
 | BE-13-11 | Pending | Add wallet read/deposit/withdraw/reset endpoints with validation and ledger paging. | BE-12; BE-13-03 |
-| BE-13-12 | Pending | Add settings read/update/defaults/import/export schemas, versioned persistence and audit; require rebuild for grid changes. | BE-08 inputs; BE-13-03 |
+| BE-13-12 | Pending | Add settings read/update/defaults/import/export schemas, versioned persistence and audit; require rebuild for grid changes. | BE-08 inputs; BE-13-03; BE-10 preview-strikes endpoint implemented, settings CRUD/versioned persistence still Pending |
 | BE-13-13 | Pending | Add strike preview endpoint with no side effects; show missing quote/expiry/liquidity errors. | BE-10-09; BE-13-12 |
 | BE-13-14 | Pending | Add alerts read/acknowledge service and persisted risk/recovery/reconciliation alerts. | Partial 2026-10-27: durable alert read/ack and real recovery/source-quality producers; BE-11 risk/reconciliation producers remain missing. |
 | BE-13-15 | Completed | Add mode/status/arming contracts with paper-only behavior until live gate is enabled. | 2026-10-27: PAPER/unarmed mode/status contract; LIVE denied with 403 and all arming denied with 409 until execution/risk integration; no real orders; 367 tests and quality/type checks passed; docs/testing/BE-13-acceptance.md |
@@ -839,6 +845,51 @@ claimed before requirements are agreed.
 | FUT-21-05 | Pending | Design backtesting UI or mobile client only if requested; retain CLI replay as the current testing scope. | Explicit future requirements |
 
 ### Task update history
+
+- **2026-10-28 (D03, early D16/D18 BE-10):** Completed all ten BE-10 tasks.
+  Added versioned exact-decimal input/TradePlan/capital contracts, catalog-derived
+  expiry/strike/grid/lot/tick selection, conservative depth prices, bounded FULL
+  option subscriptions with traded pins, liquidity/retry/credit checks, sizing and
+  buffered paper margin estimates. Authenticated nonexecuting preview uses the
+  same planner and durably saves accepted/rejected decisions. USER_PREVIEW funds
+  remain assumptions; no wallet/account reading, reservation, broker margin, order
+  or fill is claimed. Option depth recordings are separate from core replay files.
+  Migration 0008 tested in isolated DB only; local application DB and Pine unchanged.
+  74 new cases; 598 full tests; Ruff lint/format, strict mypy, OpenAPI/type drift
+  and TypeScript compilation passed; one existing dependency warning. Evidence:
+  docs/testing/BE-10-acceptance.md. Totals: 132 Completed / 148 Pending of 280.
+  D16/D18 code completed early; next independent BE-11-01, with BE-12 wallet
+  prerequisites before integrated paper execution. BE-13-12 settings CRUD and
+  actual reference/G1/G2 gates remain Pending. Actual tokens/allowance, cash/headroom
+  and renewals Unknown; INR 0 extra paid usage; zero qualifying paper sessions.
+
+- **2026-10-28 (D03, early D12-D15 BE-09 implementation):** Completed
+  BE-09-01 through BE-09-18. Replay-only eight-family signal engine, outlook/bias,
+  grading/priorities, preserved explanation helpers, five-character IDs and ordered
+  indicator ENTRY/T1/EXIT/statistics; atomic snapshots/results/events with restart,
+  rollback and concurrent-owner fencing. Additive migration 0007 tested only in
+  isolated databases; local application DB/live worker/original Pine unchanged.
+  Full parity CLI calculates futures flow from independent inputs and retains
+  first-divergence/provenance reports. 103 new cases; 157 indicator cases;
+  524 full tests, Ruff lint/format and strict mypy passed; one existing warning.
+  QA-09-19/20 remain Pending actual ten-session reference/G1/G2 acceptance; no
+  baseline freeze or G2 claim. BE-08-14 remains Pending. Evidence and operation:
+  docs/testing/BE-09-acceptance.md. Totals: 122 Completed / 158 Pending of 280.
+  D12/D13/D14 code Completed early; D15 still Pending QA-09-19/20.
+  Next independent code BE-10-01. Tokens/allowance, spend/headroom and renewals
+  Unknown; INR 0 extra paid usage and zero qualifying paper sessions.
+
+- **2026-10-28 (D03, early D09-D11):** Completed BE-08-01 through BE-08-13.
+  Added replay-only Pine input validation, streaming maths/helpers, full variable
+  inventory and versioned persistent snapshots, deterministic brick/run/swing
+  context and completed-bar futures/daily context. 54 focused tests; 421 full
+  tests; Ruff lint/format and strict mypy passed, one existing dependency warning.
+  BE-08-14 remains Pending on REF-00-07 actual TradingView debug export; the
+  first-divergence CLI is implemented but synthetic checks are not parity evidence.
+  See docs/testing/BE-08-acceptance.md. Totals: 104 Completed / 176 Pending of 280.
+  D09/D10 Completed early; D11 Pending BE-08-14. Next independent code BE-09-01.
+  Original Pine and managed worker unchanged; no real observation/trade/purchase.
+  Actual tokens, allowance, spend/headroom and renewals Unknown; 0 qualifying sessions.
 
 - **2026-10-27 (D02, early BE-13 infrastructure batches):** Accepted
   BE-13-03/04/05/15/16/17/18/19. BE-13 now 10/20, not a completed stage.
@@ -1493,7 +1544,7 @@ adapter; this does not prevent the tests or application from running.
 4. The original Pine reference is already saved at `docs/pine/renko_indicator.pine`.
 5. Record actual chart settings/anchor and export TradingView reference data for
    REF-00-03–07. The comparison tool exists; real parity is still Pending.
-6. Continue implementation at BE-08-01 to unblock remaining BE-13 APIs, using the master task record and v2 daily plan above.
+6. Continue independent implementation at BE-11-01; integrate BE-12 wallet primitives before any paper execution. BE-08-14 and QA-09-19/20 still require actual exported debug data and G1/G2 acceptance. Do not claim G2 parity. Use the master task record and v2 daily plan above.
 
 ## Step 3a: daily instrument catalog
 

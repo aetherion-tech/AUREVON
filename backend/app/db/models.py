@@ -131,3 +131,38 @@ class DashboardAlert(Base):
     code: Mapped[str] = mapped_column(String(80))
     at: Mapped[str] = mapped_column(String(40), index=True)
     acknowledged_at: Mapped[str | None] = mapped_column(String(40), nullable=True)
+
+
+class IndicatorCheckpoint(Base):
+    __tablename__ = "indicator_checkpoints"
+    stream: Mapped[str] = mapped_column(String(160), primary_key=True)
+    index: Mapped[int] = mapped_column(Integer)
+    payload: Mapped[str] = mapped_column(Text)
+
+
+class IndicatorResult(Base):
+    __tablename__ = "indicator_results"
+    stream: Mapped[str] = mapped_column(String(160), primary_key=True)
+    index: Mapped[int] = mapped_column(Integer, primary_key=True)
+    input: Mapped[str] = mapped_column(Text)
+    payload: Mapped[str] = mapped_column(Text)
+
+
+class IndicatorEvent(Base):
+    __tablename__ = "indicator_events"
+    stream: Mapped[str] = mapped_column(String(160), primary_key=True)
+    index: Mapped[int] = mapped_column(Integer, primary_key=True)
+    ordinal: Mapped[int] = mapped_column(Integer, primary_key=True)
+    kind: Mapped[str] = mapped_column(String(20))
+    payload: Mapped[str] = mapped_column(Text)
+
+
+class StrategyDecision(Base):
+    __tablename__ = "strategy_decisions"
+    id: Mapped[str] = mapped_column(String(32), primary_key=True)
+    signal_id: Mapped[str] = mapped_column(String(160), index=True)
+    at: Mapped[str] = mapped_column(String(40))
+    input: Mapped[str] = mapped_column(Text)
+    settings: Mapped[str] = mapped_column(Text)
+    quotes: Mapped[str] = mapped_column(Text)
+    payload: Mapped[str] = mapped_column(Text)

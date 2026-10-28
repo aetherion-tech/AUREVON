@@ -1,0 +1,121 @@
+{
+  "f_pts": {
+    "arguments": [
+      "x"
+    ],
+    "expression": "(x >= 0 ? \"+\" : \"\") + str.tostring(math.round(x))"
+  },
+  "f_family": {
+    "arguments": [
+      "typ"
+    ],
+    "expression": "typ == \"CORE\" ? \"CORE\" : typ == \"DIV\" ? \"DIVERGENCE\" : typ == \"HDIV\" ? \"HIDDEN DIVERGENCE\" : \"OTHER\""
+  },
+  "f_dots3": {
+    "arguments": [
+      "g"
+    ],
+    "expression": "g >= 3 ? \"●●●\" : g == 2 ? \"●●○\" : \"●○○\""
+  },
+  "f_name": {
+    "arguments": [
+      "typ",
+      "sd"
+    ],
+    "expression": "typ == \"CORE\" ? \"Trend Start\" : typ == \"DIV\" ? (sd == 1 ? \"Bottom Reversal\" : \"Top Reversal\") : typ == \"HDIV\" ? \"Trend Continues\" : typ == \"PB\" ? \"Pullback Entry\" : typ == \"BRK\" ? (sd == 1 ? \"Breakout\" : \"Breakdown\") : typ == \"TRAP\" ? (sd == 1 ? \"Fake Breakdown\" : \"Fake Breakout\") : typ == \"ORB\" ? (sd == 1 ? \"Opening Breakout\" : \"Opening Breakdown\") : \"Big-Money Surge\""
+  },
+  "f_meaning": {
+    "arguments": [
+      "typ",
+      "sd"
+    ],
+    "expression": "typ == \"CORE\" ? \"The main trend has just turned \" + (sd == 1 ? \"UP\" : \"DOWN\") + \". Fresh trends often give the cleanest moves.\" : typ == \"DIV\" ? (sd == 1 ? \"Price kept falling but selling pressure is fading. A bounce may be starting.\" : \"Price kept rising but buying pressure is fading. A drop may be starting.\") : typ == \"HDIV\" ? \"A small \" + (sd == 1 ? \"dip\" : \"bounce\") + \" inside the trend while momentum stays healthy. The trend is likely to continue.\" : typ == \"PB\" ? \"Price paused against the trend for a brick, then moved with it again. A common place to join the move.\" : typ == \"BRK\" ? \"Price pushed through a recent \" + (sd == 1 ? \"high\" : \"low\") + \". This often starts a stronger move.\" : typ == \"TRAP\" ? \"A \" + (sd == 1 ? \"breakdown\" : \"breakout\") + \" failed. Traders who chased it are trapped, which can fuel a quick move the other way.\" : typ == \"ORB\" ? \"Price left the first 15-minute range. This often sets the tone for the day.\" : \"Futures volume and open interest jumped together with price. Big players look active.\""
+  },
+  "f_reason": {
+    "arguments": [
+      "typ",
+      "sd"
+    ],
+    "expression": "typ == \"CORE\" ? \"Supertrend turned \" + (sd == 1 ? \"UP\" : \"DOWN\") + \" \" + str.tostring(bsf) + \" brick(s) ago and this \" + (sd == 1 ? \"green\" : \"red\") + \" brick confirms it.\" : typ == \"DIV\" ? \"RSI divergence: \" + divTxt : typ == \"HDIV\" ? \"Hidden divergence: \" + divTxt : typ == \"PB\" ? \"A pullback ended inside a \" + (sd == 1 ? \"UPTREND\" : \"DOWNTREND\") + \" (\" + str.tostring(trendAge) + \" bricks old) and the trend resumes.\" : typ == \"BRK\" ? \"Price closed \" + (sd == 1 ? \"above the last swing high \" : \"below the last swing low \") + str.tostring(sd == 1 ? lastTopP : lastBotP, \"#\") + \" while the trend agrees.\" : typ == \"TRAP\" ? (sd == 1 ? \"A breakdown below \" + str.tostring(trapDnLvl, \"#\") + \" failed - price is back above it.\" : \"A breakout above \" + str.tostring(trapUpLvl, \"#\") + \" failed - price is back below it.\") : typ == \"ORB\" ? \"Price broke the opening range (\" + str.tostring(orL, \"#\") + \" - \" + str.tostring(orH, \"#\") + \").\" : \"Futures volume spike, OI build-up, VWAP and day direction all point the same way.\""
+  },
+  "f_pc": {
+    "arguments": [
+      "x"
+    ],
+    "expression": "(x >= 0 ? \"+\" : \"\") + str.tostring(x, \"#.##\") + \"%\""
+  },
+  "f_fam2": {
+    "arguments": [
+      "typ"
+    ],
+    "expression": "typ == \"CORE\" ? \"CO\" : (typ == \"DIV\" or typ == \"HDIV\") ? \"DIV\" : \"OT\""
+  },
+  "f_code": {
+    "arguments": [
+      "typ",
+      "sd",
+      "kind"
+    ],
+    "expression": "f_fam2(typ) + \"-\" + (sd == 1 ? \"BUY\" : \"SELL\") + \"-\" + kind"
+  },
+  "f_cidx": {
+    "arguments": [
+      "typ",
+      "sd"
+    ],
+    "expression": "(typ == \"CORE\" ? 0 : (typ == \"DIV\" or typ == \"HDIV\") ? 1 : 2) * 2 + (sd == 1 ? 0 : 1)"
+  },
+  "f_famName": {
+    "arguments": [
+      "i"
+    ],
+    "expression": "(i < 2 ? \"CO\" : i < 4 ? \"DIV\" : \"OT\") + \"-\" + (i % 2 == 0 ? \"BUY\" : \"SELL\")"
+  },
+  "f_statTxt": {
+    "arguments": [
+      "i"
+    ],
+    "expression": "n == 0 ? \"no closed trades yet\" : str.tostring(n) + \" trades | \" + str.tostring(array.get(cW, i) * 100.0 / n, \"#\") + \"% ended in profit | avg \" + f_pc(array.get(cP, i) / n) + \" | T1 reached \" + str.tostring(array.get(cT1, i) * 100.0 / n, \"#\") + \"% | T2 reached \" + str.tostring(array.get(cT2, i) * 100.0 / n, \"#\") + \"% | avg hold \" + str.tostring(array.get(cB, i) * 1.0 / n, \"#.#\") + \" bricks\""
+  },
+  "f_planTip": {
+    "arguments": [
+      "typ",
+      "sd",
+      "ent",
+      "t1",
+      "t2",
+      "stp"
+    ],
+    "expression": "\"TRADE PLAN (\" + f_code(typ, sd, \"ENTRY\") + \")\\nEntry:     \" + str.tostring(ent, \"#\") + \"  (close of this brick)\\nTarget 1:  \" + str.tostring(t1, \"#\") + \"  (\" + (sd == 1 ? \"+\" : \"-\") + str.tostring(tgt1Pct, \"#.#\") + \"%  =  \" + str.tostring(math.round(math.abs(t1 - ent))) + \" pts  =  about \" + str.tostring(math.abs(t1 - ent) / boxSize, \"#.#\") + \" bricks)\\nTarget 2:  \" + str.tostring(t2, \"#\") + \"  (\" + (sd == 1 ? \"+\" : \"-\") + str.tostring(tgt2Pct, \"#.#\") + \"%  =  \" + str.tostring(math.round(math.abs(t2 - ent))) + \" pts  =  about \" + str.tostring(math.abs(t2 - ent) / boxSize, \"#.#\") + \" bricks)\\n\\nHOW THE EXIT WORKS\\n\" + f_code(typ, sd, \"EXIT\") + \" appears when \" + (exitOppN == 1 ? \"the NEXT brick closes\" : str.tostring(exitOppN) + \" bricks close in a row\") + \" in the opposite colour (\" + (sd == 1 ? \"RED\" : \"GREEN\") + \")\" + (exitAtT2 ? \", or when Target 2 is reached.\" : \".\") + (exitOnStop ? \"\\nSafety exit: a brick closes \" + (sd == 1 ? \"below \" : \"above \") + str.tostring(stp, \"#\") + \".\" : \"\") + \"\\nTargets are suggestions. Most exits come from the opposite-colour brick, so many trades end before Target 1.\\n\\nHISTORY OF \" + f_famName(f_cidx(typ, sd)) + \" ON THIS CHART\\n\" + f_statTxt(f_cidx(typ, sd))"
+  },
+  "f_exitTip": {
+    "arguments": [
+      "typ",
+      "d",
+      "why",
+      "ent",
+      "ex",
+      "pct",
+      "pts",
+      "held",
+      "t1",
+      "t2",
+      "tid"
+    ],
+    "expression": "\"✖ \" + f_code(typ, d, \"EXIT\") + \" \" + tid + \"\\n\\nTRADE ID \" + tid + \" = the same ID that was shown on the entry arrow.\\n\\nReason: \" + why + \"\\n\\nEntry \" + str.tostring(ent, \"#\") + \"  ->  Exit \" + str.tostring(ex, \"#\") + \"\\nResult: \" + f_pc(pct) + \"  (\" + f_pts(pts) + \" pts) after \" + str.tostring(held) + \" bricks\\nTarget 1 (\" + str.tostring(tgt1Pct, \"#.#\") + \"%) reached: \" + (t1 ? \"yes\" : \"no\") + \"\\nTarget 2 (\" + str.tostring(tgt2Pct, \"#.#\") + \"%) reached: \" + (t2 ? \"yes\" : \"no\") + \"\\n\\nWhat next: wait for the next signal. Do not re-enter only because price is moving.\\nGuide only - not advice.\""
+  },
+  "f_sigTip": {
+    "arguments": [
+      "typ",
+      "sd",
+      "g"
+    ],
+    "expression": "(sd == 1 ? \"▲ BULLISH  -  \" : \"▼ BEARISH  -  \") + f_family(typ) + \": \" + f_name(typ, sd) + \"\\n\" + f_qual(g) + \" entry  \" + f_dots3(g) + \"   |   Risk: \" + f_riskLbl(typ, sd) + \"\\n\\nWhat it means: \" + f_meaning(typ, sd) + \"\\n\\nWhy now: \" + f_reason(typ, sd) + \"\\n\\nBe careful: \" + f_riskTxt(typ, sd) + \"\\n\\nDirection score \" + f_pts(biasScore) + \"  |  RSI \" + str.tostring(rsi, \"#\") + (flowOk ? \"  |  flow \" + f_pts(flowScore) : \"\")"
+  },
+  "f_qual": {
+    "arguments": [
+      "g"
+    ],
+    "expression": "g >= 3 ? \"Strong\" : g == 2 ? \"Moderate\" : \"Weak\""
+  }
+}

@@ -1,16 +1,57 @@
 # Next session - budgeted delivery plan v2
 
-Updated: 2026-10-27. README is authoritative.
+Updated: 2026-10-28. README is authoritative.
 
-- Product tasks: 280 total; 91 Completed; 189 Pending. Latest: 367 tests,
+- Product tasks: 280 total; 132 Completed; 148 Pending. Latest: 598 tests (74 new BE-10 cases),
   Ruff lint/format and strict mypy passed. One existing dependency warning.
 - BE-05 complete (17/17); BE-06 complete (11/11), verified early on D01.
   Evidence: docs/testing/BE-05-acceptance.md and BE-06-acceptance.md.
 - BE-13 is 10/20 accepted, NOT complete. Accepted 01/02/03/04/05/15/16/17/18/19.
   Exact remaining requirements: docs/testing/BE-13-acceptance.md.
-- Next upstream code: BE-08-01 (validated Pine input map); BE-08/09/10/11/12
-  are needed for remaining BE-13 domain APIs. Do not restart completed API work.
+- BE-08 is 13/14 complete: BE-08-01 through BE-08-13 accepted on D03.
+  Pure replay-only indicator library: inputs/maths, all-var snapshots, ordered
+  completed bricks, runs/swings and futures/daily context. 54 focused tests.
+  Evidence/operation: docs/testing/BE-08-acceptance.md.
+  BE-08-14 remains Pending: actual REF-00-07 TradingView debug export absent.
+  First-divergence CLI is ready; synthetic tests are not exported parity.
+  Next independent code: BE-11-01. BE-11/12 remain upstream of BE-13
+  domain APIs. Do not restart completed API/BE-08/BE-09/BE-10 implementation work.
   REF-00-04 separate Pine debug copy remains independent. Preserve original Pine.
+  Current elapsed D03 = 2026-10-28. D09/D10 code completed early D03;
+  D11 remains Pending only for BE-08-14. Live worker is untouched; this library
+  is not activated on the managed feed. Indicator signals/trades exist only in
+  synthetic/replay calculations; no actual paper fills or real orders are produced.
+- BE-09-01 through BE-09-18 complete on D03 (early D12-D15). Pure replay
+  PineEngine, source explanations, eight signals, bias/outlook, ordered indicator
+  ENTRY/T1/EXIT, statistics, snapshots and atomic durable retry/event persistence.
+  103 new tests; 157 indicator cases; 524 full tests and Ruff lint/format plus
+  strict mypy passed, one existing dependency warning.
+  QA-09-19/20 remain Pending actual ten-session exports/G1/G2 acceptance.
+  No baseline freeze or G2 claim. Evidence: docs/testing/BE-09-acceptance.md.
+  Full parity CLI --full --required-days 10 --report compares independent futures
+  inputs, maths/bias, grades/decisions and event IDs; synthetic reports are not
+  reference acceptance. ORB uses Pine Renko OHLC, distinct from source ORB.
+  Replay uses brick IST time and body-only OHLC; chart settings remain unconfirmed.
+  Nondefault Pine opposite-signal overwrite is exposed as replaced_trade_id;
+  no fabricated EXIT. Review this edge case before any execution integration.
+  Additive migration 0007_indicator tested only on isolated databases; local
+  application DB unchanged. Apply under owner/backup procedure at integration.
+  D12/D13/D14 Completed early; D15 remains Pending QA-09-19/20.
+- BE-10 complete (10/10) on D03, early D16/D18. app/strategy implements
+  immutable input/TradePlan/capital contracts, catalog-derived expiry/grid/lot/tick,
+  bounded quote subscriptions with pinned traded legs, liquidity/credit checks,
+  exact amounts/sizing, buffered PAPER_ESTIMATE margin and durable nonexecuting
+  POST /api/settings/preview-strikes. 74 focused synthetic cases; 598 full tests,
+  Ruff lint/format, strict mypy, OpenAPI/type drift and TypeScript compile passed.
+  Generated contracts updated; preview is authenticated/CSRF protected.
+  USER_PREVIEW funds are assumptions, not wallet/account/budget readings. No
+  executable plan, order, reservation, real option observation or broker margin.
+  Option depth records use separate options/*.jsonl sidecars; core replay unchanged.
+  Migration 0008_strategy tested in isolated DB only; local DB unchanged, so apply
+  pending 0007/0008 under owner/backup procedure before operating new DB paths.
+  BE-13-12 settings CRUD remains Pending despite its preview endpoint being ready.
+  Evidence/operation: docs/testing/BE-10-acceptance.md. Next BE-11-01; BE-12 wallet
+  and accounting prerequisites remain before integrated paper execution.
 - D01 Pending only for REF-00-03 actual TradingView settings (already requested;
   do not repeat/invent them). D02 Pending REF-00-04. D03/D05 code batches Completed
   early; D04 Completed early with BE-13-01; D27 transport code Completed early D02.
@@ -41,7 +82,9 @@ Updated: 2026-10-27. README is authoritative.
   and blocks active managed feed/concurrent jobs. Replay job results are ephemeral.
   Migration 0006_dashboard_api applied locally under owner lock after SQLite backup;
   all ten pre-existing table counts retained. Backup in backend/data/backups.
-  Code/type/drift checks pass; 367 full tests, one existing dependency warning.
+  Prior API/type/drift checks passed; latest D03: 598 full tests, Ruff lint/format
+  and strict mypy passed; one existing dependency warning. BE-10 preview contracts
+  regenerated and checked with TypeScript compilation/drift checks.
 - One owned worker/OS lease and one scheduler; current-day catalog and exact
   contract required. Login/token changes stop old socket and require recovery.
   Blocking jobs are joined on cancellation before disposal. Local additive migration

@@ -1,0 +1,709 @@
+{
+  "lastBrickSz": {
+    "type": "float",
+    "initial": null,
+    "expression": "na",
+    "presentation_only": false
+  },
+  "lastTopP": {
+    "type": "float",
+    "initial": null,
+    "expression": "na",
+    "presentation_only": false
+  },
+  "lastTopR": {
+    "type": "float",
+    "initial": null,
+    "expression": "na",
+    "presentation_only": false
+  },
+  "lastTopI": {
+    "type": "int",
+    "initial": null,
+    "expression": "na",
+    "presentation_only": false
+  },
+  "prevTopP": {
+    "type": "float",
+    "initial": null,
+    "expression": "na",
+    "presentation_only": false
+  },
+  "lastBotP": {
+    "type": "float",
+    "initial": null,
+    "expression": "na",
+    "presentation_only": false
+  },
+  "lastBotR": {
+    "type": "float",
+    "initial": null,
+    "expression": "na",
+    "presentation_only": false
+  },
+  "lastBotI": {
+    "type": "int",
+    "initial": null,
+    "expression": "na",
+    "presentation_only": false
+  },
+  "prevBotP": {
+    "type": "float",
+    "initial": null,
+    "expression": "na",
+    "presentation_only": false
+  },
+  "lastDivDir": {
+    "type": "int",
+    "initial": 0,
+    "expression": "0",
+    "presentation_only": false
+  },
+  "lastDivBar": {
+    "type": "int",
+    "initial": null,
+    "expression": "na",
+    "presentation_only": false
+  },
+  "lastHidDir": {
+    "type": "int",
+    "initial": 0,
+    "expression": "0",
+    "presentation_only": false
+  },
+  "lastHidBar": {
+    "type": "int",
+    "initial": null,
+    "expression": "na",
+    "presentation_only": false
+  },
+  "orH": {
+    "type": "float",
+    "initial": null,
+    "expression": "na",
+    "presentation_only": false
+  },
+  "orL": {
+    "type": "float",
+    "initial": null,
+    "expression": "na",
+    "presentation_only": false
+  },
+  "orbUpSeen": {
+    "type": "bool",
+    "initial": false,
+    "expression": "false",
+    "presentation_only": false
+  },
+  "orbDnSeen": {
+    "type": "bool",
+    "initial": false,
+    "expression": "false",
+    "presentation_only": false
+  },
+  "trapUpLvl": {
+    "type": "float",
+    "initial": null,
+    "expression": "na",
+    "presentation_only": false
+  },
+  "trapUpBar": {
+    "type": "int",
+    "initial": null,
+    "expression": "na",
+    "presentation_only": false
+  },
+  "trapDnLvl": {
+    "type": "float",
+    "initial": null,
+    "expression": "na",
+    "presentation_only": false
+  },
+  "trapDnBar": {
+    "type": "int",
+    "initial": null,
+    "expression": "na",
+    "presentation_only": false
+  },
+  "srgArmL": {
+    "type": "int",
+    "initial": null,
+    "expression": "na",
+    "presentation_only": false
+  },
+  "srgArmS": {
+    "type": "int",
+    "initial": null,
+    "expression": "na",
+    "presentation_only": false
+  },
+  "coreDone": {
+    "type": "bool",
+    "initial": false,
+    "expression": "false",
+    "presentation_only": false
+  },
+  "lastSigL": {
+    "type": "int",
+    "initial": -999,
+    "expression": "-999",
+    "presentation_only": false
+  },
+  "lastSigS": {
+    "type": "int",
+    "initial": -999,
+    "expression": "-999",
+    "presentation_only": false
+  },
+  "lastSigDirV": {
+    "type": "int",
+    "initial": 0,
+    "expression": "0",
+    "presentation_only": false
+  },
+  "lastSigType": {
+    "type": "string",
+    "initial": "",
+    "expression": "\"\"",
+    "presentation_only": false
+  },
+  "lastSigGradeV": {
+    "type": "int",
+    "initial": 0,
+    "expression": "0",
+    "presentation_only": false
+  },
+  "lastSigBarV": {
+    "type": "int",
+    "initial": null,
+    "expression": "na",
+    "presentation_only": false
+  },
+  "lastSigPxV": {
+    "type": "float",
+    "initial": null,
+    "expression": "na",
+    "presentation_only": false
+  },
+  "sigToday": {
+    "type": "int",
+    "initial": 0,
+    "expression": "0",
+    "presentation_only": false
+  },
+  "lastSigTip": {
+    "type": "string",
+    "initial": "",
+    "expression": "\"\"",
+    "presentation_only": false
+  },
+  "lastSigRisk": {
+    "type": "string",
+    "initial": "",
+    "expression": "\"\"",
+    "presentation_only": false
+  },
+  "posDir": {
+    "type": "int",
+    "initial": 0,
+    "expression": "0",
+    "presentation_only": false
+  },
+  "posEntry": {
+    "type": "float",
+    "initial": null,
+    "expression": "na",
+    "presentation_only": false
+  },
+  "posStop": {
+    "type": "float",
+    "initial": null,
+    "expression": "na",
+    "presentation_only": false
+  },
+  "posT1": {
+    "type": "float",
+    "initial": null,
+    "expression": "na",
+    "presentation_only": false
+  },
+  "posT2": {
+    "type": "float",
+    "initial": null,
+    "expression": "na",
+    "presentation_only": false
+  },
+  "posBar": {
+    "type": "int",
+    "initial": null,
+    "expression": "na",
+    "presentation_only": false
+  },
+  "posT1Hit": {
+    "type": "bool",
+    "initial": false,
+    "expression": "false",
+    "presentation_only": false
+  },
+  "posType": {
+    "type": "string",
+    "initial": "",
+    "expression": "\"\"",
+    "presentation_only": false
+  },
+  "posGrade": {
+    "type": "int",
+    "initial": 0,
+    "expression": "0",
+    "presentation_only": false
+  },
+  "posTip": {
+    "type": "string",
+    "initial": "",
+    "expression": "\"\"",
+    "presentation_only": false
+  },
+  "trN": {
+    "type": "int",
+    "initial": 0,
+    "expression": "0",
+    "presentation_only": false
+  },
+  "trW": {
+    "type": "int",
+    "initial": 0,
+    "expression": "0",
+    "presentation_only": false
+  },
+  "trP": {
+    "type": "float",
+    "initial": 0.0,
+    "expression": "0.0",
+    "presentation_only": false
+  },
+  "oppRun": {
+    "type": "int",
+    "initial": 0,
+    "expression": "0",
+    "presentation_only": false
+  },
+  "tradeSeq": {
+    "type": "int",
+    "initial": 0,
+    "expression": "0",
+    "presentation_only": false
+  },
+  "idSalt": {
+    "type": "int",
+    "initial": 0,
+    "expression": "0",
+    "presentation_only": false
+  },
+  "posId": {
+    "type": "string",
+    "initial": "",
+    "expression": "\"\"",
+    "presentation_only": false
+  },
+  "cN": {
+    "type": "array<int>",
+    "initial": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "expression": "array.new<int>(6, 0)",
+    "presentation_only": false
+  },
+  "cW": {
+    "type": "array<int>",
+    "initial": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "expression": "array.new<int>(6, 0)",
+    "presentation_only": false
+  },
+  "cT1": {
+    "type": "array<int>",
+    "initial": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "expression": "array.new<int>(6, 0)",
+    "presentation_only": false
+  },
+  "cT2": {
+    "type": "array<int>",
+    "initial": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "expression": "array.new<int>(6, 0)",
+    "presentation_only": false
+  },
+  "cB": {
+    "type": "array<int>",
+    "initial": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "expression": "array.new<int>(6, 0)",
+    "presentation_only": false
+  },
+  "cP": {
+    "type": "array<float>",
+    "initial": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "expression": "array.new<float>(6, 0.0)",
+    "presentation_only": false
+  },
+  "tNames": {
+    "type": "array<string>",
+    "initial": [
+      "CORE",
+      "DIV",
+      "HDIV",
+      "PB",
+      "BRK",
+      "TRAP",
+      "ORB",
+      "SRG"
+    ],
+    "expression": "array.from(\"CORE\", \"DIV\", \"HDIV\", \"PB\", \"BRK\", \"TRAP\", \"ORB\", \"SRG\")",
+    "presentation_only": false
+  },
+  "tLay": {
+    "type": "array<string>",
+    "initial": [
+      "Trend Start",
+      "Reversal (top / bottom)",
+      "Trend Continues",
+      "Pullback Entry",
+      "Breakout / Breakdown",
+      "Fake Breakout / Breakdown",
+      "Opening Breakout",
+      "Big-Money Surge"
+    ],
+    "expression": "array.from(\"Trend Start\", \"Reversal (top / bottom)\", \"Trend Continues\", \"Pullback Entry\", \"Breakout / Breakdown\", \"Fake Breakout / Breakdown\", \"Opening Breakout\", \"Big-Money Surge\")",
+    "presentation_only": false
+  },
+  "tN": {
+    "type": "array<int>",
+    "initial": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "expression": "array.new<int>(8, 0)",
+    "presentation_only": false
+  },
+  "tW": {
+    "type": "array<int>",
+    "initial": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "expression": "array.new<int>(8, 0)",
+    "presentation_only": false
+  },
+  "tP": {
+    "type": "array<float>",
+    "initial": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "expression": "array.new<float>(8, 0.0)",
+    "presentation_only": false
+  },
+  "gN": {
+    "type": "array<int>",
+    "initial": [
+      0,
+      0,
+      0
+    ],
+    "expression": "array.new<int>(3, 0)",
+    "presentation_only": false
+  },
+  "gW": {
+    "type": "array<int>",
+    "initial": [
+      0,
+      0,
+      0
+    ],
+    "expression": "array.new<int>(3, 0)",
+    "presentation_only": false
+  },
+  "gP": {
+    "type": "array<float>",
+    "initial": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "expression": "array.new<float>(3, 0.0)",
+    "presentation_only": false
+  },
+  "pBar": {
+    "type": "array<int>",
+    "initial": [],
+    "expression": "array.new<int>()",
+    "presentation_only": false
+  },
+  "pPx": {
+    "type": "array<float>",
+    "initial": [],
+    "expression": "array.new<float>()",
+    "presentation_only": false
+  },
+  "pDir": {
+    "type": "array<int>",
+    "initial": [],
+    "expression": "array.new<int>()",
+    "presentation_only": false
+  },
+  "pTyp": {
+    "type": "array<int>",
+    "initial": [],
+    "expression": "array.new<int>()",
+    "presentation_only": false
+  },
+  "pGr": {
+    "type": "array<int>",
+    "initial": [],
+    "expression": "array.new<int>()",
+    "presentation_only": false
+  },
+  "firstTime": {
+    "type": "int",
+    "initial": null,
+    "expression": "na",
+    "presentation_only": false
+  },
+  "runLen": {
+    "type": "int",
+    "initial": 1,
+    "expression": "1",
+    "presentation_only": false
+  },
+  "nTot": {
+    "type": "array<int>",
+    "initial": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "expression": "array.new<int>(12, 0)",
+    "presentation_only": false
+  },
+  "nCont": {
+    "type": "array<int>",
+    "initial": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "expression": "array.new<int>(12, 0)",
+    "presentation_only": false
+  },
+  "sumRunUp": {
+    "type": "float",
+    "initial": 0.0,
+    "expression": "0.0",
+    "presentation_only": false
+  },
+  "cntRunUp": {
+    "type": "int",
+    "initial": 0,
+    "expression": "0",
+    "presentation_only": false
+  },
+  "sumRunDn": {
+    "type": "float",
+    "initial": 0.0,
+    "expression": "0.0",
+    "presentation_only": false
+  },
+  "cntRunDn": {
+    "type": "int",
+    "initial": 0,
+    "expression": "0",
+    "presentation_only": false
+  },
+  "biasDir": {
+    "type": "int",
+    "initial": 0,
+    "expression": "0",
+    "presentation_only": false
+  },
+  "biasSince": {
+    "type": "int",
+    "initial": 0,
+    "expression": "0",
+    "presentation_only": false
+  },
+  "lnE": {
+    "type": "line",
+    "initial": null,
+    "expression": "na",
+    "presentation_only": true
+  },
+  "lnSt": {
+    "type": "line",
+    "initial": null,
+    "expression": "na",
+    "presentation_only": true
+  },
+  "lnT1": {
+    "type": "line",
+    "initial": null,
+    "expression": "na",
+    "presentation_only": true
+  },
+  "lnT2": {
+    "type": "line",
+    "initial": null,
+    "expression": "na",
+    "presentation_only": true
+  },
+  "lbE": {
+    "type": "label",
+    "initial": null,
+    "expression": "na",
+    "presentation_only": true
+  },
+  "lbSt": {
+    "type": "label",
+    "initial": null,
+    "expression": "na",
+    "presentation_only": true
+  },
+  "lbT1": {
+    "type": "label",
+    "initial": null,
+    "expression": "na",
+    "presentation_only": true
+  },
+  "lbT2": {
+    "type": "label",
+    "initial": null,
+    "expression": "na",
+    "presentation_only": true
+  },
+  "lnUp": {
+    "type": "line",
+    "initial": null,
+    "expression": "na",
+    "presentation_only": true
+  },
+  "lnDn": {
+    "type": "line",
+    "initial": null,
+    "expression": "na",
+    "presentation_only": true
+  },
+  "lnR": {
+    "type": "line",
+    "initial": null,
+    "expression": "na",
+    "presentation_only": true
+  },
+  "lnS": {
+    "type": "line",
+    "initial": null,
+    "expression": "na",
+    "presentation_only": true
+  },
+  "lbUp": {
+    "type": "label",
+    "initial": null,
+    "expression": "na",
+    "presentation_only": true
+  },
+  "lbDn": {
+    "type": "label",
+    "initial": null,
+    "expression": "na",
+    "presentation_only": true
+  },
+  "lbR": {
+    "type": "label",
+    "initial": null,
+    "expression": "na",
+    "presentation_only": true
+  },
+  "lbS": {
+    "type": "label",
+    "initial": null,
+    "expression": "na",
+    "presentation_only": true
+  },
+  "dash": {
+    "type": "table",
+    "initial": null,
+    "expression": "table.new(dPos, 1, dashMode == \"Full\" ? 6 : 4, bgcolor=color.new(color.black, 20), frame_color=color.new(color.gray, 60), frame_width=1, border_color=color.new(color.gray, 70), border_width=1)",
+    "presentation_only": true
+  }
+}

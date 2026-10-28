@@ -1,0 +1,341 @@
+{
+  "atrLen": {
+    "kind": "int",
+    "default": 10,
+    "minval": 1.0
+  },
+  "factor": {
+    "kind": "float",
+    "default": 2.5,
+    "minval": 0.1
+  },
+  "upCol": {
+    "kind": "color",
+    "default": "green"
+  },
+  "dnCol": {
+    "kind": "color",
+    "default": "red"
+  },
+  "showFill": {
+    "kind": "bool",
+    "default": false
+  },
+  "joinST": {
+    "kind": "bool",
+    "default": true
+  },
+  "boxSize": {
+    "kind": "float",
+    "default": 50.0,
+    "minval": 0.1
+  },
+  "coreWindow": {
+    "kind": "int",
+    "default": 3,
+    "minval": 1.0,
+    "maxval": 10.0
+  },
+  "sigCooldown": {
+    "kind": "int",
+    "default": 3,
+    "minval": 0.0
+  },
+  "minGrade": {
+    "kind": "string",
+    "default": "Moderate and above",
+    "options": [
+      "Weak and above (all)",
+      "Moderate and above",
+      "Strong only"
+    ]
+  },
+  "evalBricks": {
+    "kind": "int",
+    "default": 8,
+    "minval": 2.0
+  },
+  "divFresh": {
+    "kind": "int",
+    "default": 8,
+    "minval": 2.0
+  },
+  "extMins": {
+    "kind": "int",
+    "default": 15,
+    "minval": 1.0
+  },
+  "extBricks": {
+    "kind": "int",
+    "default": 3,
+    "minval": 1.0
+  },
+  "tgt1Pct": {
+    "kind": "float",
+    "default": 2.5,
+    "minval": 0.1
+  },
+  "tgt2Pct": {
+    "kind": "float",
+    "default": 4.0,
+    "minval": 0.2
+  },
+  "exitOppN": {
+    "kind": "int",
+    "default": 1,
+    "minval": 1.0,
+    "maxval": 5.0
+  },
+  "exitAtT2": {
+    "kind": "bool",
+    "default": true
+  },
+  "exitOnStop": {
+    "kind": "bool",
+    "default": false
+  },
+  "stopCapBx": {
+    "kind": "float",
+    "default": 6.0,
+    "minval": 1.0
+  },
+  "showAdds": {
+    "kind": "bool",
+    "default": false
+  },
+  "showPlan": {
+    "kind": "bool",
+    "default": true
+  },
+  "rsiLen": {
+    "kind": "int",
+    "default": 14,
+    "minval": 1.0
+  },
+  "topType": {
+    "kind": "string",
+    "default": "Equal or higher",
+    "options": [
+      "Equal only",
+      "Equal or higher"
+    ]
+  },
+  "minRsiGap": {
+    "kind": "float",
+    "default": 0.5,
+    "minval": 0.0
+  },
+  "maxGap": {
+    "kind": "int",
+    "default": 60,
+    "minval": 3.0
+  },
+  "rsiHi": {
+    "kind": "int",
+    "default": 50
+  },
+  "rsiLo": {
+    "kind": "int",
+    "default": 50
+  },
+  "hdivOn": {
+    "kind": "bool",
+    "default": true
+  },
+  "showDivLn": {
+    "kind": "bool",
+    "default": false
+  },
+  "divCrossDay": {
+    "kind": "bool",
+    "default": true
+  },
+  "pbOn": {
+    "kind": "bool",
+    "default": true
+  },
+  "pbMinAge": {
+    "kind": "int",
+    "default": 3,
+    "minval": 2.0
+  },
+  "brkOn": {
+    "kind": "bool",
+    "default": true
+  },
+  "brkAge": {
+    "kind": "int",
+    "default": 40,
+    "minval": 5.0
+  },
+  "trapOn": {
+    "kind": "bool",
+    "default": true
+  },
+  "trapBars": {
+    "kind": "int",
+    "default": 6,
+    "minval": 2.0
+  },
+  "orbOn": {
+    "kind": "bool",
+    "default": true
+  },
+  "orbUntil": {
+    "kind": "int",
+    "default": 1130,
+    "minval": 930.0,
+    "maxval": 1500.0
+  },
+  "orbMinBx": {
+    "kind": "int",
+    "default": 2,
+    "minval": 1.0
+  },
+  "srgOn": {
+    "kind": "bool",
+    "default": true
+  },
+  "srgMin": {
+    "kind": "int",
+    "default": 4,
+    "minval": 2.0,
+    "maxval": 5.0
+  },
+  "srgNeedVol": {
+    "kind": "bool",
+    "default": true
+  },
+  "flowOn": {
+    "kind": "bool",
+    "default": true
+  },
+  "futSym": {
+    "kind": "symbol",
+    "default": "NSE:NIFTY1!"
+  },
+  "useOI": {
+    "kind": "bool",
+    "default": true
+  },
+  "flowTf": {
+    "kind": "timeframe",
+    "default": "5"
+  },
+  "flowBars": {
+    "kind": "int",
+    "default": 3,
+    "minval": 1.0
+  },
+  "oiMinPct": {
+    "kind": "float",
+    "default": 0.1,
+    "minval": 0.0
+  },
+  "pxMinPct": {
+    "kind": "float",
+    "default": 0.05,
+    "minval": 0.0
+  },
+  "volMult": {
+    "kind": "float",
+    "default": 1.5,
+    "minval": 1.0
+  },
+  "outSamples": {
+    "kind": "int",
+    "default": 20,
+    "minval": 5.0
+  },
+  "stretchBx": {
+    "kind": "int",
+    "default": 6,
+    "minval": 2.0
+  },
+  "manRes": {
+    "kind": "float",
+    "default": 0.0
+  },
+  "manSup": {
+    "kind": "float",
+    "default": 0.0
+  },
+  "dashMode": {
+    "kind": "string",
+    "default": "Compact",
+    "options": [
+      "Hidden",
+      "Compact",
+      "Full"
+    ]
+  },
+  "dashPos": {
+    "kind": "string",
+    "default": "Top Right",
+    "options": [
+      "Top Right",
+      "Middle Right",
+      "Bottom Right",
+      "Top Left",
+      "Middle Left",
+      "Bottom Left"
+    ]
+  },
+  "dashSize": {
+    "kind": "string",
+    "default": "Normal",
+    "options": [
+      "Small",
+      "Normal",
+      "Large"
+    ]
+  },
+  "labelMode": {
+    "kind": "string",
+    "default": "Code + arrow",
+    "options": [
+      "Code + arrow",
+      "Arrow only",
+      "Off"
+    ]
+  },
+  "labelGap": {
+    "kind": "int",
+    "default": 1,
+    "minval": 0.0,
+    "maxval": 4.0
+  },
+  "lblSz": {
+    "kind": "string",
+    "default": "Small",
+    "options": [
+      "Tiny",
+      "Small",
+      "Normal"
+    ]
+  },
+  "colBull": {
+    "kind": "color",
+    "default": "green"
+  },
+  "colBear": {
+    "kind": "color",
+    "default": "red"
+  },
+  "showBg": {
+    "kind": "bool",
+    "default": true
+  },
+  "showLevels": {
+    "kind": "bool",
+    "default": false
+  },
+  "showNext": {
+    "kind": "bool",
+    "default": false
+  },
+  "useClock": {
+    "kind": "bool",
+    "default": true
+  }
+}

@@ -22,6 +22,34 @@ class TickRecorder:
         self.spot = spot
         self.future = future
         self.sequence = 0
+        self.option_sequence = 0
+
+    def write_option(self, at: datetime, quote: dict[str, Any]) -> None:
+        """Separate full-depth source stream; core replay files remain unchanged."""
+        if at.utcoffset() is None:
+            raise RecordingError("Option recording requires an aware timestamp")
+        event = {
+            "version": 1,
+            "session": self.directory.name,
+            "sequence": self.option_sequence,
+            "kind": "option_quote",
+            "at": at.isoformat(),
+            "quote": quote,
+        }
+        path = (
+            self.directory
+            / "options"
+            / f"{at.astimezone(IST).date().isoformat()}.jsonl"
+        )
+        try:
+            path.parent.mkdir(parents=True, exist_ok=True)
+            with path.open("a", encoding="utf-8", newline="\n") as stream:
+                stream.write(json.dumps(event, allow_nan=False) + "\n")
+                stream.flush()
+                os.fsync(stream.fileno())
+        except (OSError, ValueError, TypeError):
+            raise RecordingError("Cannot record option depth; feed stopped") from None
+        self.option_sequence += 1
 
     def write(self, kind: str, at: datetime, payload: dict[str, Any]) -> None:
         """Flush each append containing normalized, allowlisted market fields."""

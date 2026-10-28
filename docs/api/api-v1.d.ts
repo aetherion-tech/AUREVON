@@ -345,6 +345,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/settings/preview-strikes": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Preview Strikes */
+        post: operations["preview_strikes_api_settings_preview_strikes_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -478,6 +495,23 @@ export interface components {
             stream: string;
             /** Token */
             token: number;
+        };
+        /** CapitalSnapshot */
+        CapitalSnapshot: {
+            /**
+             * At
+             * Format: date-time
+             */
+            at: string;
+            /** Free Capital */
+            free_capital: string;
+            /** Revision */
+            revision: string;
+            /**
+             * Source
+             * @enum {string}
+             */
+            source: "PAPER_WALLET" | "USER_PREVIEW";
         };
         /** DashboardLogin */
         DashboardLogin: {
@@ -814,6 +848,41 @@ export interface components {
             selected_expiry: string;
             spot: components["schemas"]["InstrumentView"];
         };
+        /** OptionContract */
+        OptionContract: {
+            /**
+             * Exchange
+             * @default NFO
+             * @constant
+             */
+            exchange: "NFO";
+            /**
+             * Expiry
+             * Format: date
+             */
+            expiry: string;
+            /** Lot Size */
+            lot_size: number;
+            /**
+             * Name
+             * @default NIFTY
+             * @constant
+             */
+            name: "NIFTY";
+            /**
+             * Option Type
+             * @enum {string}
+             */
+            option_type: "CE" | "PE";
+            /** Strike */
+            strike: string;
+            /** Symbol */
+            symbol: string;
+            /** Tick Size */
+            tick_size: string;
+            /** Token */
+            token: number;
+        };
         /** Page[AlertData] */
         Page_AlertData_: {
             /** Items */
@@ -836,6 +905,65 @@ export interface components {
             offset: number;
             /** Total */
             total?: number | null;
+        };
+        /** PlanAttempt */
+        PlanAttempt: {
+            /** Hedge Symbol */
+            hedge_symbol?: string | null;
+            /** Reason */
+            reason: string;
+            /** Short Symbol */
+            short_symbol?: string | null;
+        };
+        /** PlanDecision */
+        PlanDecision: {
+            /** Accepted */
+            accepted: boolean;
+            /**
+             * Attempts
+             * @default []
+             */
+            attempts: components["schemas"]["PlanAttempt"][];
+            /**
+             * Candidates
+             * @default []
+             */
+            candidates: components["schemas"]["OptionContract"][];
+            /** Decision Id */
+            decision_id?: string | null;
+            /**
+             * Executable
+             * @default false
+             * @constant
+             */
+            executable: false;
+            plan?: components["schemas"]["TradePlan"] | null;
+            /** Reason */
+            reason: string;
+            /**
+             * Version
+             * @default 1
+             * @constant
+             */
+            version: 1;
+        };
+        /** PlanLeg */
+        PlanLeg: {
+            contract: components["schemas"]["OptionContract"];
+            /** Limit Price */
+            limit_price: string;
+            /** Quantity */
+            quantity: number;
+            /**
+             * Role
+             * @enum {string}
+             */
+            role: "SHORT" | "HEDGE";
+            /**
+             * Side
+             * @enum {string}
+             */
+            side: "SELL" | "BUY";
         };
         /** PositionData */
         PositionData: {
@@ -935,6 +1063,102 @@ export interface components {
             /** Reason */
             reason: string;
         };
+        /** SignalInput */
+        "SignalInput-Input": {
+            /**
+             * At
+             * Format: date-time
+             */
+            at: string;
+            /**
+             * Bias Direction
+             * @enum {integer}
+             */
+            bias_direction: -1 | 0 | 1;
+            /**
+             * Direction
+             * @enum {integer}
+             */
+            direction: 1 | -1;
+            /**
+             * Family
+             * @enum {string}
+             */
+            family: "CO" | "DIV" | "OT";
+            /** Grade */
+            grade: number;
+            /** Index Target 1 */
+            index_target_1: string | number;
+            /** Index Target 2 */
+            index_target_2: string | number;
+            /** Replaced Trade Id */
+            replaced_trade_id?: string | null;
+            /**
+             * Risk
+             * @enum {string}
+             */
+            risk: "Low" | "Medium" | "High";
+            /** Signal Id */
+            signal_id: string;
+            /** Spot */
+            spot: string | number;
+            /** Trade Id */
+            trade_id: string;
+            /**
+             * Version
+             * @default 1
+             * @constant
+             */
+            version: 1;
+        };
+        /** SignalInput */
+        "SignalInput-Output": {
+            /**
+             * At
+             * Format: date-time
+             */
+            at: string;
+            /**
+             * Bias Direction
+             * @enum {integer}
+             */
+            bias_direction: -1 | 0 | 1;
+            /**
+             * Direction
+             * @enum {integer}
+             */
+            direction: 1 | -1;
+            /**
+             * Family
+             * @enum {string}
+             */
+            family: "CO" | "DIV" | "OT";
+            /** Grade */
+            grade: number;
+            /** Index Target 1 */
+            index_target_1: string;
+            /** Index Target 2 */
+            index_target_2: string;
+            /** Replaced Trade Id */
+            replaced_trade_id?: string | null;
+            /**
+             * Risk
+             * @enum {string}
+             */
+            risk: "Low" | "Medium" | "High";
+            /** Signal Id */
+            signal_id: string;
+            /** Spot */
+            spot: string;
+            /** Trade Id */
+            trade_id: string;
+            /**
+             * Version
+             * @default 1
+             * @constant
+             */
+            version: 1;
+        };
         /** SnapshotFrame */
         SnapshotFrame: {
             snapshot: components["schemas"]["LiveSnapshot"];
@@ -968,6 +1192,346 @@ export interface components {
             /** State */
             state: string;
         };
+        /** StrategySettings */
+        "StrategySettings-Input": {
+            /**
+             * Allowed Families
+             * @default [
+             *       "CO",
+             *       "DIV",
+             *       "OT"
+             *     ]
+             */
+            allowed_families: ("CO" | "DIV" | "OT")[];
+            /**
+             * Entry End
+             * Format: time
+             * @default 14:45:00
+             */
+            entry_end: string;
+            /**
+             * Entry Start
+             * Format: time
+             * @default 09:30:00
+             */
+            entry_start: string;
+            /**
+             * Expiry Policy
+             * @default trade_next
+             * @enum {string}
+             */
+            expiry_policy: "skip" | "trade_current" | "trade_next";
+            /**
+             * Expiry Switch At
+             * Format: time
+             * @default 12:00:00
+             */
+            expiry_switch_at: string;
+            /**
+             * Fixed Lots
+             * @default 1
+             */
+            fixed_lots: number;
+            /**
+             * Hedge Mode
+             * @default width
+             * @enum {string}
+             */
+            hedge_mode: "width" | "premium";
+            /**
+             * Hedge Target Premium
+             * @default 7.50
+             */
+            hedge_target_premium: string | number;
+            /**
+             * Hedge Width Steps
+             * @default 4
+             */
+            hedge_width_steps: number;
+            /**
+             * Liquidity Retries
+             * @default 2
+             */
+            liquidity_retries: number;
+            /**
+             * Margin Buffer Pct
+             * @default 10
+             */
+            margin_buffer_pct: string | number;
+            /**
+             * Max Lots
+             * @default 10
+             */
+            max_lots: number;
+            /**
+             * Max Quantity
+             * @default 10000
+             */
+            max_quantity: number;
+            /**
+             * Max Spread Abs
+             * @default 1
+             */
+            max_spread_abs: string | number;
+            /**
+             * Max Spread Pct
+             * @default 2
+             */
+            max_spread_pct: string | number;
+            /**
+             * Min Grade
+             * @default 2
+             */
+            min_grade: number;
+            /**
+             * Min Open Interest
+             * @default 1
+             */
+            min_open_interest: number;
+            /**
+             * Minimum Credit
+             * @default 0.05
+             */
+            minimum_credit: string | number;
+            /**
+             * Premium Search Steps
+             * @default 20
+             */
+            premium_search_steps: number;
+            /**
+             * Profit Capture Enabled
+             * @default false
+             */
+            profit_capture_enabled: boolean;
+            /**
+             * Profit Capture Pct
+             * @default 70
+             */
+            profit_capture_pct: string | number;
+            /**
+             * Quote Max Age Seconds
+             * @default 5
+             */
+            quote_max_age_seconds: number;
+            /**
+             * Quote Max Skew Seconds
+             * @default 2
+             */
+            quote_max_skew_seconds: number;
+            /**
+             * Risk Pct
+             * @default 1
+             */
+            risk_pct: string | number;
+            /**
+             * Short Offset Steps
+             * @default 1
+             */
+            short_offset_steps: number;
+            /**
+             * Sizing
+             * @default fixed_lots
+             * @enum {string}
+             */
+            sizing: "fixed_lots" | "risk_pct";
+            /**
+             * Skip High Risk
+             * @default true
+             */
+            skip_high_risk: boolean;
+            /**
+             * Skip Opposite Bias
+             * @default true
+             */
+            skip_opposite_bias: boolean;
+            /**
+             * Sl Pct Of Max Loss
+             * @default 50
+             */
+            sl_pct_of_max_loss: string | number;
+            /**
+             * Version
+             * @default 1
+             * @constant
+             */
+            version: 1;
+        };
+        /** StrategySettings */
+        "StrategySettings-Output": {
+            /**
+             * Allowed Families
+             * @default [
+             *       "CO",
+             *       "DIV",
+             *       "OT"
+             *     ]
+             */
+            allowed_families: ("CO" | "DIV" | "OT")[];
+            /**
+             * Entry End
+             * Format: time
+             * @default 14:45:00
+             */
+            entry_end: string;
+            /**
+             * Entry Start
+             * Format: time
+             * @default 09:30:00
+             */
+            entry_start: string;
+            /**
+             * Expiry Policy
+             * @default trade_next
+             * @enum {string}
+             */
+            expiry_policy: "skip" | "trade_current" | "trade_next";
+            /**
+             * Expiry Switch At
+             * Format: time
+             * @default 12:00:00
+             */
+            expiry_switch_at: string;
+            /**
+             * Fixed Lots
+             * @default 1
+             */
+            fixed_lots: number;
+            /**
+             * Hedge Mode
+             * @default width
+             * @enum {string}
+             */
+            hedge_mode: "width" | "premium";
+            /**
+             * Hedge Target Premium
+             * @default 7.50
+             */
+            hedge_target_premium: string;
+            /**
+             * Hedge Width Steps
+             * @default 4
+             */
+            hedge_width_steps: number;
+            /**
+             * Liquidity Retries
+             * @default 2
+             */
+            liquidity_retries: number;
+            /**
+             * Margin Buffer Pct
+             * @default 10
+             */
+            margin_buffer_pct: string;
+            /**
+             * Max Lots
+             * @default 10
+             */
+            max_lots: number;
+            /**
+             * Max Quantity
+             * @default 10000
+             */
+            max_quantity: number;
+            /**
+             * Max Spread Abs
+             * @default 1
+             */
+            max_spread_abs: string;
+            /**
+             * Max Spread Pct
+             * @default 2
+             */
+            max_spread_pct: string;
+            /**
+             * Min Grade
+             * @default 2
+             */
+            min_grade: number;
+            /**
+             * Min Open Interest
+             * @default 1
+             */
+            min_open_interest: number;
+            /**
+             * Minimum Credit
+             * @default 0.05
+             */
+            minimum_credit: string;
+            /**
+             * Premium Search Steps
+             * @default 20
+             */
+            premium_search_steps: number;
+            /**
+             * Profit Capture Enabled
+             * @default false
+             */
+            profit_capture_enabled: boolean;
+            /**
+             * Profit Capture Pct
+             * @default 70
+             */
+            profit_capture_pct: string;
+            /**
+             * Quote Max Age Seconds
+             * @default 5
+             */
+            quote_max_age_seconds: number;
+            /**
+             * Quote Max Skew Seconds
+             * @default 2
+             */
+            quote_max_skew_seconds: number;
+            /**
+             * Risk Pct
+             * @default 1
+             */
+            risk_pct: string;
+            /**
+             * Short Offset Steps
+             * @default 1
+             */
+            short_offset_steps: number;
+            /**
+             * Sizing
+             * @default fixed_lots
+             * @enum {string}
+             */
+            sizing: "fixed_lots" | "risk_pct";
+            /**
+             * Skip High Risk
+             * @default true
+             */
+            skip_high_risk: boolean;
+            /**
+             * Skip Opposite Bias
+             * @default true
+             */
+            skip_opposite_bias: boolean;
+            /**
+             * Sl Pct Of Max Loss
+             * @default 50
+             */
+            sl_pct_of_max_loss: string;
+            /**
+             * Version
+             * @default 1
+             * @constant
+             */
+            version: 1;
+        };
+        /** StrikePreview */
+        StrikePreview: {
+            /** Free Capital */
+            free_capital?: string | number | null;
+            settings?: components["schemas"]["StrategySettings-Input"];
+            signal: components["schemas"]["SignalInput-Input"];
+            /**
+             * Subscribe Quotes
+             * @default false
+             */
+            subscribe_quotes: boolean;
+        };
         /** TickData */
         TickData: {
             /** Price */
@@ -992,6 +1556,90 @@ export interface components {
             mode: "PAPER";
             /** Trade Id */
             trade_id: string;
+        };
+        /** TradePlan */
+        TradePlan: {
+            /** Broker Reported Margin */
+            broker_reported_margin?: null;
+            capital: components["schemas"]["CapitalSnapshot"];
+            /**
+             * Catalog Loaded At
+             * Format: date-time
+             */
+            catalog_loaded_at: string;
+            /** Credit */
+            credit: string;
+            /** Credit Per Unit */
+            credit_per_unit: string;
+            /**
+             * Executable
+             * @default false
+             * @constant
+             */
+            executable: false;
+            /**
+             * Expiry
+             * Format: date
+             */
+            expiry: string;
+            hedge: components["schemas"]["PlanLeg"];
+            /**
+             * Hedge Quote At
+             * Format: date-time
+             */
+            hedge_quote_at: string;
+            /** Lots */
+            lots: number;
+            /**
+             * Margin Source
+             * @default PAPER_ESTIMATE
+             * @constant
+             */
+            margin_source: "PAPER_ESTIMATE";
+            /** Maximum Loss */
+            maximum_loss: string;
+            /**
+             * Payoff Basis
+             * @default GROSS_BEFORE_FEES
+             * @constant
+             */
+            payoff_basis: "GROSS_BEFORE_FEES";
+            /** Plan Id */
+            plan_id: string;
+            /**
+             * Planned At
+             * Format: date-time
+             */
+            planned_at: string;
+            /** Profit Capture Debit Per Unit */
+            profit_capture_debit_per_unit: string;
+            /** Profit Capture Enabled */
+            profit_capture_enabled: boolean;
+            /** Required Margin */
+            required_margin: string;
+            settings: components["schemas"]["StrategySettings-Output"];
+            short: components["schemas"]["PlanLeg"];
+            /**
+             * Short Quote At
+             * Format: date-time
+             */
+            short_quote_at: string;
+            signal: components["schemas"]["SignalInput-Output"];
+            /** Stop Debit Per Unit */
+            stop_debit_per_unit: string;
+            /** Strike Step */
+            strike_step: string;
+            /**
+             * Structure
+             * @enum {string}
+             */
+            structure: "BULL_PUT_SPREAD" | "BEAR_CALL_SPREAD";
+            /**
+             * Version
+             * @default 1
+             * @constant
+             */
+            version: 1;
         };
         WebSocketMessage: components["schemas"]["SnapshotFrame"] | components["schemas"]["EventBatch"] | components["schemas"]["ResyncFrame"] | components["schemas"]["HeartbeatFrame"];
     };
@@ -3789,6 +4437,147 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ModeStatus"];
+                };
+            };
+            /** @description Bad Request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Method Not Allowed */
+            405: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Request Entity Too Large */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Unsupported Media Type */
+            415: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Unprocessable Entity */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Too Many Requests */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Bad Gateway */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Service Unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    preview_strikes_api_settings_preview_strikes_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["StrikePreview"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PlanDecision"];
                 };
             };
             /** @description Bad Request */

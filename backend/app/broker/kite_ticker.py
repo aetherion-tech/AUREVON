@@ -19,6 +19,8 @@ from app.market.readiness import ResumeGate, validate_history
 from app.market.recovery_progress import RecoveryProgress
 from app.market.tick_recording import TickRecorder
 from app.market.warmup import SessionCalendar
+from app.strategy.models import OptionContract
+from app.strategy.quotes import OptionQuoteBook
 
 
 class TickerWorker:
@@ -50,6 +52,8 @@ class TickerWorker:
         self.persistence = persistence
         self.recording_cursor: dict[str, Any] | None = None
         self.tokens = [spot_token, future_token]
+        self.option_quotes = OptionQuoteBook()
+        self._option_lock = asyncio.Lock()
         self.gaps = GapTracker(self.tokens)
         self.queue: asyncio.Queue[dict[str, Any]] = asyncio.Queue(capacity)
         self._pending = BoundedSemaphore(capacity)
@@ -175,11 +179,75 @@ class TickerWorker:
 
     def _on_connect(self, socket: Any, response: Any) -> None:
         # Always resubscribe, including after SDK reconnects.
-        socket.subscribe(self.tokens)
-        socket.set_mode(socket.MODE_FULL, self.tokens)
+        tokens = self.tokens + self.option_quotes.tokens
+        socket.subscribe(tokens)
+        socket.set_mode(socket.MODE_FULL, tokens)
         self._schedule(self._connected)
 
+    async def set_option_contracts(
+        self,
+        candidates: list[OptionContract],
+        traded: list[OptionContract] | None = None,
+    ) -> None:
+        async with self._option_lock:
+            await self._set_option_contracts(candidates, traded)
+
+    async def _set_option_contracts(
+        self,
+        candidates: list[OptionContract],
+        traded: list[OptionContract] | None = None,
+    ) -> None:
+        """Call on the worker loop. Traded contracts stay pinned during previews."""
+        if set(self.tokens) & {c.token for c in candidates + (traded or [])}:
+            raise ValueError("option token collides with core market identity")
+        old = set(self.option_quotes.tokens)
+        self.option_quotes.configure(candidates, traded)
+        desired = set(self.option_quotes.tokens)
+        retry = self.option_quotes.subscription_error
+        if not self.running or not self.connected or (old == desired and not retry):
+            return
+        from twisted.internet import reactor
+
+        loop = asyncio.get_running_loop()
+        complete: asyncio.Future[None] = loop.create_future()
+
+        def apply() -> None:
+            try:
+                removed = sorted(old - desired)
+                added = sorted(desired if retry else desired - old)
+                if removed:
+                    self.socket.unsubscribe(removed)
+                if added:
+                    self.socket.subscribe(added)
+                    self.socket.set_mode(self.socket.MODE_FULL, added)
+                loop.call_soon_threadsafe(finish, None)
+            except Exception:
+                self.option_quotes.subscription_error = True
+                self.option_quotes.invalidate()
+                loop.call_soon_threadsafe(
+                    finish, RuntimeError("option subscription failed")
+                )
+
+        def finish(error: Exception | None) -> None:
+            if complete.done():
+                return
+            if error:
+                complete.set_exception(error)
+            else:
+                self.option_quotes.subscription_error = False
+                complete.set_result(None)
+
+        reactor.callFromThread(apply)
+        try:
+            await asyncio.wait_for(complete, timeout=2)
+        except BaseException:
+            self.option_quotes.subscription_error = True
+            self.option_quotes.invalidate()
+            raise
+
     def _connected(self) -> None:
+        self.option_quotes.invalidate()
+        self.option_quotes.subscription_error = False
         if self.reconnects:
             self._track_gap("reconnect", self.clock())
         self.connected = True
@@ -189,12 +257,14 @@ class TickerWorker:
         self._schedule(self._disconnected)
 
     def _disconnected(self) -> None:
+        self.option_quotes.invalidate()
         self.connected = False
         self._track_gap("disconnect", self.clock())
 
     def _track_gap(
         self, reason: GapReason, at: datetime, *, persist: bool = True
     ) -> None:
+        self.option_quotes.invalidate()
         self.resume_gate.revoke()
         self.recovery_progress.invalidate()
         self.gap_required = True
@@ -441,6 +511,12 @@ class TickerWorker:
         )
 
     def _accept(self, tick: dict[str, Any], received: datetime) -> None:
+        if tick.get("instrument_token") in self.option_quotes.tokens:
+            if self.option_quotes.accept(tick, received) and self.recorder is not None:
+                quote = self.option_quotes.snapshot().get(tick["instrument_token"])
+                if quote is not None:
+                    self.recorder.write_option(received, quote.model_dump(mode="json"))
+            return
         try:
             token = tick["instrument_token"]
             price = float(tick["last_price"])
@@ -607,6 +683,7 @@ class TickerWorker:
             drain.cancel()
 
     async def stop(self) -> None:
+        self.option_quotes.invalidate()
         self.running = False
         self.connected = False
         try:
@@ -628,6 +705,7 @@ class TickerWorker:
                 self.persistence.save(self)
         finally:
             # SDK socket operations run on its Twisted reactor thread.
+            self.option_quotes.invalidate()
             from twisted.internet import reactor
 
             reactor.callFromThread(self.socket.close)

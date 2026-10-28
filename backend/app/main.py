@@ -34,6 +34,7 @@ from app.api.schemas import (
     HealthResponse,
 )
 from app.api.security import DashboardSecurity
+from app.api.strategy_routes import strategy_router
 from app.broker.instruments import InstrumentError, Instruments
 from app.broker.kite_auth import AuthError, KiteAuth
 from app.config import Settings
@@ -130,6 +131,7 @@ def create_app(
     application.include_router(live_router(live, security))
     application.include_router(replay_router(replay, security))
     application.include_router(mode_router(security))
+    application.include_router(strategy_router(market))
 
     def error_response(
         request: Request,

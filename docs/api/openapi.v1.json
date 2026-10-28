@@ -337,6 +337,45 @@
         "title": "CandleHistory",
         "type": "object"
       },
+      "CapitalSnapshot": {
+        "additionalProperties": false,
+        "properties": {
+          "at": {
+            "format": "date-time",
+            "title": "At",
+            "type": "string"
+          },
+          "free_capital": {
+            "decimal_places": 6,
+            "ge": 0,
+            "max_digits": 24,
+            "title": "Free Capital",
+            "type": "string"
+          },
+          "revision": {
+            "maxLength": 160,
+            "minLength": 1,
+            "title": "Revision",
+            "type": "string"
+          },
+          "source": {
+            "enum": [
+              "PAPER_WALLET",
+              "USER_PREVIEW"
+            ],
+            "title": "Source",
+            "type": "string"
+          }
+        },
+        "required": [
+          "at",
+          "free_capital",
+          "source",
+          "revision"
+        ],
+        "title": "CapitalSnapshot",
+        "type": "object"
+      },
       "DashboardLogin": {
         "additionalProperties": false,
         "properties": {
@@ -1046,6 +1085,77 @@
         "title": "NiftyResponse",
         "type": "object"
       },
+      "OptionContract": {
+        "additionalProperties": false,
+        "properties": {
+          "exchange": {
+            "const": "NFO",
+            "default": "NFO",
+            "title": "Exchange",
+            "type": "string"
+          },
+          "expiry": {
+            "format": "date",
+            "title": "Expiry",
+            "type": "string"
+          },
+          "lot_size": {
+            "exclusiveMinimum": 0.0,
+            "title": "Lot Size",
+            "type": "integer"
+          },
+          "name": {
+            "const": "NIFTY",
+            "default": "NIFTY",
+            "title": "Name",
+            "type": "string"
+          },
+          "option_type": {
+            "enum": [
+              "CE",
+              "PE"
+            ],
+            "title": "Option Type",
+            "type": "string"
+          },
+          "strike": {
+            "decimal_places": 6,
+            "gt": 0,
+            "max_digits": 24,
+            "title": "Strike",
+            "type": "string"
+          },
+          "symbol": {
+            "maxLength": 100,
+            "minLength": 1,
+            "title": "Symbol",
+            "type": "string"
+          },
+          "tick_size": {
+            "decimal_places": 6,
+            "gt": 0,
+            "max_digits": 24,
+            "title": "Tick Size",
+            "type": "string"
+          },
+          "token": {
+            "exclusiveMinimum": 0.0,
+            "title": "Token",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "token",
+          "symbol",
+          "expiry",
+          "strike",
+          "option_type",
+          "lot_size",
+          "tick_size"
+        ],
+        "title": "OptionContract",
+        "type": "object"
+      },
       "Page_AlertData_": {
         "additionalProperties": false,
         "properties": {
@@ -1110,6 +1220,155 @@
           }
         },
         "title": "Pagination",
+        "type": "object"
+      },
+      "PlanAttempt": {
+        "additionalProperties": false,
+        "properties": {
+          "hedge_symbol": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Hedge Symbol"
+          },
+          "reason": {
+            "title": "Reason",
+            "type": "string"
+          },
+          "short_symbol": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Short Symbol"
+          }
+        },
+        "required": [
+          "reason"
+        ],
+        "title": "PlanAttempt",
+        "type": "object"
+      },
+      "PlanDecision": {
+        "additionalProperties": false,
+        "properties": {
+          "accepted": {
+            "title": "Accepted",
+            "type": "boolean"
+          },
+          "attempts": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/PlanAttempt"
+            },
+            "title": "Attempts",
+            "type": "array"
+          },
+          "candidates": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/OptionContract"
+            },
+            "title": "Candidates",
+            "type": "array"
+          },
+          "decision_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Decision Id"
+          },
+          "executable": {
+            "const": false,
+            "default": false,
+            "title": "Executable",
+            "type": "boolean"
+          },
+          "plan": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/TradePlan"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "reason": {
+            "title": "Reason",
+            "type": "string"
+          },
+          "version": {
+            "const": 1,
+            "default": 1,
+            "title": "Version",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "accepted",
+          "reason"
+        ],
+        "title": "PlanDecision",
+        "type": "object"
+      },
+      "PlanLeg": {
+        "additionalProperties": false,
+        "properties": {
+          "contract": {
+            "$ref": "#/components/schemas/OptionContract"
+          },
+          "limit_price": {
+            "decimal_places": 6,
+            "gt": 0,
+            "max_digits": 24,
+            "title": "Limit Price",
+            "type": "string"
+          },
+          "quantity": {
+            "exclusiveMinimum": 0.0,
+            "title": "Quantity",
+            "type": "integer"
+          },
+          "role": {
+            "enum": [
+              "SHORT",
+              "HEDGE"
+            ],
+            "title": "Role",
+            "type": "string"
+          },
+          "side": {
+            "enum": [
+              "SELL",
+              "BUY"
+            ],
+            "title": "Side",
+            "type": "string"
+          }
+        },
+        "required": [
+          "role",
+          "side",
+          "contract",
+          "quantity",
+          "limit_price"
+        ],
+        "title": "PlanLeg",
         "type": "object"
       },
       "PositionData": {
@@ -1364,6 +1623,251 @@
         "title": "SignalData",
         "type": "object"
       },
+      "SignalInput-Input": {
+        "additionalProperties": false,
+        "properties": {
+          "at": {
+            "format": "date-time",
+            "title": "At",
+            "type": "string"
+          },
+          "bias_direction": {
+            "enum": [
+              -1,
+              0,
+              1
+            ],
+            "title": "Bias Direction",
+            "type": "integer"
+          },
+          "direction": {
+            "enum": [
+              1,
+              -1
+            ],
+            "title": "Direction",
+            "type": "integer"
+          },
+          "family": {
+            "enum": [
+              "CO",
+              "DIV",
+              "OT"
+            ],
+            "title": "Family",
+            "type": "string"
+          },
+          "grade": {
+            "maximum": 3.0,
+            "minimum": 1.0,
+            "title": "Grade",
+            "type": "integer"
+          },
+          "index_target_1": {
+            "anyOf": [
+              {
+                "format": "decimal",
+                "type": "string"
+              },
+              {
+                "type": "integer"
+              }
+            ],
+            "title": "Index Target 1"
+          },
+          "index_target_2": {
+            "anyOf": [
+              {
+                "format": "decimal",
+                "type": "string"
+              },
+              {
+                "type": "integer"
+              }
+            ],
+            "title": "Index Target 2"
+          },
+          "replaced_trade_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Replaced Trade Id"
+          },
+          "risk": {
+            "enum": [
+              "Low",
+              "Medium",
+              "High"
+            ],
+            "title": "Risk",
+            "type": "string"
+          },
+          "signal_id": {
+            "maxLength": 160,
+            "minLength": 1,
+            "title": "Signal Id",
+            "type": "string"
+          },
+          "spot": {
+            "anyOf": [
+              {
+                "format": "decimal",
+                "type": "string"
+              },
+              {
+                "type": "integer"
+              }
+            ],
+            "title": "Spot"
+          },
+          "trade_id": {
+            "pattern": "^\\[.{5}\\]$",
+            "title": "Trade Id",
+            "type": "string"
+          },
+          "version": {
+            "const": 1,
+            "default": 1,
+            "title": "Version",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "signal_id",
+          "trade_id",
+          "direction",
+          "family",
+          "grade",
+          "risk",
+          "bias_direction",
+          "at",
+          "spot",
+          "index_target_1",
+          "index_target_2"
+        ],
+        "title": "SignalInput",
+        "type": "object"
+      },
+      "SignalInput-Output": {
+        "additionalProperties": false,
+        "properties": {
+          "at": {
+            "format": "date-time",
+            "title": "At",
+            "type": "string"
+          },
+          "bias_direction": {
+            "enum": [
+              -1,
+              0,
+              1
+            ],
+            "title": "Bias Direction",
+            "type": "integer"
+          },
+          "direction": {
+            "enum": [
+              1,
+              -1
+            ],
+            "title": "Direction",
+            "type": "integer"
+          },
+          "family": {
+            "enum": [
+              "CO",
+              "DIV",
+              "OT"
+            ],
+            "title": "Family",
+            "type": "string"
+          },
+          "grade": {
+            "maximum": 3.0,
+            "minimum": 1.0,
+            "title": "Grade",
+            "type": "integer"
+          },
+          "index_target_1": {
+            "decimal_places": 6,
+            "gt": 0,
+            "max_digits": 24,
+            "title": "Index Target 1",
+            "type": "string"
+          },
+          "index_target_2": {
+            "decimal_places": 6,
+            "gt": 0,
+            "max_digits": 24,
+            "title": "Index Target 2",
+            "type": "string"
+          },
+          "replaced_trade_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Replaced Trade Id"
+          },
+          "risk": {
+            "enum": [
+              "Low",
+              "Medium",
+              "High"
+            ],
+            "title": "Risk",
+            "type": "string"
+          },
+          "signal_id": {
+            "maxLength": 160,
+            "minLength": 1,
+            "title": "Signal Id",
+            "type": "string"
+          },
+          "spot": {
+            "decimal_places": 6,
+            "gt": 0,
+            "max_digits": 24,
+            "title": "Spot",
+            "type": "string"
+          },
+          "trade_id": {
+            "pattern": "^\\[.{5}\\]$",
+            "title": "Trade Id",
+            "type": "string"
+          },
+          "version": {
+            "const": 1,
+            "default": 1,
+            "title": "Version",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "signal_id",
+          "trade_id",
+          "direction",
+          "family",
+          "grade",
+          "risk",
+          "bias_direction",
+          "at",
+          "spot",
+          "index_target_1",
+          "index_target_2"
+        ],
+        "title": "SignalInput",
+        "type": "object"
+      },
       "SnapshotFrame": {
         "additionalProperties": false,
         "properties": {
@@ -1439,6 +1943,540 @@
         "title": "StatusData",
         "type": "object"
       },
+      "StrategySettings-Input": {
+        "additionalProperties": false,
+        "properties": {
+          "allowed_families": {
+            "default": [
+              "CO",
+              "DIV",
+              "OT"
+            ],
+            "items": {
+              "enum": [
+                "CO",
+                "DIV",
+                "OT"
+              ],
+              "type": "string"
+            },
+            "title": "Allowed Families",
+            "type": "array"
+          },
+          "entry_end": {
+            "default": "14:45:00",
+            "format": "time",
+            "title": "Entry End",
+            "type": "string"
+          },
+          "entry_start": {
+            "default": "09:30:00",
+            "format": "time",
+            "title": "Entry Start",
+            "type": "string"
+          },
+          "expiry_policy": {
+            "default": "trade_next",
+            "enum": [
+              "skip",
+              "trade_current",
+              "trade_next"
+            ],
+            "title": "Expiry Policy",
+            "type": "string"
+          },
+          "expiry_switch_at": {
+            "default": "12:00:00",
+            "format": "time",
+            "title": "Expiry Switch At",
+            "type": "string"
+          },
+          "fixed_lots": {
+            "default": 1,
+            "maximum": 10000.0,
+            "minimum": 1.0,
+            "title": "Fixed Lots",
+            "type": "integer"
+          },
+          "hedge_mode": {
+            "default": "width",
+            "enum": [
+              "width",
+              "premium"
+            ],
+            "title": "Hedge Mode",
+            "type": "string"
+          },
+          "hedge_target_premium": {
+            "anyOf": [
+              {
+                "format": "decimal",
+                "type": "string"
+              },
+              {
+                "type": "integer"
+              }
+            ],
+            "default": "7.50",
+            "title": "Hedge Target Premium"
+          },
+          "hedge_width_steps": {
+            "default": 4,
+            "maximum": 100.0,
+            "minimum": 1.0,
+            "title": "Hedge Width Steps",
+            "type": "integer"
+          },
+          "liquidity_retries": {
+            "default": 2,
+            "maximum": 2.0,
+            "minimum": 0.0,
+            "title": "Liquidity Retries",
+            "type": "integer"
+          },
+          "margin_buffer_pct": {
+            "anyOf": [
+              {
+                "format": "decimal",
+                "type": "string"
+              },
+              {
+                "type": "integer"
+              }
+            ],
+            "default": "10",
+            "title": "Margin Buffer Pct"
+          },
+          "max_lots": {
+            "default": 10,
+            "maximum": 10000.0,
+            "minimum": 1.0,
+            "title": "Max Lots",
+            "type": "integer"
+          },
+          "max_quantity": {
+            "default": 10000,
+            "minimum": 1.0,
+            "title": "Max Quantity",
+            "type": "integer"
+          },
+          "max_spread_abs": {
+            "anyOf": [
+              {
+                "format": "decimal",
+                "type": "string"
+              },
+              {
+                "type": "integer"
+              }
+            ],
+            "default": "1",
+            "title": "Max Spread Abs"
+          },
+          "max_spread_pct": {
+            "anyOf": [
+              {
+                "format": "decimal",
+                "type": "string"
+              },
+              {
+                "type": "integer"
+              }
+            ],
+            "default": "2",
+            "title": "Max Spread Pct"
+          },
+          "min_grade": {
+            "default": 2,
+            "maximum": 3.0,
+            "minimum": 1.0,
+            "title": "Min Grade",
+            "type": "integer"
+          },
+          "min_open_interest": {
+            "default": 1,
+            "minimum": 0.0,
+            "title": "Min Open Interest",
+            "type": "integer"
+          },
+          "minimum_credit": {
+            "anyOf": [
+              {
+                "format": "decimal",
+                "type": "string"
+              },
+              {
+                "type": "integer"
+              }
+            ],
+            "default": "0.05",
+            "title": "Minimum Credit"
+          },
+          "premium_search_steps": {
+            "default": 20,
+            "maximum": 100.0,
+            "minimum": 1.0,
+            "title": "Premium Search Steps",
+            "type": "integer"
+          },
+          "profit_capture_enabled": {
+            "default": false,
+            "title": "Profit Capture Enabled",
+            "type": "boolean"
+          },
+          "profit_capture_pct": {
+            "anyOf": [
+              {
+                "format": "decimal",
+                "type": "string"
+              },
+              {
+                "type": "integer"
+              }
+            ],
+            "default": "70",
+            "title": "Profit Capture Pct"
+          },
+          "quote_max_age_seconds": {
+            "default": 5,
+            "maximum": 60.0,
+            "minimum": 1.0,
+            "title": "Quote Max Age Seconds",
+            "type": "integer"
+          },
+          "quote_max_skew_seconds": {
+            "default": 2,
+            "maximum": 10.0,
+            "minimum": 0.0,
+            "title": "Quote Max Skew Seconds",
+            "type": "integer"
+          },
+          "risk_pct": {
+            "anyOf": [
+              {
+                "format": "decimal",
+                "type": "string"
+              },
+              {
+                "type": "integer"
+              }
+            ],
+            "default": "1",
+            "title": "Risk Pct"
+          },
+          "short_offset_steps": {
+            "default": 1,
+            "maximum": 100.0,
+            "minimum": 0.0,
+            "title": "Short Offset Steps",
+            "type": "integer"
+          },
+          "sizing": {
+            "default": "fixed_lots",
+            "enum": [
+              "fixed_lots",
+              "risk_pct"
+            ],
+            "title": "Sizing",
+            "type": "string"
+          },
+          "skip_high_risk": {
+            "default": true,
+            "title": "Skip High Risk",
+            "type": "boolean"
+          },
+          "skip_opposite_bias": {
+            "default": true,
+            "title": "Skip Opposite Bias",
+            "type": "boolean"
+          },
+          "sl_pct_of_max_loss": {
+            "anyOf": [
+              {
+                "format": "decimal",
+                "type": "string"
+              },
+              {
+                "type": "integer"
+              }
+            ],
+            "default": "50",
+            "title": "Sl Pct Of Max Loss"
+          },
+          "version": {
+            "const": 1,
+            "default": 1,
+            "title": "Version",
+            "type": "integer"
+          }
+        },
+        "title": "StrategySettings",
+        "type": "object"
+      },
+      "StrategySettings-Output": {
+        "additionalProperties": false,
+        "properties": {
+          "allowed_families": {
+            "default": [
+              "CO",
+              "DIV",
+              "OT"
+            ],
+            "items": {
+              "enum": [
+                "CO",
+                "DIV",
+                "OT"
+              ],
+              "type": "string"
+            },
+            "title": "Allowed Families",
+            "type": "array"
+          },
+          "entry_end": {
+            "default": "14:45:00",
+            "format": "time",
+            "title": "Entry End",
+            "type": "string"
+          },
+          "entry_start": {
+            "default": "09:30:00",
+            "format": "time",
+            "title": "Entry Start",
+            "type": "string"
+          },
+          "expiry_policy": {
+            "default": "trade_next",
+            "enum": [
+              "skip",
+              "trade_current",
+              "trade_next"
+            ],
+            "title": "Expiry Policy",
+            "type": "string"
+          },
+          "expiry_switch_at": {
+            "default": "12:00:00",
+            "format": "time",
+            "title": "Expiry Switch At",
+            "type": "string"
+          },
+          "fixed_lots": {
+            "default": 1,
+            "maximum": 10000.0,
+            "minimum": 1.0,
+            "title": "Fixed Lots",
+            "type": "integer"
+          },
+          "hedge_mode": {
+            "default": "width",
+            "enum": [
+              "width",
+              "premium"
+            ],
+            "title": "Hedge Mode",
+            "type": "string"
+          },
+          "hedge_target_premium": {
+            "decimal_places": 6,
+            "default": "7.50",
+            "gt": 0,
+            "max_digits": 24,
+            "title": "Hedge Target Premium",
+            "type": "string"
+          },
+          "hedge_width_steps": {
+            "default": 4,
+            "maximum": 100.0,
+            "minimum": 1.0,
+            "title": "Hedge Width Steps",
+            "type": "integer"
+          },
+          "liquidity_retries": {
+            "default": 2,
+            "maximum": 2.0,
+            "minimum": 0.0,
+            "title": "Liquidity Retries",
+            "type": "integer"
+          },
+          "margin_buffer_pct": {
+            "decimal_places": 6,
+            "default": "10",
+            "ge": 0,
+            "le": 1000,
+            "max_digits": 24,
+            "title": "Margin Buffer Pct",
+            "type": "string"
+          },
+          "max_lots": {
+            "default": 10,
+            "maximum": 10000.0,
+            "minimum": 1.0,
+            "title": "Max Lots",
+            "type": "integer"
+          },
+          "max_quantity": {
+            "default": 10000,
+            "minimum": 1.0,
+            "title": "Max Quantity",
+            "type": "integer"
+          },
+          "max_spread_abs": {
+            "decimal_places": 6,
+            "default": "1",
+            "ge": 0,
+            "max_digits": 24,
+            "title": "Max Spread Abs",
+            "type": "string"
+          },
+          "max_spread_pct": {
+            "decimal_places": 6,
+            "default": "2",
+            "ge": 0,
+            "max_digits": 24,
+            "title": "Max Spread Pct",
+            "type": "string"
+          },
+          "min_grade": {
+            "default": 2,
+            "maximum": 3.0,
+            "minimum": 1.0,
+            "title": "Min Grade",
+            "type": "integer"
+          },
+          "min_open_interest": {
+            "default": 1,
+            "minimum": 0.0,
+            "title": "Min Open Interest",
+            "type": "integer"
+          },
+          "minimum_credit": {
+            "decimal_places": 6,
+            "default": "0.05",
+            "gt": 0,
+            "max_digits": 24,
+            "title": "Minimum Credit",
+            "type": "string"
+          },
+          "premium_search_steps": {
+            "default": 20,
+            "maximum": 100.0,
+            "minimum": 1.0,
+            "title": "Premium Search Steps",
+            "type": "integer"
+          },
+          "profit_capture_enabled": {
+            "default": false,
+            "title": "Profit Capture Enabled",
+            "type": "boolean"
+          },
+          "profit_capture_pct": {
+            "default": "70",
+            "gt": 0,
+            "le": 100,
+            "title": "Profit Capture Pct",
+            "type": "string"
+          },
+          "quote_max_age_seconds": {
+            "default": 5,
+            "maximum": 60.0,
+            "minimum": 1.0,
+            "title": "Quote Max Age Seconds",
+            "type": "integer"
+          },
+          "quote_max_skew_seconds": {
+            "default": 2,
+            "maximum": 10.0,
+            "minimum": 0.0,
+            "title": "Quote Max Skew Seconds",
+            "type": "integer"
+          },
+          "risk_pct": {
+            "default": "1",
+            "gt": 0,
+            "le": 100,
+            "title": "Risk Pct",
+            "type": "string"
+          },
+          "short_offset_steps": {
+            "default": 1,
+            "maximum": 100.0,
+            "minimum": 0.0,
+            "title": "Short Offset Steps",
+            "type": "integer"
+          },
+          "sizing": {
+            "default": "fixed_lots",
+            "enum": [
+              "fixed_lots",
+              "risk_pct"
+            ],
+            "title": "Sizing",
+            "type": "string"
+          },
+          "skip_high_risk": {
+            "default": true,
+            "title": "Skip High Risk",
+            "type": "boolean"
+          },
+          "skip_opposite_bias": {
+            "default": true,
+            "title": "Skip Opposite Bias",
+            "type": "boolean"
+          },
+          "sl_pct_of_max_loss": {
+            "default": "50",
+            "gt": 0,
+            "le": 100,
+            "title": "Sl Pct Of Max Loss",
+            "type": "string"
+          },
+          "version": {
+            "const": 1,
+            "default": 1,
+            "title": "Version",
+            "type": "integer"
+          }
+        },
+        "title": "StrategySettings",
+        "type": "object"
+      },
+      "StrikePreview": {
+        "additionalProperties": false,
+        "properties": {
+          "free_capital": {
+            "anyOf": [
+              {
+                "format": "decimal",
+                "type": "string"
+              },
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Free Capital"
+          },
+          "settings": {
+            "$ref": "#/components/schemas/StrategySettings-Input"
+          },
+          "signal": {
+            "$ref": "#/components/schemas/SignalInput-Input"
+          },
+          "subscribe_quotes": {
+            "default": false,
+            "title": "Subscribe Quotes",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "signal"
+        ],
+        "title": "StrikePreview",
+        "type": "object"
+      },
       "TickData": {
         "additionalProperties": false,
         "properties": {
@@ -1488,6 +2526,171 @@
           "event"
         ],
         "title": "TradeData",
+        "type": "object"
+      },
+      "TradePlan": {
+        "additionalProperties": false,
+        "properties": {
+          "broker_reported_margin": {
+            "title": "Broker Reported Margin",
+            "type": "null"
+          },
+          "capital": {
+            "$ref": "#/components/schemas/CapitalSnapshot"
+          },
+          "catalog_loaded_at": {
+            "format": "date-time",
+            "title": "Catalog Loaded At",
+            "type": "string"
+          },
+          "credit": {
+            "decimal_places": 6,
+            "gt": 0,
+            "max_digits": 24,
+            "title": "Credit",
+            "type": "string"
+          },
+          "credit_per_unit": {
+            "decimal_places": 6,
+            "gt": 0,
+            "max_digits": 24,
+            "title": "Credit Per Unit",
+            "type": "string"
+          },
+          "executable": {
+            "const": false,
+            "default": false,
+            "title": "Executable",
+            "type": "boolean"
+          },
+          "expiry": {
+            "format": "date",
+            "title": "Expiry",
+            "type": "string"
+          },
+          "hedge": {
+            "$ref": "#/components/schemas/PlanLeg"
+          },
+          "hedge_quote_at": {
+            "format": "date-time",
+            "title": "Hedge Quote At",
+            "type": "string"
+          },
+          "lots": {
+            "exclusiveMinimum": 0.0,
+            "title": "Lots",
+            "type": "integer"
+          },
+          "margin_source": {
+            "const": "PAPER_ESTIMATE",
+            "default": "PAPER_ESTIMATE",
+            "title": "Margin Source",
+            "type": "string"
+          },
+          "maximum_loss": {
+            "decimal_places": 6,
+            "gt": 0,
+            "max_digits": 24,
+            "title": "Maximum Loss",
+            "type": "string"
+          },
+          "payoff_basis": {
+            "const": "GROSS_BEFORE_FEES",
+            "default": "GROSS_BEFORE_FEES",
+            "title": "Payoff Basis",
+            "type": "string"
+          },
+          "plan_id": {
+            "pattern": "^[0-9a-f]{64}$",
+            "title": "Plan Id",
+            "type": "string"
+          },
+          "planned_at": {
+            "format": "date-time",
+            "title": "Planned At",
+            "type": "string"
+          },
+          "profit_capture_debit_per_unit": {
+            "ge": 0,
+            "title": "Profit Capture Debit Per Unit",
+            "type": "string"
+          },
+          "profit_capture_enabled": {
+            "title": "Profit Capture Enabled",
+            "type": "boolean"
+          },
+          "required_margin": {
+            "decimal_places": 6,
+            "gt": 0,
+            "max_digits": 24,
+            "title": "Required Margin",
+            "type": "string"
+          },
+          "settings": {
+            "$ref": "#/components/schemas/StrategySettings-Output"
+          },
+          "short": {
+            "$ref": "#/components/schemas/PlanLeg"
+          },
+          "short_quote_at": {
+            "format": "date-time",
+            "title": "Short Quote At",
+            "type": "string"
+          },
+          "signal": {
+            "$ref": "#/components/schemas/SignalInput-Output"
+          },
+          "stop_debit_per_unit": {
+            "gt": 0,
+            "title": "Stop Debit Per Unit",
+            "type": "string"
+          },
+          "strike_step": {
+            "decimal_places": 6,
+            "gt": 0,
+            "max_digits": 24,
+            "title": "Strike Step",
+            "type": "string"
+          },
+          "structure": {
+            "enum": [
+              "BULL_PUT_SPREAD",
+              "BEAR_CALL_SPREAD"
+            ],
+            "title": "Structure",
+            "type": "string"
+          },
+          "version": {
+            "const": 1,
+            "default": 1,
+            "title": "Version",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "plan_id",
+          "signal",
+          "planned_at",
+          "structure",
+          "expiry",
+          "strike_step",
+          "lots",
+          "short",
+          "hedge",
+          "credit_per_unit",
+          "credit",
+          "maximum_loss",
+          "stop_debit_per_unit",
+          "profit_capture_debit_per_unit",
+          "profit_capture_enabled",
+          "required_margin",
+          "capital",
+          "settings",
+          "catalog_loaded_at",
+          "short_quote_at",
+          "hedge_quote_at"
+        ],
+        "title": "TradePlan",
         "type": "object"
       },
       "WebSocketMessage": {
@@ -4984,6 +6187,173 @@
         "summary": "Update",
         "tags": [
           "Paper mode"
+        ]
+      }
+    },
+    "/api/settings/preview-strikes": {
+      "post": {
+        "operationId": "preview_strikes_api_settings_preview_strikes_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StrikePreview"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PlanDecision"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "405": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Method Not Allowed"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "413": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Request Entity Too Large"
+          },
+          "415": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unsupported Media Type"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unprocessable Entity"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Too Many Requests"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          },
+          "502": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Bad Gateway"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        },
+        "security": [
+          {
+            "CSRFToken": [],
+            "DashboardCookie": []
+          }
+        ],
+        "summary": "Preview Strikes",
+        "tags": [
+          "Nonexecuting strategy preview"
         ]
       }
     }
