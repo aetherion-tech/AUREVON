@@ -128,7 +128,7 @@ test("socket reconnect reloads REST snapshot; mobile navigation remains usable",
   expect(count).toBeGreaterThan(1);
   await page.getByRole("link", { name: "Wallet", exact: true }).click();
   await expect(
-    page.getByRole("heading", { name: "Wallet workspace" }),
+    page.getByRole("heading", { name: "Paper wallet" }),
   ).toBeVisible();
   expect(
     await page.evaluate(

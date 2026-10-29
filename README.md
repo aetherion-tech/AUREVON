@@ -13,7 +13,7 @@ trading with Zerodha Kite market data. Development follows small, testable steps
 | 3b. Price data and Renko | Pending | Managed data/recovery core completed; real-market acceptance and TradingView parity pending |
 | 4. Indicator engine | Pending | Pine port and TradingView signal parity |
 | 5. Paper execution | Pending | Replay strategy/execution/wallet code complete; managed pipeline and reference/gate acceptance pending |
-| 6. React dashboard | Pending | Live, History, Wallet, Settings; FE-14/15/16 complete; Live and History delivered; Wallet/Settings detail screens remain |
+| 6. React dashboard | Pending | Live, History, Wallet, Settings; FE-14/15/16/17/18 complete; Live, History, Wallet and Settings delivered |
 
 The current application reports PAPER mode. An isolated replay paper executor
 simulates fills; managed application execution remains inactive pending gates.
@@ -27,7 +27,7 @@ verified startup/use instructions in [local paper UI readiness](docs/operations/
 
 ## Start here - delivery plan v2 (45-day target, 60-day review)
 
-**Plan updated: 2026-10-29. Product status: 206 Completed / 74 Pending of 280.**
+**Plan updated: 2026-10-29. Product status: 225 Completed / 55 Pending of 280.**
 **Cash target: INR 10,000; absolute project ceiling: INR 20,000 including taxes/fees.**
 This replaces the execution schedule, not the product acceptance requirements.
 The original master checklist, stable IDs and all unfinished scope remain below.
@@ -37,17 +37,17 @@ The original master checklist, stable IDs and all unfinished scope remain below.
 | Short next-session handoff | [NEXT_SESSION.md](docs/plans/NEXT_SESSION.md) |
 | Immutable Version 1 backup | [README.v1.md](docs/plans/README.v1.md), [SHA-256](docs/plans/README.v1.sha256) |
 | Plan preparation | Completed on 2026-10-26; documentation only, outside the 280 product tasks |
-| Current implementation slot | FE-16 complete (8/8): History/P&L cards, charts, period tables, URL filters, globally sorted cursor paging, detail/timeline/chart and matching CSV. Next FE-17-01 Wallet. Evidence: docs/testing/FE-16-acceptance.md. Managed/reference/G2/G3 acceptance remains Pending; local paper trading is NOT READY. |
+| Current implementation slot | FE-18 complete (11/11): versioned Settings, all Pine/strategy/risk/data groups, guarded saves, import/export, browser preferences and read-only strike preview. Next OPS-19-01 built frontend hosting. Evidence: docs/testing/FE-18-acceptance.md. Managed/reference/G2/G3 acceptance remains Pending; local paper trading is NOT READY. |
 | Kickoff / elapsed day | 2026-10-26 IST / current D04 (2026-10-29); task carry-over and early batches are recorded without renumbering elapsed days |
 | Existing plan, all-in price, renewal and usage-reset times | Unverified; obtain actual account readings, never assume a reset/renewal date |
 | Cash already spent / reserved / remaining | Unverified; reconcile receipts before proposing any purchase |
 | Paper status | Manual Pine practice remains separate. Isolated execution/accounting code is ready; managed automated paper and the local trading UI remain inactive. Readiness: python -m app.tools.local_ui_readiness; docs/operations/local-paper-ui.md. |
 | Qualified formal paper sessions | 0 evidenced; dates, release/config identity, shadow checks and reconciliation required |
-| Latest application verification | D04 FE-16: 780 full backend tests plus 7 targeted follow-up checks; 21 frontend tests; 20 HTTPS Chromium flows. Build/typecheck/lint, Ruff/strict mypy and OpenAPI/TypeScript drift/compile pass. One existing warning. docs/testing/FE-16-acceptance.md. |
+| Latest application verification | D04 FE-18: 100 backend wallet/domain regressions plus 1 audit case (101 distinct; existing warning); 35 frontend tests; 35 full HTTPS browser flows plus 10 focused Settings flows (36 distinct). Build/strict TypeScript/ESLint and manifest parity pass. Prior full backend result 780. docs/testing/FE-18-acceptance.md. |
 
 ### Delivery scope, day numbering and realistic targets
 
-- D01-D45 target the local, single-user NIFTY **paper application** and the 74
+- D01-D45 target the local, single-user NIFTY **paper application** and the 55
   unfinished reference/backend/frontend/paper-release tasks. D46-D60 reserve time
   for observation, verified defects and acceptance. All dates are targets.
 - D01 is the actual kickoff calendar day in IST, not a billing date. Later day
@@ -236,7 +236,7 @@ Day statuses below are separate from the 280 product-task counts.
 | D01 | Pending | Code Completed: correction + bounded retry; input still Pending | BE-05-10, BE-05-11, REF-00-03 | H; extra cash 0 by default | BE-05-10 through BE-05-17 and BE-06-01 through BE-06-11 and BE-13-01 Completed; latest checks below; REF-00-03 awaits actual settings. Billing/tokens Unknown; no recharge initiated. Next ready code: BE-13-02. |
 | D02 | Pending | REST pacing and recording/checkpoint crash reconciliation | BE-05-12, BE-05-13, REF-00-04 | H; extra cash 0 by default | BE-05-12/13 complete early D01; BE-13 now 10/20 accepted (367 tests plus generated types). REF-00-04 Pending. Next upstream BE-08-01; no observation/purchase; account facts Unknown. |
 | D03 | Completed | Readiness, delay, recovery checks and explicit tick-fidelity policy | BE-05-14, BE-05-15, BE-05-16, BE-05-17 | H; extra cash 0 by default | BE-05-14/15/16/17 verified early on D01 with 290 tests and quality checks. Calibration/account readings remain Unknown; no entries enabled. |
-| D04 | Completed | Managed worker ownership and initial typed contracts | BE-06-01, BE-06-02, BE-06-03, BE-13-01 | H; extra cash 0 by default | BE-06-01/02/03 and BE-13-01 Completed early on D01; 328 tests and quality checks passed. FE-14-01 through 15 also completed D04: 8 component/unit and 6 HTTPS browser flows, 94 backend regressions; FE-15-01 through 15 also completed D04: 771 backend tests, 15 frontend tests and 13 HTTPS browser flows; FE-16-01 through 08 also completed D04: 780 backend tests, 21 frontend tests and 20 browser flows; next FE-17-01. No managed paper activation. |
+| D04 | Completed | Managed worker ownership and initial typed contracts | BE-06-01, BE-06-02, BE-06-03, BE-13-01 | H; extra cash 0 by default | BE-06-01/02/03 and BE-13-01 Completed early on D01; 328 tests and quality checks passed. FE-14-01 through 15 also completed D04: 8 component/unit and 6 HTTPS browser flows, 94 backend regressions; FE-15-01 through 15 also completed D04: 771 backend tests, 15 frontend tests and 13 HTTPS browser flows; FE-16-01 through 08 also completed D04: 780 backend tests, 21 frontend tests and 20 browser flows; FE-17-01 through 08 also completed D04: 100 backend regressions, 27 frontend tests, 26 distinct browser flows; FE-18-01 through 11 also completed D04: 101 targeted backend cases, 35 frontend tests, 36 distinct browser flows; next OPS-19-01. No managed paper activation. |
 | D05 | Completed | Expiry, calendar, morning catalog and scheduled sessions | BE-06-04, BE-06-05, BE-06-06, BE-06-07 | H; extra cash 0 by default | BE-06-04/05/06/07 verified early on D01 using sourced 2026 calendar and fake broker/socket tests. Account/billing still Unknown; no purchase. |
 | D06 | Pending | Day context, quality events, production replay and lifecycle tests | BE-06-08, BE-06-09, BE-06-10, BE-06-11 | H; extra cash 0 by default | BE-06-08/09/10/11 Completed early on D01 (308 tests); actual market recording/observation remains unperformed, so daily observation acceptance stays Pending. |
 | D07 | Pending | Reference exports and real historical/feed checks | REF-00-05, REF-00-06, REF-00-07, QA-07-01, QA-07-02 | M; extra cash 0 by default | Weekly usage/cash review; input-dependent work stays Pending if exports/feed unavailable. |
@@ -268,11 +268,11 @@ Day statuses below are separate from the 280 product-task counts.
 | D33 | Pending | Live summaries, signals, alerts, resync and shadow UI completion | FE-15-11, FE-15-12, FE-15-13, FE-15-14, FE-15-15, OPS-19-08 | M; extra cash 0 by default | FE-15-11 through 15 completed early D04; OPS-19-08 remains Pending actual shadow ingestion/comparison evidence. docs/testing/FE-15-acceptance.md. |
 | D34 | Completed | History cards, P&L charts, period tables and filters | FE-16-01, FE-16-02, FE-16-03, FE-16-04 | M; extra cash 0 by default | Completed early D04: all assigned FE-16 code IDs accepted; docs/testing/FE-16-acceptance.md. Cash/renewal facts Unknown; no actual market observation inferred. |
 | D35 | Completed | Trade table/details/export and consistency verification | FE-16-05, FE-16-06, FE-16-07, FE-16-08 | M; extra cash 0 by default | Completed early D04: all assigned FE-16 code IDs accepted; docs/testing/FE-16-acceptance.md. Cash/renewal facts Unknown; no actual market observation inferred. |
-| D36 | Pending | Wallet balances/deposit/withdraw/reset controls | FE-17-01, FE-17-02, FE-17-03, FE-17-04 | M; extra cash 0 by default | Do not reset the observation wallet or erase paper records. |
-| D37 | Pending | Ledger/history options/top-up display and wallet verification | FE-17-05, FE-17-06, FE-17-07, FE-17-08 | M; extra cash 0 by default | Keep optional destructive UI unavailable unless its backend contract exists. |
-| D38 | Pending | Settings forms, Pine defaults and strategy groups | FE-18-01, FE-18-02, FE-18-03, FE-18-04 | M; extra cash 0 by default | Match backend schema rather than duplicate validation rules. |
-| D39 | Pending | Risk/data/display settings and versioned import/export | FE-18-05, FE-18-06, FE-18-07, FE-18-08 | M; extra cash 0 by default | Behavior changes use a new config/baseline; never alter the running burn-in silently. |
-| D40 | Pending | Strike preview, dangerous-change controls and usability checks | FE-18-09, FE-18-10, FE-18-11 | M; extra cash 0 by default | Review whether D45 scope is achievable with remaining budget; retain failed acceptance rows. |
+| D36 | Completed | Wallet balances/deposit/withdraw/reset controls | FE-17-01, FE-17-02, FE-17-03, FE-17-04 | M; extra cash 0 by default | Completed early D04; docs/testing/FE-17-acceptance.md. Temporary synthetic wallet only; no observation reset. Optional deletion unavailable without a backend API. |
+| D37 | Completed | Ledger/history options/top-up display and wallet verification | FE-17-05, FE-17-06, FE-17-07, FE-17-08 | M; extra cash 0 by default | Completed early D04; docs/testing/FE-17-acceptance.md. Temporary synthetic wallet only; no observation reset. Optional deletion unavailable without a backend API. |
+| D38 | Completed | Settings forms, Pine defaults and strategy groups | FE-18-01, FE-18-02, FE-18-03, FE-18-04 | M; extra cash 0 by default | Completed early D04: assigned FE-18 IDs accepted; docs/testing/FE-18-acceptance.md; 101 targeted backend cases, 35 frontend tests and 36 distinct HTTPS browser flows. No owner activation or real-session evidence. |
+| D39 | Completed | Risk/data/display settings and versioned import/export | FE-18-05, FE-18-06, FE-18-07, FE-18-08 | M; extra cash 0 by default | Completed early D04: assigned FE-18 IDs accepted; docs/testing/FE-18-acceptance.md; 101 targeted backend cases, 35 frontend tests and 36 distinct HTTPS browser flows. No owner activation or real-session evidence. |
+| D40 | Completed | Strike preview, dangerous-change controls and usability checks | FE-18-09, FE-18-10, FE-18-11 | M; extra cash 0 by default | Completed early D04: assigned FE-18 IDs accepted; docs/testing/FE-18-acceptance.md; 101 targeted backend cases, 35 frontend tests and 36 distinct HTTPS browser flows. No owner activation or real-session evidence. |
 | D41 | Pending | Local serving, Windows commands/service and backup/restore schedule | OPS-19-01, OPS-19-02, OPS-19-03, OPS-19-04 | H; extra cash 0 by default | Use existing Windows machine; preserve secrets and verify separate-database restore. |
 | D42 | Pending | Retention, access review and dependency audits | OPS-19-05, OPS-19-06, OPS-19-07 | M; extra cash 0 by default | Weekly spend/renewal review; fix actual findings, avoid unrelated rewrites. |
 | D43 | Pending | Browser end-to-end acceptance flows | QA-19-09 | H; extra cash 0 by default | Run focused browser flows against replay; no interference with market-hour observation. |
@@ -346,7 +346,7 @@ The specification describes intended behavior; an unchecked box in the original
 specification is not evidence that implemented work is missing. The checklist below
 was reconciled with the current application, tests and previous verification notes.
 
-**Task totals: 280 - Completed: 206; Pending: 74.** Frontend: 38 Completed / 19 Pending.
+**Task totals: 280 - Completed: 225; Pending: 55.** Frontend: 57 Completed / 0 Pending.
 These are checklist counts, not time/effort percentages. Recount them whenever
 rows are added, split or completed.
 
@@ -370,7 +370,7 @@ Status rules:
    before selecting work. Never restart a Completed task merely because chat history
    is unavailable. Keep the original Pine reference intact.
 2. Select the next Pending task whose prerequisites are satisfied. Report its ID.
-   Default next product task: **FE-17-01**; BE-08-14 and QA-09-19/20 await actual reference exports/G1/G2 acceptance; QA-11-15/16 await real replay/manual examples and G3. Use the v2 daily batch and
+   Default next product task: **OPS-19-01**; BE-08-14 and QA-09-19/20 await actual reference exports/G1/G2 acceptance; QA-11-15/16 await real replay/manual examples and G3. Use the v2 daily batch and
    `docs/plans/NEXT_SESSION.md` for dependency-ready batching and usage checks.
 3. Implement the scoped behavior and its meaningful acceptance checks. If only
    part is finished, split the row into stable sub-IDs and leave unfinished parts
@@ -401,16 +401,15 @@ Status rules:
 | 08–09 | Pine indicator port and acceptance gate G2 | Pending | Maths/state/signals/exits implemented and reference-verified |
 | 10–12 | Strategy, paper execution, wallet and gate G3 | Pending | Reproducible option-spread trades, risk controls and accounting |
 | 13 | Dashboard API and event contracts | Completed | All 20 BE-13 code tasks accepted; runtime/reference gates remain separate |
-| 14–18 | Frontend foundation, Live, History, Wallet, Settings | Pending | FE-14 through FE-16 complete; FE-17/18 detail screens remain; next FE-17-01 |
+| 14-18 | Frontend foundation, Live, History, Wallet, Settings | Completed | All 57 frontend tasks complete; isolated HTTPS browser acceptance; next OPS-19-01; actual operational gates remain separate |
 | 19 | Integrated paper release and acceptance | Pending | Browser replay, operational drills and paper burn-in completed |
 | 20 | Live-money deployment and pilot | Pending | Later phase; not a prerequisite for frontend or paper-dashboard development |
 | 21 | Explicit future extensions | Pending | Deferred beyond the single-user, single-underlying v1 scope |
 
-**FE-14 through FE-16 are complete. Next: FE-17-01.** Build the Wallet
-layout against existing endpoints. Mock unavailable services explicitly after agreeing
-contracts. Real charts depend on BE-06 and BE-13; indicator overlays depend on BE-08/09;
-wallet/history/positions depend on BE-10/11/12 and their APIs. Starting frontend does
-not imply the paper trading backend or live-money execution is ready.
+**FE-14 through FE-18 are complete. Next: OPS-19-01.** Serve the built
+frontend through FastAPI with SPA fallback and same-origin API/WebSocket routing.
+Preserve the existing local HTTPS development workflow and operator observation.
+Frontend completion does not imply managed paper trading or live-money readiness.
 
 ### 00. Source references and validation inputs
 
@@ -768,30 +767,30 @@ real behavior only as stage 13 and the indicator/paper services become available
 
 | ID | Status | Task and completion requirement | Evidence / prerequisite |
 | --- | --- | --- | --- |
-| FE-17-01 | Pending | Show paper total/free/blocked capital and clear paper-money identity. | BE-13-11 |
-| FE-17-02 | Pending | Add exact-currency deposit form and shared quick-add dialog; validate positive amounts and display server limits. | BE-12-02; FE-14-10 |
-| FE-17-03 | Pending | Add withdrawal form showing available free funds and rejection reasons. | BE-12-03 |
-| FE-17-04 | Pending | Add reset-to-amount flow with confirmation and open-position rules; preserve history by default. | BE-12-03; reset API |
-| FE-17-05 | Pending | Add separately confirmed optional paper-history deletion only if the backend implements it. | SPEC reset option; destructive-operation API |
-| FE-17-06 | Pending | Display paged ledger with DEPOSIT/WITHDRAW/PNL/COST/RESET and running balance. | BE-13-11 |
-| FE-17-07 | Pending | Display auto-top-up setting/status and explain deposit versus profit treatment. | BE-12-05/08; settings API |
-| FE-17-08 | Pending | Refresh wallet/top bar after mutations and trade closes; test duplicate clicks, insufficient funds and mode separation. | FE-17-01–07; live events |
+| FE-17-01 | Completed | Show paper total/free/blocked capital and clear paper-money identity. | BE-13-11 |
+| FE-17-02 | Completed | Add exact-currency deposit form and shared quick-add dialog; validate positive amounts and display server limits. | BE-12-02; FE-14-10 |
+| FE-17-03 | Completed | Add withdrawal form showing available free funds and rejection reasons. | BE-12-03 |
+| FE-17-04 | Completed | Add reset-to-amount flow with confirmation and open-position rules; preserve history by default. | BE-12-03; reset API |
+| FE-17-05 | Completed | Add separately confirmed optional paper-history deletion only if the backend implements it. | Conditional: no deletion API; disabled UI explains unavailability; docs/testing/FE-17-acceptance.md |
+| FE-17-06 | Completed | Display paged ledger with DEPOSIT/WITHDRAW/PNL/COST/RESET and running balance. | BE-13-11 |
+| FE-17-07 | Completed | Display auto-top-up setting/status and explain deposit versus profit treatment. | BE-12-05/08; settings API |
+| FE-17-08 | Completed | Refresh wallet/top bar after mutations and trade closes; test duplicate clicks, insufficient funds and mode separation. | FE-17-01–07; live events |
 
 ### 18. Frontend Settings and usability
 
 | ID | Status | Task and completion requirement | Evidence / prerequisite |
 | --- | --- | --- | --- |
-| FE-18-01 | Pending | Build settings loading, local edits, field errors, unsaved-change guard and save/result state. | BE-13-12 |
-| FE-18-02 | Pending | Add Supertrend/direction/trade-plan groups with exact Pine defaults, bounds and tooltips. | BE-08-01; original Pine |
-| FE-18-03 | Pending | Add divergence, extra-signal, flow and outlook groups with dependency-aware controls. | FE-18-02; Pine input map |
-| FE-18-04 | Pending | Add strategy, lots, strikes, hedges, expiry policy and margin settings. | BE-10 settings contract |
-| FE-18-05 | Pending | Add risk limits, entry windows, stops, square-off and paper fill/slippage controls. | BE-11 settings contract |
-| FE-18-06 | Pending | Add data mode/box/anchor/lookback controls and explicit rebuild/progress feedback for grid changes. | BE-05; BE-13-12 |
-| FE-18-07 | Pending | Add display layer preferences, alternative color palette and optional user-enabled sounds/notifications. | FE-15 toolbar; browser permissions on request |
-| FE-18-08 | Pending | Add restore defaults and validated JSON settings import/export with schema version. | BE-13-12 |
-| FE-18-09 | Pending | Add read-only strike preview and show selected expiry/legs/margin/credit or rejection details. | BE-13-13 |
-| FE-18-10 | Pending | Add explicit confirmation for dangerous changes when enabled; record server audit outcome. | BE-13-03/12; no implicit live enablement |
-| FE-18-11 | Pending | Verify backend/frontend default parity, invalid imports, stale edits, tooltips and keyboard-accessible forms. | FE-18-01–10 |
+| FE-18-01 | Completed | Build settings loading, local edits, field errors, unsaved-change guard and save/result state. | D04: docs/testing/FE-18-acceptance.md; generated Pine/backend parity, 35 frontend tests, 36 distinct HTTPS flows and 101 targeted backend cases. |
+| FE-18-02 | Completed | Add Supertrend/direction/trade-plan groups with exact Pine defaults, bounds and tooltips. | D04: docs/testing/FE-18-acceptance.md; generated Pine/backend parity, 35 frontend tests, 36 distinct HTTPS flows and 101 targeted backend cases. |
+| FE-18-03 | Completed | Add divergence, extra-signal, flow and outlook groups with dependency-aware controls. | D04: docs/testing/FE-18-acceptance.md; generated Pine/backend parity, 35 frontend tests, 36 distinct HTTPS flows and 101 targeted backend cases. |
+| FE-18-04 | Completed | Add strategy, lots, strikes, hedges, expiry policy and margin settings. | D04: docs/testing/FE-18-acceptance.md; generated Pine/backend parity, 35 frontend tests, 36 distinct HTTPS flows and 101 targeted backend cases. |
+| FE-18-05 | Completed | Add risk limits, entry windows, stops, square-off and paper fill/slippage controls. | D04: docs/testing/FE-18-acceptance.md; generated Pine/backend parity, 35 frontend tests, 36 distinct HTTPS flows and 101 targeted backend cases. |
+| FE-18-06 | Completed | Add data mode/box/anchor/lookback controls and explicit rebuild/progress feedback for grid changes. | D04: docs/testing/FE-18-acceptance.md; generated Pine/backend parity, 35 frontend tests, 36 distinct HTTPS flows and 101 targeted backend cases. |
+| FE-18-07 | Completed | Add display layer preferences, alternative color palette and optional user-enabled sounds/notifications. | D04: docs/testing/FE-18-acceptance.md; generated Pine/backend parity, 35 frontend tests, 36 distinct HTTPS flows and 101 targeted backend cases. |
+| FE-18-08 | Completed | Add restore defaults and validated JSON settings import/export with schema version. | D04: docs/testing/FE-18-acceptance.md; generated Pine/backend parity, 35 frontend tests, 36 distinct HTTPS flows and 101 targeted backend cases. |
+| FE-18-09 | Completed | Add read-only strike preview and show selected expiry/legs/margin/credit or rejection details. | D04: docs/testing/FE-18-acceptance.md; generated Pine/backend parity, 35 frontend tests, 36 distinct HTTPS flows and 101 targeted backend cases. |
+| FE-18-10 | Completed | Add explicit confirmation for dangerous changes when enabled; record server audit outcome. | D04: docs/testing/FE-18-acceptance.md; generated Pine/backend parity, 35 frontend tests, 36 distinct HTTPS flows and 101 targeted backend cases. |
+| FE-18-11 | Completed | Verify backend/frontend default parity, invalid imports, stale edits, tooltips and keyboard-accessible forms. | D04: docs/testing/FE-18-acceptance.md; generated Pine/backend parity, 35 frontend tests, 36 distinct HTTPS flows and 101 targeted backend cases. |
 
 ### 19. Paper release, security, operations and burn-in
 
@@ -858,6 +857,38 @@ claimed before requirements are agreed.
 | FUT-21-05 | Pending | Design backtesting UI or mobile client only if requested; retain CLI replay as the current testing scope. | Explicit future requirements |
 
 ### Task update history
+
+- **2026-10-29 (D04, early D38-D40 FE-18):** Completed all 11 FE-18 IDs.
+  Versioned settings load/edit/validation, exact Pine groups/defaults/tooltips,
+  strategy/risk/fill/data controls, synchronized grid and rebuild acknowledgement,
+  guarded navigation, per-field confirmation, versioned JSON import/export,
+  browser display/preferences and read-only strike preview. Ambiguous saves retain
+  frozen bodies/keys across reload; stale revisions preserve edits. Server audit
+  success/rejection and keyboard/modal focus are verified. No rebuild/progress,
+  owner activation or executable preview is invented. Evidence:
+  docs/testing/FE-18-acceptance.md. 101 distinct targeted backend cases (existing
+  warning), 35 frontend tests, 35 full browser flows plus 10 focused Settings flows
+  (36 distinct); build/strict TypeScript/ESLint, manifest parity and focused Ruff
+  pass. Prior full backend result remains 780. Counts 225 Completed / 55 Pending;
+  frontend 57 Completed / 0 Pending. Next OPS-19-01. Isolated DB/TLS/ports only;
+  operator state, original Pine and observation preserved. No backend API/schema
+  change or migration. Formal sessions 0; usage/spend/headroom/renewal Unknown;
+  extra paid cash INR 0.
+
+- **2026-10-29 (D04, early D36/D37 FE-17):** Completed all eight FE-17 IDs.
+  Exact PAPER total/free/blocked cards; shared deposit/withdraw/reset dialogs;
+  confirmed reset preserves history and risk locks; canonical paged ledger and
+  effective auto-top-up status. Optional history deletion is unavailable because
+  no backend API exists (conditional FE-17-05 satisfied without deletion).
+  Stable keys survive lost replies/remount; duplicate clicks, free-fund limits,
+  exposure rejection, mode separation, mobile and trade-event refresh verified.
+  100 backend wallet/API regressions (one existing warning), 27 frontend tests,
+  25 full HTTPS flows plus six focused Wallet flows (26 distinct), build/TypeScript/
+  ESLint pass. docs/testing/FE-17-acceptance.md. Prior full backend result 780.
+  Counts 214 Completed / 66 Pending of 280; frontend 46 Completed / 11 Pending.
+  Next FE-18-01. Isolated temporary DB/TLS only; operator DB/process, Pine and
+  observation preserved; no new migration or paper activation. Formal sessions 0.
+  Actual usage/spend/renewal/headroom Unknown; extra paid cash INR 0.
 
 - **2026-10-29 (D04, early D34/D35 FE-16):** Completed all eight FE-16 IDs.
   History account cards, exact daily/monthly plots, weekly/monthly summaries,
@@ -1696,7 +1727,7 @@ adapter; this does not prevent the tests or application from running.
 4. The original Pine reference is already saved at `docs/pine/renko_indicator.pine`.
 5. Record actual chart settings/anchor and export TradingView reference data for
    REF-00-03–07. The comparison tool exists; real parity is still Pending.
-6. BE-12 (12/12), BE-13 (20/20), FE-14 (15/15), FE-15 (15/15) and FE-16 (8/8) code are complete. Next task is FE-17-01, Wallet layout. Managed startup/real reference/operational gates still need acceptance before a local paper-trading UI is usable. At each implementation session run python -m app.tools.local_ui_readiness from backend and report the actual browser-paper readiness; provide verified startup/use steps in docs/operations/local-paper-ui.md when ready. BE-08-14, QA-09-19/20 and QA-11-15/16 still require actual reference/recorded/manual evidence and G1/G2/G3. Code completion does not activate trading.
+6. BE-12 (12/12), BE-13 (20/20), FE-14 (15/15), FE-15 (15/15), FE-16 (8/8), FE-17 (8/8) and FE-18 (11/11) code are complete. Next task is OPS-19-01, built frontend hosting through FastAPI. Managed startup/real reference/operational gates still need acceptance before a local paper-trading UI is usable. At each implementation session run python -m app.tools.local_ui_readiness from backend and report the actual browser-paper readiness; provide verified startup/use steps in docs/operations/local-paper-ui.md when ready. BE-08-14, QA-09-19/20 and QA-11-15/16 still require actual reference/recorded/manual evidence and G1/G2/G3. Code completion does not activate trading.
 
 ## Step 3a: daily instrument catalog
 

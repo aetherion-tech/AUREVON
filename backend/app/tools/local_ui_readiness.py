@@ -47,7 +47,7 @@ def readiness(root: Path) -> dict[str, Any]:
             (
                 task
                 for task, state in statuses.items()
-                if task.startswith("FE-") and state == "Pending"
+                if task.startswith(("FE-", "OPS-19-")) and state == "Pending"
             ),
             next(
                 (tasks[0] for tasks in missing.values() if tasks),

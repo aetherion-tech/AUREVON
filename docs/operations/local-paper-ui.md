@@ -2,12 +2,15 @@
 
 Updated 2026-10-29, D04. **Not ready for paper trading from the browser.**
 BE-12 accounting, all 20 BE-13 API/client tasks, all 15 FE-14 foundation tasks and
-all 15 FE-15 Live tasks and all 8 FE-16 History tasks are code accepted. React provides sign-in/navigation,
+all 15 FE-15 Live tasks, all 8 FE-16 History tasks, all 8 FE-17 Wallet tasks and
+all 11 FE-18 Settings tasks are code accepted. React provides sign-in/navigation,
 Kite/feed status, exact paper balance/deposit, kill/socket recovery, a source-bound
 Renko chart/overlays, direction, spreads/close, results, signals and durable alerts.
 History includes summaries/charts/period tables, URL filters, server-sorted pages,
-trade details/timeline/chart and matching CSV. Wallet/Settings detail screens remain
-pending (FE-17/18).
+trade details/timeline/chart and matching CSV. Wallet provides exact balances, shared financial dialogs, ledger and top-up status.
+Settings provides Pine/strategy/risk/fill/data forms, guarded versioned saves,
+JSON import/export, display preferences and read-only strike preview.
+See docs/testing/FE-18-acceptance.md.
 Normal startup does not attach
 an executor or enable entries. `/docs` is an API explorer, not the trading UI.
 Starting the backend does not start taking paper trades.
@@ -39,7 +42,7 @@ exports, G2/G3 and runtime integration remain outstanding.
 | --- | --- |
 | Backend accounting | BE-12-01 through 12 and BE-13-09/10/11 are complete with exact accounting/API integration. Actual runtime/observation acceptance remains separate. |
 | Public execution path | All BE-13 APIs and typed-client integration are complete. Explicit owner runtime/providers and clock/poll hooks are tested; normal startup remains detached. Actual managed indicator/strategy generation, reference/operational readiness and browser workflow still need acceptance. Unattached actions return 409. |
-| Local UI | FE-14/15/16 complete with isolated HTTPS browser evidence. FE-17 Wallet and FE-18 strategy/risk/preview detail tools remain. No real-session or managed trial acceptance is implied. |
+| Local UI | FE-14/15/16/17/18 complete with isolated HTTPS browser evidence. Built frontend hosting (OPS-19-01) and integrated operational acceptance remain. No real-session or managed trial acceptance is implied. |
 | Data and paper gates | Actual chart settings/exports, BE-08-14, QA-09-19/20, QA-11-15/16, recorded end-to-end reconciliation and manual strike checks. Replay tests are not those actual exports. |
 | Operator verification | An actual local HTTPS run; login; PAPER/unarmed; valid calendar/clock/session; fresh catalog/feed/recovery; known risk/cost configuration; reconciled wallet; browser close/kill/error/reconnect tests. |
 
@@ -47,7 +50,7 @@ Optional history deletion, sounds and other polish need not delay an explicitly
 accepted first paper UI slice. The report currently tracks a conservative full
 UI milestone. Any smaller first slice must retain working controls, error states,
 accounting and browser evidence before being described as usable for paper trades.
-Next task: FE-17-01 Wallet balances.
+Next task: OPS-19-01 built frontend hosting through FastAPI.
 The foundation does not enable trading. A first paper UI slice
 may be accepted before optional polish only with all required controls/gates. A shell or screenshot alone will not be reported
 as paper-trading ready.
@@ -124,7 +127,7 @@ uses a fixture password, and never loads the actual `.env` or enables the market
 feed. Ports 5174/18765 must be free; operator ports 5173/8000 are left alone.
 It verifies real secure-cookie login, deposit, kill, logout, keyboard dialogs,
 session expiry, reconnect, mobile navigation, lost-reply financial recovery and
-the FE-15 Live and FE-16 History workflows. The temporary DB holds 655 real
+the FE-15 Live, FE-16 History and FE-17 Wallet workflows. The temporary DB holds 655 real
 stored synthetic replay bricks with published indicator results. Kite status
 variants, spread/result scenarios and network failures are test
 fixtures; there was no broker login or actual market session. See
@@ -152,8 +155,8 @@ official Kite link only when configured; its secrets remain on the server. Missi
 wallet ownership remains unavailable/409. A kill with pending closures requires
 fresh quotes and settlement verification. Retry an ambiguous deposit from the same
 tab to reuse its saved action; review the ledger before deliberately discarding it.
-The Live and History routes are implemented; Wallet/Settings detail tools remain
-pending. Open https://127.0.0.1:5173/dashboard/history to inspect FE-16 progress.
+The Live, History, Wallet and Settings routes are implemented; integrated
+operational acceptance remains pending. Open https://127.0.0.1:5173/dashboard/history to inspect FE-16 progress.
 Fixed-period summaries are account-wide PAPER; family/direction/result/grade
 filters scope the table and all-page CSV. Date-range charts are labelled
 separately. Missing data/owners remain unavailable, rather than fabricated zeroes.
@@ -199,3 +202,46 @@ The verified operator workflow must then be:
 These are future acceptance steps, not a claim that steps 2–6 work today. Until
 the missing UI and integration are delivered, use isolated development tests or
 the separately documented manual Pine practice; neither is a browser paper trial.
+
+## Accepted Wallet screen (FE-17)
+
+Open https://127.0.0.1:5173/dashboard/wallet after sign-in. An attached initialized
+PAPER wallet is required; unavailable balances are never invented. Review total,
+free and blocked capital, then use Deposit paper funds (or top-bar Add paper
+funds), Withdraw paper funds, or the explicitly confirmed Reset paper wallet.
+Use only your intended paper account, outside an observation baseline when
+changing funding. Reset requires a flat book and preserves all records/risk locks.
+History deletion is disabled because no API exists. The effective auto-top-up
+setting is read-only here; funding is not profit. Ledger pages show authoritative
+running balances. Ambiguous requests retain the same key/body across reopen or
+reload; review the ledger before discarding them. Trade/position events refresh
+wallet/top bar/ledger together. These controls do not attach an owner or enable
+entries. See [FE-17 evidence](../testing/FE-17-acceptance.md). No backend changes
+or new migration were required for FE-17; reuse the frontend and refresh.
+
+## Settings screen (FE-18 accepted)
+
+Open https://127.0.0.1:5173/dashboard/settings after signing in. Expand a group,
+edit values and select **Review and save**. Review each old/new value and confirm.
+Pine/grid changes also require a separate rebuild acknowledgement. Saving records
+a desired revision only; the displayed owner activation/rebuild state does not
+start a rebuild or enable entries. Existing exposure/feed conflicts remain server
+rejections. Never stop an observation to force a settings save.
+
+Restore defaults and validated version 1 JSON imports stage local edits. Export
+returns saved server values. Navigation/reload warns about unsaved edits. After a
+lost reply, retry the same saved request/key; check the server outcome before
+explicitly discarding a pending request. A newer server revision blocks overwrite.
+
+Use read-only strike preview after saving/discarding edits. It uses current server
+strategy/catalog/quotes and shows explicit rejection if unavailable. Optional
+capital is a hypothetical assumption; no wallet balance or order is created.
+Browser layer/palette preferences persist locally. Sounds and notification
+permissions require a user click; notifications run only in the open signed-in
+browser. Saved display sounds do not grant browser audio/notification permission.
+
+FE-18 verification: 35 frontend tests, 101 distinct targeted backend cases,
+35 full plus 10 focused HTTPS browser flows (36 distinct), build/TypeScript/ESLint,
+manifest parity and focused Ruff pass. Temporary synthetic DB/TLS only; this does
+not prove real-session paper readiness. No backend implementation change or new
+migration in FE-18, so no backend restart is needed for this batch.

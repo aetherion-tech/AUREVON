@@ -51,6 +51,13 @@ export function useLive(enabled: boolean, expired: () => void) {
             if (frame.type === "snapshot")
               cache.setQueryData(["snapshot"], frame.snapshot);
             else if (accepted.events.length) {
+              for (const event of accepted.events)
+                if (["signal", "trade", "alert"].includes(event.kind))
+                  window.dispatchEvent(
+                    new CustomEvent("aurevon:paper-event", {
+                      detail: event.kind,
+                    }),
+                  );
               cache.setQueryData(
                 ["snapshot"],
                 (old: typeof snapshot | undefined) =>

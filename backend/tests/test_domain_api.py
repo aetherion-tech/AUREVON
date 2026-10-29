@@ -1003,6 +1003,32 @@ def test_new_domain_producers_do_not_break_feed_snapshot_before_domain_migration
         app.state.database_engine.dispose()
 
 
+def test_settings_save_and_stale_rejection_have_correlated_audit_outcomes(domain):
+    client = domain["client"]
+    prior = client.get("/api/settings").json()
+    body = dict(expected_revision=prior["revision"], settings=prior["settings"])
+    body["settings"]["risk"]["max_trades"] = 7
+    saved = client.put(
+        "/api/settings", json=body, headers={"Idempotency-Key": "ui-reviewed-save"}
+    )
+    assert saved.status_code == 200
+    rejected = client.put(
+        "/api/settings", json=body, headers={"Idempotency-Key": "ui-stale-save"}
+    )
+    assert rejected.status_code == 409
+    with Session(domain["app"].state.database_engine) as db:
+        for response in (saved, rejected):
+            audit = db.scalars(
+                select(AuditEntry).where(
+                    AuditEntry.request_id == response.headers["X-Request-ID"]
+                )
+            ).one()
+            assert audit.action == "PUT /api/settings"
+            assert audit.actor == "dashboard"
+            assert audit.status == response.status_code
+    assert client.get("/api/settings").json()["revision"] == prior["revision"] + 1
+
+
 def test_settings_schema_import_defaults_and_pine_rebuild_validation(domain):
     c, s = domain["client"], domain["service"]
     schema = c.get("/api/settings/schema")

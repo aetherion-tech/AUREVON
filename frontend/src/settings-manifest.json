@@ -1,0 +1,1279 @@
+{
+  "schema": {
+    "$defs": {
+      "CostSchedule": {
+        "additionalProperties": false,
+        "properties": {
+          "version": {
+            "const": 1,
+            "default": 1,
+            "title": "Version",
+            "type": "integer"
+          },
+          "identity": {
+            "maxLength": 160,
+            "minLength": 1,
+            "title": "Identity",
+            "type": "string"
+          },
+          "effective_from": {
+            "format": "date",
+            "title": "Effective From",
+            "type": "string"
+          },
+          "effective_to": {
+            "format": "date",
+            "title": "Effective To",
+            "type": "string"
+          },
+          "source": {
+            "maxLength": 500,
+            "minLength": 1,
+            "title": "Source",
+            "type": "string"
+          },
+          "basis": {
+            "const": "PAPER_ESTIMATE",
+            "default": "PAPER_ESTIMATE",
+            "title": "Basis",
+            "type": "string"
+          },
+          "brokerage_per_order": {
+            "decimal_places": 2,
+            "default": "0",
+            "ge": 0,
+            "max_digits": 14,
+            "title": "Brokerage Per Order",
+            "type": "string"
+          },
+          "exchange_pct": {
+            "decimal_places": 6,
+            "default": "0",
+            "ge": 0,
+            "le": 100,
+            "max_digits": 24,
+            "title": "Exchange Pct",
+            "type": "string"
+          },
+          "sebi_pct": {
+            "decimal_places": 6,
+            "default": "0",
+            "ge": 0,
+            "le": 100,
+            "max_digits": 24,
+            "title": "Sebi Pct",
+            "type": "string"
+          },
+          "ipft_pct": {
+            "decimal_places": 6,
+            "default": "0",
+            "ge": 0,
+            "le": 100,
+            "max_digits": 24,
+            "title": "Ipft Pct",
+            "type": "string"
+          },
+          "stt_sell_pct": {
+            "decimal_places": 6,
+            "default": "0",
+            "ge": 0,
+            "le": 100,
+            "max_digits": 24,
+            "title": "Stt Sell Pct",
+            "type": "string"
+          },
+          "stamp_buy_pct": {
+            "decimal_places": 6,
+            "default": "0",
+            "ge": 0,
+            "le": 100,
+            "max_digits": 24,
+            "title": "Stamp Buy Pct",
+            "type": "string"
+          },
+          "gst_pct": {
+            "decimal_places": 6,
+            "default": "0",
+            "ge": 0,
+            "le": 100,
+            "max_digits": 24,
+            "title": "Gst Pct",
+            "type": "string"
+          },
+          "gst_on_ipft": {
+            "default": false,
+            "title": "Gst On Ipft",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "identity",
+          "effective_from",
+          "effective_to",
+          "source"
+        ],
+        "title": "CostSchedule",
+        "type": "object"
+      },
+      "DataSettings": {
+        "additionalProperties": false,
+        "properties": {
+          "mode": {
+            "default": "minute_close",
+            "enum": [
+              "minute_close",
+              "tick"
+            ],
+            "title": "Mode",
+            "type": "string"
+          },
+          "box": {
+            "default": "50",
+            "gt": 0,
+            "title": "Box",
+            "type": "string"
+          },
+          "anchor": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Anchor"
+          },
+          "lookback_days": {
+            "default": 20,
+            "maximum": 250,
+            "minimum": 1,
+            "title": "Lookback Days",
+            "type": "integer"
+          }
+        },
+        "title": "DataSettings",
+        "type": "object"
+      },
+      "DisplaySettings": {
+        "additionalProperties": false,
+        "properties": {
+          "theme": {
+            "default": "dark",
+            "enum": [
+              "dark",
+              "light"
+            ],
+            "title": "Theme",
+            "type": "string"
+          },
+          "sounds": {
+            "default": false,
+            "title": "Sounds",
+            "type": "boolean"
+          }
+        },
+        "title": "DisplaySettings",
+        "type": "object"
+      },
+      "FillSettings": {
+        "additionalProperties": false,
+        "properties": {
+          "version": {
+            "const": 1,
+            "default": 1,
+            "title": "Version",
+            "type": "integer"
+          },
+          "slippage": {
+            "decimal_places": 6,
+            "default": "0.5",
+            "ge": 0,
+            "max_digits": 24,
+            "title": "Slippage",
+            "type": "string"
+          },
+          "latency_ms": {
+            "default": 500,
+            "maximum": 60000,
+            "minimum": 0,
+            "title": "Latency Ms",
+            "type": "integer"
+          },
+          "fee_per_order": {
+            "decimal_places": 6,
+            "default": "0",
+            "ge": 0,
+            "max_digits": 24,
+            "title": "Fee Per Order",
+            "type": "string"
+          },
+          "fee_bps": {
+            "decimal_places": 6,
+            "default": "0",
+            "ge": 0,
+            "max_digits": 24,
+            "title": "Fee Bps",
+            "type": "string"
+          },
+          "cost_basis": {
+            "default": "USER_CONFIGURED_PAPER_ASSUMPTION",
+            "minLength": 1,
+            "title": "Cost Basis",
+            "type": "string"
+          },
+          "quote_max_age_seconds": {
+            "default": 5,
+            "maximum": 60,
+            "minimum": 1,
+            "title": "Quote Max Age Seconds",
+            "type": "integer"
+          },
+          "cost_schedule": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/CostSchedule"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "title": "FillSettings",
+        "type": "object"
+      },
+      "JsonValue": {},
+      "RiskSettings": {
+        "additionalProperties": false,
+        "properties": {
+          "version": {
+            "const": 1,
+            "default": 1,
+            "title": "Version",
+            "type": "integer"
+          },
+          "daily_loss_pct": {
+            "decimal_places": 6,
+            "default": "2",
+            "gt": 0,
+            "max_digits": 24,
+            "title": "Daily Loss Pct",
+            "type": "string"
+          },
+          "max_trade_loss_pct": {
+            "decimal_places": 6,
+            "default": "1",
+            "gt": 0,
+            "max_digits": 24,
+            "title": "Max Trade Loss Pct",
+            "type": "string"
+          },
+          "max_trades": {
+            "default": 3,
+            "minimum": 1,
+            "title": "Max Trades",
+            "type": "integer"
+          },
+          "entry_start": {
+            "default": "09:30:00",
+            "format": "time",
+            "title": "Entry Start",
+            "type": "string"
+          },
+          "entry_end": {
+            "default": "14:45:00",
+            "format": "time",
+            "title": "Entry End",
+            "type": "string"
+          },
+          "square_off": {
+            "default": "15:15:00",
+            "format": "time",
+            "title": "Square Off",
+            "type": "string"
+          },
+          "max_plan_age_seconds": {
+            "default": 5,
+            "maximum": 60,
+            "minimum": 1,
+            "title": "Max Plan Age Seconds",
+            "type": "integer"
+          }
+        },
+        "title": "RiskSettings",
+        "type": "object"
+      },
+      "StrategySettings": {
+        "additionalProperties": false,
+        "properties": {
+          "version": {
+            "const": 1,
+            "default": 1,
+            "title": "Version",
+            "type": "integer"
+          },
+          "short_offset_steps": {
+            "default": 1,
+            "maximum": 100,
+            "minimum": 0,
+            "title": "Short Offset Steps",
+            "type": "integer"
+          },
+          "hedge_width_steps": {
+            "default": 4,
+            "maximum": 100,
+            "minimum": 1,
+            "title": "Hedge Width Steps",
+            "type": "integer"
+          },
+          "hedge_mode": {
+            "default": "width",
+            "enum": [
+              "width",
+              "premium"
+            ],
+            "title": "Hedge Mode",
+            "type": "string"
+          },
+          "hedge_target_premium": {
+            "decimal_places": 6,
+            "default": "7.50",
+            "gt": 0,
+            "max_digits": 24,
+            "title": "Hedge Target Premium",
+            "type": "string"
+          },
+          "premium_search_steps": {
+            "default": 20,
+            "maximum": 100,
+            "minimum": 1,
+            "title": "Premium Search Steps",
+            "type": "integer"
+          },
+          "expiry_policy": {
+            "default": "trade_next",
+            "enum": [
+              "skip",
+              "trade_current",
+              "trade_next"
+            ],
+            "title": "Expiry Policy",
+            "type": "string"
+          },
+          "expiry_switch_at": {
+            "default": "12:00:00",
+            "format": "time",
+            "title": "Expiry Switch At",
+            "type": "string"
+          },
+          "liquidity_retries": {
+            "default": 2,
+            "maximum": 2,
+            "minimum": 0,
+            "title": "Liquidity Retries",
+            "type": "integer"
+          },
+          "max_spread_pct": {
+            "decimal_places": 6,
+            "default": "2",
+            "ge": 0,
+            "max_digits": 24,
+            "title": "Max Spread Pct",
+            "type": "string"
+          },
+          "max_spread_abs": {
+            "decimal_places": 6,
+            "default": "1",
+            "ge": 0,
+            "max_digits": 24,
+            "title": "Max Spread Abs",
+            "type": "string"
+          },
+          "min_open_interest": {
+            "default": 1,
+            "minimum": 0,
+            "title": "Min Open Interest",
+            "type": "integer"
+          },
+          "quote_max_age_seconds": {
+            "default": 5,
+            "maximum": 60,
+            "minimum": 1,
+            "title": "Quote Max Age Seconds",
+            "type": "integer"
+          },
+          "quote_max_skew_seconds": {
+            "default": 2,
+            "maximum": 10,
+            "minimum": 0,
+            "title": "Quote Max Skew Seconds",
+            "type": "integer"
+          },
+          "minimum_credit": {
+            "decimal_places": 6,
+            "default": "0.05",
+            "gt": 0,
+            "max_digits": 24,
+            "title": "Minimum Credit",
+            "type": "string"
+          },
+          "sizing": {
+            "default": "fixed_lots",
+            "enum": [
+              "fixed_lots",
+              "risk_pct"
+            ],
+            "title": "Sizing",
+            "type": "string"
+          },
+          "fixed_lots": {
+            "default": 1,
+            "maximum": 10000,
+            "minimum": 1,
+            "title": "Fixed Lots",
+            "type": "integer"
+          },
+          "risk_pct": {
+            "default": "1",
+            "gt": 0,
+            "le": 100,
+            "title": "Risk Pct",
+            "type": "string"
+          },
+          "max_lots": {
+            "default": 10,
+            "maximum": 10000,
+            "minimum": 1,
+            "title": "Max Lots",
+            "type": "integer"
+          },
+          "max_quantity": {
+            "default": 10000,
+            "minimum": 1,
+            "title": "Max Quantity",
+            "type": "integer"
+          },
+          "margin_buffer_pct": {
+            "decimal_places": 6,
+            "default": "10",
+            "ge": 0,
+            "le": 1000,
+            "max_digits": 24,
+            "title": "Margin Buffer Pct",
+            "type": "string"
+          },
+          "sl_pct_of_max_loss": {
+            "default": "50",
+            "gt": 0,
+            "le": 100,
+            "title": "Sl Pct Of Max Loss",
+            "type": "string"
+          },
+          "profit_capture_enabled": {
+            "default": false,
+            "title": "Profit Capture Enabled",
+            "type": "boolean"
+          },
+          "profit_capture_pct": {
+            "default": "70",
+            "gt": 0,
+            "le": 100,
+            "title": "Profit Capture Pct",
+            "type": "string"
+          },
+          "entry_start": {
+            "default": "09:30:00",
+            "format": "time",
+            "title": "Entry Start",
+            "type": "string"
+          },
+          "entry_end": {
+            "default": "14:45:00",
+            "format": "time",
+            "title": "Entry End",
+            "type": "string"
+          },
+          "min_grade": {
+            "default": 2,
+            "maximum": 3,
+            "minimum": 1,
+            "title": "Min Grade",
+            "type": "integer"
+          },
+          "allowed_families": {
+            "default": [
+              "CO",
+              "DIV",
+              "OT"
+            ],
+            "items": {
+              "enum": [
+                "CO",
+                "DIV",
+                "OT"
+              ],
+              "type": "string"
+            },
+            "title": "Allowed Families",
+            "type": "array"
+          },
+          "skip_high_risk": {
+            "default": true,
+            "title": "Skip High Risk",
+            "type": "boolean"
+          },
+          "skip_opposite_bias": {
+            "default": true,
+            "title": "Skip Opposite Bias",
+            "type": "boolean"
+          }
+        },
+        "title": "StrategySettings",
+        "type": "object"
+      },
+      "WalletSettings": {
+        "additionalProperties": false,
+        "properties": {
+          "version": {
+            "const": 1,
+            "default": 1,
+            "title": "Version",
+            "type": "integer"
+          },
+          "initial_capital": {
+            "decimal_places": 2,
+            "default": "1000000.00",
+            "ge": 0,
+            "max_digits": 14,
+            "title": "Initial Capital",
+            "type": "string"
+          },
+          "auto_topup": {
+            "default": false,
+            "title": "Auto Topup",
+            "type": "boolean"
+          }
+        },
+        "title": "WalletSettings",
+        "type": "object"
+      }
+    },
+    "additionalProperties": false,
+    "properties": {
+      "version": {
+        "const": 1,
+        "default": 1,
+        "title": "Version",
+        "type": "integer"
+      },
+      "pine": {
+        "additionalProperties": {
+          "$ref": "#/$defs/JsonValue"
+        },
+        "title": "Pine",
+        "type": "object"
+      },
+      "strategy": {
+        "$ref": "#/$defs/StrategySettings"
+      },
+      "risk": {
+        "$ref": "#/$defs/RiskSettings"
+      },
+      "fills": {
+        "$ref": "#/$defs/FillSettings"
+      },
+      "wallet": {
+        "$ref": "#/$defs/WalletSettings"
+      },
+      "data": {
+        "$ref": "#/$defs/DataSettings"
+      },
+      "display": {
+        "$ref": "#/$defs/DisplaySettings"
+      }
+    },
+    "title": "SettingsBundle",
+    "type": "object"
+  },
+  "pine": {
+    "atrLen": {
+      "kind": "int",
+      "default": 10,
+      "minval": 1.0
+    },
+    "factor": {
+      "kind": "float",
+      "default": 2.5,
+      "minval": 0.1
+    },
+    "upCol": {
+      "kind": "color",
+      "default": "green"
+    },
+    "dnCol": {
+      "kind": "color",
+      "default": "red"
+    },
+    "showFill": {
+      "kind": "bool",
+      "default": false
+    },
+    "joinST": {
+      "kind": "bool",
+      "default": true
+    },
+    "boxSize": {
+      "kind": "float",
+      "default": 50.0,
+      "minval": 0.1
+    },
+    "coreWindow": {
+      "kind": "int",
+      "default": 3,
+      "minval": 1.0,
+      "maxval": 10.0
+    },
+    "sigCooldown": {
+      "kind": "int",
+      "default": 3,
+      "minval": 0.0
+    },
+    "minGrade": {
+      "kind": "string",
+      "default": "Moderate and above",
+      "options": [
+        "Weak and above (all)",
+        "Moderate and above",
+        "Strong only"
+      ]
+    },
+    "evalBricks": {
+      "kind": "int",
+      "default": 8,
+      "minval": 2.0
+    },
+    "divFresh": {
+      "kind": "int",
+      "default": 8,
+      "minval": 2.0
+    },
+    "extMins": {
+      "kind": "int",
+      "default": 15,
+      "minval": 1.0
+    },
+    "extBricks": {
+      "kind": "int",
+      "default": 3,
+      "minval": 1.0
+    },
+    "tgt1Pct": {
+      "kind": "float",
+      "default": 2.5,
+      "minval": 0.1
+    },
+    "tgt2Pct": {
+      "kind": "float",
+      "default": 4.0,
+      "minval": 0.2
+    },
+    "exitOppN": {
+      "kind": "int",
+      "default": 1,
+      "minval": 1.0,
+      "maxval": 5.0
+    },
+    "exitAtT2": {
+      "kind": "bool",
+      "default": true
+    },
+    "exitOnStop": {
+      "kind": "bool",
+      "default": false
+    },
+    "stopCapBx": {
+      "kind": "float",
+      "default": 6.0,
+      "minval": 1.0
+    },
+    "showAdds": {
+      "kind": "bool",
+      "default": false
+    },
+    "showPlan": {
+      "kind": "bool",
+      "default": true
+    },
+    "rsiLen": {
+      "kind": "int",
+      "default": 14,
+      "minval": 1.0
+    },
+    "topType": {
+      "kind": "string",
+      "default": "Equal or higher",
+      "options": [
+        "Equal only",
+        "Equal or higher"
+      ]
+    },
+    "minRsiGap": {
+      "kind": "float",
+      "default": 0.5,
+      "minval": 0.0
+    },
+    "maxGap": {
+      "kind": "int",
+      "default": 60,
+      "minval": 3.0
+    },
+    "rsiHi": {
+      "kind": "int",
+      "default": 50
+    },
+    "rsiLo": {
+      "kind": "int",
+      "default": 50
+    },
+    "hdivOn": {
+      "kind": "bool",
+      "default": true
+    },
+    "showDivLn": {
+      "kind": "bool",
+      "default": false
+    },
+    "divCrossDay": {
+      "kind": "bool",
+      "default": true
+    },
+    "pbOn": {
+      "kind": "bool",
+      "default": true
+    },
+    "pbMinAge": {
+      "kind": "int",
+      "default": 3,
+      "minval": 2.0
+    },
+    "brkOn": {
+      "kind": "bool",
+      "default": true
+    },
+    "brkAge": {
+      "kind": "int",
+      "default": 40,
+      "minval": 5.0
+    },
+    "trapOn": {
+      "kind": "bool",
+      "default": true
+    },
+    "trapBars": {
+      "kind": "int",
+      "default": 6,
+      "minval": 2.0
+    },
+    "orbOn": {
+      "kind": "bool",
+      "default": true
+    },
+    "orbUntil": {
+      "kind": "int",
+      "default": 1130,
+      "minval": 930.0,
+      "maxval": 1500.0
+    },
+    "orbMinBx": {
+      "kind": "int",
+      "default": 2,
+      "minval": 1.0
+    },
+    "srgOn": {
+      "kind": "bool",
+      "default": true
+    },
+    "srgMin": {
+      "kind": "int",
+      "default": 4,
+      "minval": 2.0,
+      "maxval": 5.0
+    },
+    "srgNeedVol": {
+      "kind": "bool",
+      "default": true
+    },
+    "flowOn": {
+      "kind": "bool",
+      "default": true
+    },
+    "futSym": {
+      "kind": "symbol",
+      "default": "NSE:NIFTY1!"
+    },
+    "useOI": {
+      "kind": "bool",
+      "default": true
+    },
+    "flowTf": {
+      "kind": "timeframe",
+      "default": "5"
+    },
+    "flowBars": {
+      "kind": "int",
+      "default": 3,
+      "minval": 1.0
+    },
+    "oiMinPct": {
+      "kind": "float",
+      "default": 0.1,
+      "minval": 0.0
+    },
+    "pxMinPct": {
+      "kind": "float",
+      "default": 0.05,
+      "minval": 0.0
+    },
+    "volMult": {
+      "kind": "float",
+      "default": 1.5,
+      "minval": 1.0
+    },
+    "outSamples": {
+      "kind": "int",
+      "default": 20,
+      "minval": 5.0
+    },
+    "stretchBx": {
+      "kind": "int",
+      "default": 6,
+      "minval": 2.0
+    },
+    "manRes": {
+      "kind": "float",
+      "default": 0.0
+    },
+    "manSup": {
+      "kind": "float",
+      "default": 0.0
+    },
+    "dashMode": {
+      "kind": "string",
+      "default": "Compact",
+      "options": [
+        "Hidden",
+        "Compact",
+        "Full"
+      ]
+    },
+    "dashPos": {
+      "kind": "string",
+      "default": "Top Right",
+      "options": [
+        "Top Right",
+        "Middle Right",
+        "Bottom Right",
+        "Top Left",
+        "Middle Left",
+        "Bottom Left"
+      ]
+    },
+    "dashSize": {
+      "kind": "string",
+      "default": "Normal",
+      "options": [
+        "Small",
+        "Normal",
+        "Large"
+      ]
+    },
+    "labelMode": {
+      "kind": "string",
+      "default": "Code + arrow",
+      "options": [
+        "Code + arrow",
+        "Arrow only",
+        "Off"
+      ]
+    },
+    "labelGap": {
+      "kind": "int",
+      "default": 1,
+      "minval": 0.0,
+      "maxval": 4.0
+    },
+    "lblSz": {
+      "kind": "string",
+      "default": "Small",
+      "options": [
+        "Tiny",
+        "Small",
+        "Normal"
+      ]
+    },
+    "colBull": {
+      "kind": "color",
+      "default": "green"
+    },
+    "colBear": {
+      "kind": "color",
+      "default": "red"
+    },
+    "showBg": {
+      "kind": "bool",
+      "default": true
+    },
+    "showLevels": {
+      "kind": "bool",
+      "default": false
+    },
+    "showNext": {
+      "kind": "bool",
+      "default": false
+    },
+    "useClock": {
+      "kind": "bool",
+      "default": true
+    }
+  },
+  "ui": {
+    "atrLen": {
+      "label": "ATR Length",
+      "group": "Supertrend",
+      "help": "ATR Length"
+    },
+    "factor": {
+      "label": "Factor",
+      "group": "Supertrend",
+      "help": "Factor"
+    },
+    "upCol": {
+      "label": "Up colour",
+      "group": "Supertrend",
+      "help": "Up colour"
+    },
+    "dnCol": {
+      "label": "Down colour",
+      "group": "Supertrend",
+      "help": "Down colour"
+    },
+    "showFill": {
+      "label": "Shade between price and line",
+      "group": "Supertrend",
+      "help": "Shade between price and line"
+    },
+    "joinST": {
+      "label": "Join Supertrend flips with a line",
+      "group": "Supertrend",
+      "help": "ON = one continuous line. OFF = separate pieces with a gap at every flip."
+    },
+    "boxSize": {
+      "label": "Renko box size (points)",
+      "group": "Direction & Signals",
+      "help": "Must match the box size of your Renko chart. The Full dashboard warns you if it does not."
+    },
+    "coreWindow": {
+      "label": "CORE: first aligned brick within N bricks after a flip",
+      "group": "Direction & Signals",
+      "help": "CORE: first aligned brick within N bricks after a flip"
+    },
+    "sigCooldown": {
+      "label": "Min bricks between two same-direction signals",
+      "group": "Direction & Signals",
+      "help": "CORE and DIV ignore this. It stops repeat signals piling up inside one run."
+    },
+    "minGrade": {
+      "label": "Show signals of strength",
+      "group": "Direction & Signals",
+      "help": "Choose Moderate or Strong to see fewer, better signals."
+    },
+    "evalBricks": {
+      "label": "Track record: judge every signal N bricks later",
+      "group": "Direction & Signals",
+      "help": "Track record: judge every signal N bricks later"
+    },
+    "divFresh": {
+      "label": "A divergence stays in the direction score for N bricks",
+      "group": "Direction & Signals",
+      "help": "A divergence stays in the direction score for N bricks"
+    },
+    "extMins": {
+      "label": "Late-entry check: look-back minutes",
+      "group": "Direction & Signals",
+      "help": "Late-entry check: look-back minutes"
+    },
+    "extBricks": {
+      "label": "Late-entry check: more than N same-colour bricks",
+      "group": "Direction & Signals",
+      "help": "Late-entry check: more than N same-colour bricks"
+    },
+    "tgt1Pct": {
+      "label": "Target 1 (% from entry)",
+      "group": "Trade Plan (Entry / Exit)",
+      "help": "Suggested first profit target, in % of the entry price."
+    },
+    "tgt2Pct": {
+      "label": "Target 2 (% from entry)",
+      "group": "Trade Plan (Entry / Exit)",
+      "help": "Suggested second profit target, in % of the entry price."
+    },
+    "exitOppN": {
+      "label": "EXIT after N closed bricks of the opposite colour",
+      "group": "Trade Plan (Entry / Exit)",
+      "help": "1 = the very next brick that closes in the opposite colour (RED after a BUY, GREEN after a SELL) gives the EXIT. The brick must be CLOSED."
+    },
+    "exitAtT2": {
+      "label": "Also EXIT when Target 2 is reached",
+      "group": "Trade Plan (Entry / Exit)",
+      "help": "Also EXIT when Target 2 is reached"
+    },
+    "exitOnStop": {
+      "label": "Also EXIT if the safety level is broken (optional)",
+      "group": "Trade Plan (Entry / Exit)",
+      "help": "OFF (default) = the only exits are the opposite-colour brick and Target 2. ON = also exit when a brick closes beyond the level where the idea fails (capped by the distance below)."
+    },
+    "stopCapBx": {
+      "label": "Safety level: max distance (boxes)",
+      "group": "Trade Plan (Entry / Exit)",
+      "help": "Only used when the optional safety exit is ON."
+    },
+    "showAdds": {
+      "label": "Show small '+' marks for same-direction signals while in a trade",
+      "group": "Trade Plan (Entry / Exit)",
+      "help": "Show small '+' marks for same-direction signals while in a trade"
+    },
+    "showPlan": {
+      "label": "Draw entry / stop / target lines for the active trade",
+      "group": "Trade Plan (Entry / Exit)",
+      "help": "Draw entry / stop / target lines for the active trade"
+    },
+    "rsiLen": {
+      "label": "RSI Length",
+      "group": "Divergence",
+      "help": "RSI Length"
+    },
+    "topType": {
+      "label": "Price structure",
+      "group": "Divergence",
+      "help": "Equal only = double top / bottom at the same level. Equal or higher = also accepts a higher high / lower low."
+    },
+    "minRsiGap": {
+      "label": "Min RSI difference between the 2 swings",
+      "group": "Divergence",
+      "help": "Min RSI difference between the 2 swings"
+    },
+    "maxGap": {
+      "label": "Max bricks between the 2 swings",
+      "group": "Divergence",
+      "help": "Max bricks between the 2 swings"
+    },
+    "rsiHi": {
+      "label": "Bearish DIV: RSI of 1st top must be >=",
+      "group": "Divergence",
+      "help": "Bearish DIV: RSI of 1st top must be >="
+    },
+    "rsiLo": {
+      "label": "Bullish DIV: RSI of 1st bottom must be <=",
+      "group": "Divergence",
+      "help": "Bullish DIV: RSI of 1st bottom must be <="
+    },
+    "hdivOn": {
+      "label": "HDIV: also use hidden divergence (trend continuation)",
+      "group": "Divergence",
+      "help": "HDIV: also use hidden divergence (trend continuation)"
+    },
+    "showDivLn": {
+      "label": "Draw divergence line on price",
+      "group": "Divergence",
+      "help": "Draw divergence line on price"
+    },
+    "divCrossDay": {
+      "label": "Allow divergence between yesterday and today",
+      "group": "Divergence",
+      "help": "Allow divergence between yesterday and today"
+    },
+    "pbOn": {
+      "label": "PB - Pullback resume",
+      "group": "Extra Signals",
+      "help": "PB - Pullback resume"
+    },
+    "pbMinAge": {
+      "label": "PB: trend must be at least N bricks old",
+      "group": "Extra Signals",
+      "help": "PB: trend must be at least N bricks old"
+    },
+    "brkOn": {
+      "label": "BRK - Swing breakout",
+      "group": "Extra Signals",
+      "help": "BRK - Swing breakout"
+    },
+    "brkAge": {
+      "label": "BRK: swing must be at most N bricks old",
+      "group": "Extra Signals",
+      "help": "BRK: swing must be at most N bricks old"
+    },
+    "trapOn": {
+      "label": "TRAP - Failed breakout reversal",
+      "group": "Extra Signals",
+      "help": "TRAP - Failed breakout reversal"
+    },
+    "trapBars": {
+      "label": "TRAP: breakout must fail within N bricks",
+      "group": "Extra Signals",
+      "help": "TRAP: breakout must fail within N bricks"
+    },
+    "orbOn": {
+      "label": "ORB - Opening range breakout (NSE hours, IST)",
+      "group": "Extra Signals",
+      "help": "ORB - Opening range breakout (NSE hours, IST)"
+    },
+    "orbUntil": {
+      "label": "ORB: take breakouts until (HHMM)",
+      "group": "Extra Signals",
+      "help": "ORB: take breakouts until (HHMM)"
+    },
+    "orbMinBx": {
+      "label": "ORB: min opening range (boxes)",
+      "group": "Extra Signals",
+      "help": "ORB: min opening range (boxes)"
+    },
+    "srgOn": {
+      "label": "SRG - Flow surge (needs futures data)",
+      "group": "Extra Signals",
+      "help": "SRG - Flow surge (needs futures data)"
+    },
+    "srgMin": {
+      "label": "SRG: flow score needed (2-5)",
+      "group": "Extra Signals",
+      "help": "SRG: flow score needed (2-5)"
+    },
+    "srgNeedVol": {
+      "label": "SRG: needs a volume spike too",
+      "group": "Extra Signals",
+      "help": "SRG: needs a volume spike too"
+    },
+    "flowOn": {
+      "label": "Enable flow engine (volume / OI / VWAP)",
+      "group": "Flow Engine",
+      "help": "Enable flow engine (volume / OI / VWAP)"
+    },
+    "futSym": {
+      "label": "Futures symbol (BankNifty: NSE:BANKNIFTY1!)",
+      "group": "Flow Engine",
+      "help": "Futures symbol (BankNifty: NSE:BANKNIFTY1!)"
+    },
+    "useOI": {
+      "label": "Use futures OI (turn OFF if you get 'symbol not found')",
+      "group": "Flow Engine",
+      "help": "Use futures OI (turn OFF if you get 'symbol not found')"
+    },
+    "flowTf": {
+      "label": "Flow timeframe",
+      "group": "Flow Engine",
+      "help": "Flow timeframe"
+    },
+    "flowBars": {
+      "label": "Build-up window (flow bars)",
+      "group": "Flow Engine",
+      "help": "Build-up window (flow bars)"
+    },
+    "oiMinPct": {
+      "label": "Min OI change % that counts",
+      "group": "Flow Engine",
+      "help": "Min OI change % that counts"
+    },
+    "pxMinPct": {
+      "label": "Min price change % that counts",
+      "group": "Flow Engine",
+      "help": "Min price change % that counts"
+    },
+    "volMult": {
+      "label": "Volume spike = x times 20-bar average",
+      "group": "Flow Engine",
+      "help": "Volume spike = x times 20-bar average"
+    },
+    "outSamples": {
+      "label": "Min history samples before showing brick odds",
+      "group": "Outlook",
+      "help": "Min history samples before showing brick odds"
+    },
+    "stretchBx": {
+      "label": "Stretched: price this many boxes from Supertrend",
+      "group": "Outlook",
+      "help": "Stretched: price this many boxes from Supertrend"
+    },
+    "manRes": {
+      "label": "Manual ceiling (any level you watch, 0 = none)",
+      "group": "Outlook",
+      "help": "Manual ceiling (any level you watch, 0 = none)"
+    },
+    "manSup": {
+      "label": "Manual floor (any level you watch, 0 = none)",
+      "group": "Outlook",
+      "help": "Manual floor (any level you watch, 0 = none)"
+    },
+    "dashMode": {
+      "label": "Dashboard",
+      "group": "Display",
+      "help": "Hidden = nothing. Compact = direction + trade status + latest signal + guide. Full = also Track record and Advanced details. Hover any cell for the full explanation."
+    },
+    "dashPos": {
+      "label": "Dashboard position",
+      "group": "Display",
+      "help": "Dashboard position"
+    },
+    "dashSize": {
+      "label": "Dashboard text size",
+      "group": "Display",
+      "help": "Dashboard text size"
+    },
+    "labelMode": {
+      "label": "Entry / Exit markers",
+      "group": "Display",
+      "help": "Code + arrow = ▲ CO-BUY-ENTRY / ✖ CO-BUY-EXIT. Arrow only = ▲ ▼ ✖ (narrowest). CO = Core, DIV = Divergence, OT = Other signals. All details are on HOVER."
+    },
+    "labelGap": {
+      "label": "Marker distance from the brick (boxes)",
+      "group": "Display",
+      "help": "Marker distance from the brick (boxes)"
+    },
+    "lblSz": {
+      "label": "Marker text size",
+      "group": "Display",
+      "help": "Marker text size"
+    },
+    "colBull": {
+      "label": "Entry colour - BUY",
+      "group": "Display",
+      "help": "Entry colour - BUY"
+    },
+    "colBear": {
+      "label": "Entry colour - SELL",
+      "group": "Display",
+      "help": "Entry colour - SELL"
+    },
+    "showBg": {
+      "label": "Light direction tint on background",
+      "group": "Display",
+      "help": "Light direction tint on background"
+    },
+    "showLevels": {
+      "label": "Draw ceiling / floor lines",
+      "group": "Display",
+      "help": "Draw ceiling / floor lines"
+    },
+    "showNext": {
+      "label": "Draw next-brick trigger lines",
+      "group": "Display",
+      "help": "Draw next-brick trigger lines"
+    },
+    "useClock": {
+      "label": "Use real IST clock for the latest brick",
+      "group": "Display",
+      "help": "Renko bricks carry unreliable timestamps. Keep ON for live use; turn OFF only in Bar Replay."
+    }
+  }
+}

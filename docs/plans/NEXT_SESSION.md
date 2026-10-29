@@ -46,45 +46,38 @@ never request the password/hash in chat. Explain remaining paper readiness gates
   15 frontend tests and two targeted browser flows covered that follow-up.
   Current verification and next task are below.
 
-- Product tasks: 280 total; 206 Completed / 74 Pending. FE-14/15 complete 15/15
-  each; FE-16 complete 8/8. Frontend 38 Completed / 19 Pending. Latest: 780 full
-  backend tests plus 7 targeted follow-up checks, 21 frontend unit/component tests
-  and 20 HTTPS Chromium flows; build/typecheck/
-  ESLint, Ruff/strict mypy and OpenAPI/TypeScript drift/compile pass. One existing
-  Starlette/httpx warning. Evidence: docs/testing/FE-16-acceptance.md.
-- NEXT TASK: FE-17-01 Wallet balance/free/blocked capital layout. Do not restart
-  accepted BE-13 or FE-14/15/16. History now includes fixed-period account cards,
-  exact daily/monthly P&L, period extrema, URL-persisted date/mode/family/direction/
-  result/grade filters, globally time/net-sorted cursor pages, trade details/fills/
-  timeline/source chart and identical-filter all-page CSV. Net sort is exact
-  Decimal and bounded to 10,000 matches; CSV's stable columns are preserved.
-  Read-only metadata does not alter stored projections. Numeric direction query
-  parsing was corrected without weakening internal validation. Invalid/stale
-  cursors require first-page reload; changed filters cancel obsolete requests.
-  Summary/card/chart versus filtered-table scope is labelled explicitly.
-  New backend views need a safe owner restart, with no new migration.
-  Live Renko index-axis chart supports repeated timestamps,
-  100/300 windows, older/incremental pages, source fences, trend/bias/events/
-  levels and saved layer preferences. Direction/factors, open spreads and safe
-  close, last/daily results, dated loss utilisation, signals and durable alerts
-  are implemented. Tick/node isolation, gap resync and source conflicts verified.
-  Browser replay fixtures use 655 actual stored synthetic bricks and published
-  indicators on ports 5174/18765; the operator backend on 8000 was not restarted.
-  Added optional read-only plan/risk/closed-time projections and fixed HTTP
-  integer history filters while retaining the strict internal query. Load this
-  API code at the next safe owner restart; no new migration. Fields missing from
-  an older running backend stay unavailable. Prior pending migrations and actual
-  managed/reference/G2/G3 acceptance are still separate blockers.
-  Detail screens remain FE-17/18. No browser paper activation claimed.
-  From frontend: npm.cmd ci; npm.cmd run build; npm.cmd run lint; npm.cmd test;
-  npm.cmd run test:browser. Local HTTPS certificate is installed/trusted for this
-  Windows user (2026-10-29), expires 2027-10-29. Vite automatically loads ignored
-  frontend/.local-tls files. Start with npm.cmd run dev; setup on another PC with
-  npm.cmd run setup:https. Both IP/localhost return HTTP 200; actual Chromium
-  sign-in screen verified with TLS 1.3 and no certificate bypass. Existing backend
-  left running unchanged; no login/trading/migration. Counts and next ID unchanged.
-  Optional external certificate override: LOCAL_TLS_KEY/CERT. Verified URL is
-  https://127.0.0.1:5173/dashboard/. See docs/operations/local-paper-ui.md.
+- Product tasks: 280 total; 225 Completed / 55 Pending. FE-14/15 complete
+  15/15 each; FE-16/17 complete 8/8 each; FE-18 complete 11/11.
+  Frontend 57 Completed / 0 Pending. Latest FE-18: 100 targeted backend wallet/
+  domain regressions plus 1 audit case (101 distinct; existing warning), 35 frontend
+  tests, 35 full HTTPS browser flows plus 10 focused Settings flows (36 distinct).
+  Production build/strict TypeScript/ESLint, generated Pine/backend manifest parity
+  and focused Ruff lint/format pass. Prior full backend result remains 780.
+  Evidence: docs/testing/FE-18-acceptance.md.
+- NEXT TASK: OPS-19-01 Serve built frontend through FastAPI with SPA fallback
+  and same-origin API/WebSocket routing. Do not restart accepted BE-13 or FE-14 through FE-18.
+  Settings now has every original Pine group/default/bound/tooltip, strategy/risk/
+  fill/data controls, exact validation, per-field change review, confirmation,
+  rebuild acknowledgement, stale-edit protection, unsaved navigation guards and
+  lost-reply command recovery. Versioned JSON import/export/defaults are explicit;
+  read-only strike preview uses saved strategy, shows economics or rejection and
+  never places orders. Browser layers/palette/sounds/notifications are opt-in
+  preferences; notifications only while signed in with the dashboard open.
+  Saved settings remain desired versions: owner rebind/rebuild is separate; no
+  rebuild-progress API or automatic activation is invented. Success and stale
+  rejection have verified server audit records. Keyboard and mobile are verified.
+  Backend/API/schema implementation unchanged; one acceptance test added. No new
+  migration or operator restart. Existing working edits preserved.
+  Isolated synthetic browser DB/TLS on ports 5174/18765 only; operator 5173/8000,
+  local DB, original Pine and observation preserved. No real-session evidence.
+  FE-17-05 remains conditional: history deletion disabled without a deletion API.
+  Existing earlier metadata/filter/projection API changes still need a safe owner
+  restart if its process is older. No duplicate owners or observation interruption.
+  Prior pending migrations and managed/reference/G2/G3 are separate blockers.
+  Local HTTPS certificate trusted, expires 2027-10-29; loaded automatically from
+  ignored frontend/.local-tls. Start npm.cmd run dev or refresh existing frontend.
+  URL: https://127.0.0.1:5173/dashboard/; Settings: /dashboard/settings.
+  See docs/operations/local-paper-ui.md.
 - User priority is LOCAL UI PAPER TRADING, not a shell/API explorer. At every
   active implementation turn run from backend:
   .venv/Scripts/python.exe -m app.tools.local_ui_readiness
@@ -115,7 +108,7 @@ never request the password/hash in chat. Explain remaining paper readiness gates
   BE-13-domain-acceptance.md. Auth/origin/CSRF/audit, bounded REST/WS ordering,
   chart/source fences, signals/decisions, controls, history/CSV, P&L, wallet,
   settings/rebuild, preview and risk/recon producers are accepted.
-  FE-14/15/16 React/browser foundation, Live and History are accepted; later detail flows and managed automatic indicator/
+  FE-14/15/16/17/18 React/browser foundation, Live, History, Wallet and Settings are accepted; managed automatic indicator/
   strategy generation and trial activation remain behind reference/operational
   gates. Tests use real services with synthetic inputs, never real-session proof.
 
@@ -166,7 +159,7 @@ never request the password/hash in chat. Explain remaining paper readiness gates
   remain explicit. Restore snapshot plus paged signals/history/alerts on resync.
   Client handles exact INR, CSRF/session/logout/401, cancellation, keys, CSV,
   WSS cursors and duplicate/gapped/run-changed batches. React now uses this client;
-  Wallet/Settings detail screens remain FE-17/18; History is accepted.
+  Settings, Live, History and Wallet are accepted; next OPS-19-01.
 - Wallet amounts are exact paise up to INR 999,999,999,999.99. capital() is actual
   free cash; auto-top-up planning_capital() is an explicit simulated funding
   ceiling, never account/project cash. Risk uses actual session capital. Reset
@@ -205,7 +198,8 @@ never request the password/hash in chat. Explain remaining paper readiness gates
   BE-13-20 and all 15 FE-14 IDs are done. D31/D32 FE-15 IDs also completed early
   D04. D33 remains Pending: FE-15-11 through 15 are done; OPS-19-08 requires actual
   shadow evidence. D34/D35 FE-16 code rows also completed early D04.
-  Next FE-17-01. No actual observation or managed activation
+  D36/D37 FE-17 code rows also completed early D04 (conditional deletion
+  unavailable). D38-D40 FE-18 rows completed early D04. Next OPS-19-01. No actual observation or managed activation
   is inferred from browser acceptance.
 - Zero qualifying formal paper sessions evidenced. Manual Pine practice, synthetic
   replay tests, automated trials and formal burn-in remain distinct. G1/G2/G3,
@@ -228,4 +222,4 @@ never request the password/hash in chat. Explain remaining paper readiness gates
 - Read this, current daily row and targeted README/task/code on the next turn.
   Preserve existing edits. Update README counts/evidence/next pointer, daily row
   and this handoff together; receipts only when supplied. README.v1 is immutable;
-  documentation rows never count as product completions. Next: FE-17-01.
+  documentation rows never count as product completions. Next: OPS-19-01.

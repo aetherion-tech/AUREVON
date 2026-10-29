@@ -36,6 +36,7 @@ export class ApiError extends Error {
     public readonly code: string,
     public readonly requestId: string | null,
     message: string,
+    public readonly details: components["schemas"]["ErrorDetail"][] = [],
   ) {
     super(message);
   }
@@ -112,6 +113,7 @@ export class ApiClient {
         envelope?.error.code ?? "http_error",
         response.headers.get("X-Request-ID"),
         envelope?.error.message ?? "Request failed",
+        envelope?.error.details ?? [],
       );
     }
     const token = response.headers.get("X-CSRF-Token");

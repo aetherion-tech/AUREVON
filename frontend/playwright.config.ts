@@ -8,6 +8,7 @@ export default defineConfig({
     url: "https://127.0.0.1:5174/dashboard/",
     ignoreHTTPSErrors: true,
     reuseExistingServer: false,
-    timeout: 60000,
+    // Publishing 655 synthetic indicator bricks can exceed a minute on Windows.
+    timeout: 180000,
   },
 });

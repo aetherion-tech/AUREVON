@@ -1,21 +1,18 @@
-import {
-  useCallback,
-  useEffect,
-  useRef,
-  useState,
-  memo,
-  type FormEvent,
-} from "react";
+import { useCallback, useEffect, useRef, useState, memo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { NavLink, Route, Routes } from "react-router-dom";
 import { api, cache } from "./state";
 import { ApiError } from "./api/client";
 import { useLive } from "./live";
-import { depositAmount, ist, money } from "./format";
-import { Card, Dialog, ErrorMessage } from "./ui";
-import { readIntent, saveIntent, type Intent } from "./intents";
+import { ist, money } from "./format";
+import { Card, ErrorMessage } from "./ui";
+import { FinancialDialog, type WalletAction } from "./FinancialDialog";
+export { FinancialDialog } from "./FinancialDialog";
+import { WalletPage } from "./WalletPage";
 import { LivePage } from "./LivePage";
 import { HistoryPage } from "./HistoryPage";
+import { SettingsPage } from "./SettingsPage";
+import { PreferencesRuntime } from "./preferences";
 
 function Clock() {
   const [now, setNow] = useState(new Date());
@@ -53,142 +50,6 @@ const TopStatus = memo(function TopStatus() {
     </div>
   );
 });
-export function FinancialDialog({
-  kind,
-  close,
-}: {
-  kind: "deposit" | "kill";
-  close: () => void;
-}) {
-  const intent = useRef<Intent | null>(readIntent(kind)),
-    inFlight = useRef(false);
-  const [amount, setAmount] = useState(intent.current?.amount ?? ""),
-    [busy, setBusy] = useState(false),
-    [error, setError] = useState<unknown>(),
-    [result, setResult] = useState("");
-  async function submit(e: FormEvent) {
-    e.preventDefault();
-    if (inFlight.current || result) return;
-    if (kind === "deposit" && !depositAmount(amount)) return;
-    if (!intent.current) {
-      intent.current = { key: crypto.randomUUID(), amount };
-      saveIntent(kind, intent.current);
-    }
-    inFlight.current = true;
-    setBusy(true);
-    setError(undefined);
-    try {
-      if (kind === "deposit") {
-        const wallet = await api.post(
-          "/api/wallet/deposit",
-          { amount: intent.current.amount },
-          { key: intent.current.key },
-        );
-        cache.setQueryData(["wallet"], wallet);
-        setResult("Paper deposit recorded.");
-      } else {
-        const response = await api.post(
-          "/api/kill",
-          {},
-          { key: intent.current.key },
-        );
-        setResult(
-          `Entries ${response.entries_locked ? "locked" : "not locked"} · ${response.pending_closures} pending closures. ${response.pending_closures ? "Wait for fresh quotes and verify both fills and settlement." : "Verify positions and ledger before resuming."}`,
-        );
-      }
-      void cache.invalidateQueries({ queryKey: ["snapshot"] });
-      saveIntent(kind, null);
-    } catch (err) {
-      setError(err);
-      if (err instanceof ApiError && err.status === 401)
-        void cache.invalidateQueries({ queryKey: ["session"] });
-    } finally {
-      inFlight.current = false;
-      setBusy(false);
-    }
-  }
-  return (
-    <Dialog
-      title={kind === "deposit" ? "Add paper funds" : "Kill paper execution"}
-      close={close}
-      busy={busy}
-    >
-      <form onSubmit={(e) => void submit(e)}>
-        {kind === "deposit" ? (
-          <>
-            <p>
-              Simulated funds only. Maximum ₹9,99,99,99,99,999.99 per amount;
-              server balance limits also apply.
-            </p>
-            <label>
-              Amount in INR
-              <input
-                autoFocus
-                inputMode="decimal"
-                value={amount}
-                disabled={!!intent.current}
-                onChange={(e) => setAmount(e.target.value)}
-              />
-            </label>
-            {amount && !depositAmount(amount) && (
-              <p role="alert">
-                Enter a positive amount with at most two decimal places.
-              </p>
-            )}
-          </>
-        ) : (
-          <p>
-            Lock new entries, cancel pending orders and request closure of open
-            paper positions. A pending closure is not a completed exit.
-          </p>
-        )}
-        {error !== undefined && (
-          <>
-            <ErrorMessage error={error} />
-            <p>
-              The outcome may be uncertain. Retry keeps this action’s original
-              amount and key. Closing and submitting a new action could
-              duplicate a deposit; check the ledger first.
-            </p>
-          </>
-        )}
-        {result && <p role="status">{result}</p>}
-        {intent.current && !result && !busy && (
-          <>
-            <p>
-              An earlier request needs review. Retry preserves the original
-              action. Keep this tab open until the outcome is verified.
-            </p>
-            <button
-              type="button"
-              onClick={() => {
-                saveIntent(kind, null);
-                intent.current = null;
-                close();
-              }}
-            >
-              I checked the ledger and positions; discard this request
-            </button>
-          </>
-        )}
-        {!result && (
-          <button
-            className={kind === "kill" ? "danger" : ""}
-            disabled={busy || (kind === "deposit" && !depositAmount(amount))}
-          >
-            {busy
-              ? "Waiting for server…"
-              : error
-                ? "Retry same action"
-                : kind === "kill"
-                  ? "Confirm kill"
-                  : "Add paper funds"}
-          </button>
-        )}
-      </form>
-    </Dialog>
-  );
-}
 function WalletChip({ deposit }: { deposit: () => void }) {
   const wallet = useQuery({
     queryKey: ["wallet"],
@@ -199,9 +60,20 @@ function WalletChip({ deposit }: { deposit: () => void }) {
     <div className="wallet-chip">
       <span>
         Paper free cash{" "}
-        <strong>{wallet.data ? money(wallet.data.free) : "Unavailable"}</strong>
+        <strong>
+          {wallet.data?.mode === "PAPER"
+            ? money(wallet.data.free)
+            : "Unavailable"}
+        </strong>
       </span>
-      <button onClick={deposit} disabled={!wallet.data?.initialized}>
+      <button
+        onClick={deposit}
+        disabled={
+          !wallet.data?.initialized ||
+          wallet.data.mode !== "PAPER" ||
+          wallet.isError
+        }
+      >
         Add paper funds
       </button>
       {wallet.error && (
@@ -321,25 +193,10 @@ function Login({
     </main>
   );
 }
-function Foundation({ page }: { page: string }) {
-  return (
-    <Card title={`${page} workspace`}>
-      <p>
-        {page === "Live"
-          ? "No chart or trading view has been accepted yet. Feed status and global paper controls are available above."
-          : `${page} detail tools are scheduled in the next frontend milestones.`}
-      </p>
-      <p className="muted">
-        Missing data and an unattached paper owner remain unavailable. This
-        shell does not activate paper trading.
-      </p>
-    </Card>
-  );
-}
 export function App() {
   const [signed, setSigned] = useState(false),
     [reason, setReason] = useState(""),
-    [dialog, setDialog] = useState<"deposit" | "kill" | null>(null);
+    [dialog, setDialog] = useState<WalletAction | "kill" | null>(null);
   const [compact, setCompact] = useState(() => {
     try {
       return localStorage.getItem("aurevon.compact") === "true";
@@ -407,6 +264,7 @@ export function App() {
   }
   return (
     <div className={compact ? "app compact" : "app"}>
+      <PreferencesRuntime />
       <a className="skip" href="#workspace">
         Skip to workspace
       </a>
@@ -469,12 +327,12 @@ export function App() {
           <Routes>
             <Route path="/" element={<LivePage connection={connection} />} />
             <Route path="/history" element={<HistoryPage />} />
-            <Route path="/wallet" element={<Foundation page="Wallet" />} />
+            <Route path="/wallet" element={<WalletPage action={setDialog} />} />
             <Route
               path="/settings"
               element={
                 <>
-                  <Foundation page="Settings" />
+                  <SettingsPage />
                   <Card title="Display preferences">
                     <label className="check">
                       <input
@@ -516,7 +374,11 @@ export function App() {
         </main>
       </div>
       {dialog && (
-        <FinancialDialog kind={dialog} close={() => setDialog(null)} />
+        <FinancialDialog
+          kind={dialog}
+          free={cache.getQueryData<{ free: string }>(["wallet"])?.free}
+          close={() => setDialog(null)}
+        />
       )}
     </div>
   );

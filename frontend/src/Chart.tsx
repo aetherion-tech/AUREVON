@@ -5,6 +5,7 @@ import { ApiError } from "./api/client";
 import { mergeHistory, useSnapshot, type Schema } from "./live-data";
 import { Card, ErrorMessage } from "./ui";
 import { ist, number } from "./format";
+import { readLayers, saveLayers } from "./preferences";
 
 export type Layers = {
   trend: boolean;
@@ -12,25 +13,6 @@ export type Layers = {
   events: boolean;
   levels: boolean;
 };
-const defaults: Layers = {
-  trend: true,
-  bias: true,
-  events: true,
-  levels: true,
-};
-function savedLayers(): Layers {
-  try {
-    const s = JSON.parse(localStorage.getItem("aurevon.chart.layers") || "{}");
-    return Object.fromEntries(
-      Object.entries(defaults).map(([k, v]) => [
-        k,
-        typeof s[k] === "boolean" ? s[k] : v,
-      ]),
-    ) as Layers;
-  } catch {
-    return defaults;
-  }
-}
 export function priceLines(overlay: Schema["IndicatorOverlay"] | undefined) {
   if (!overlay) return [];
   const p = overlay.position;
@@ -73,7 +55,9 @@ const Brick = memo(function Brick({
       y={y(Math.max(open, close))}
       width={Math.max(0.8, step * 0.7)}
       height={Math.max(1, Math.abs(y(open) - y(close)))}
-      fill={brick.direction === 1 ? "#7ce8c0" : "#ff9a9f"}
+      fill={
+        brick.direction === 1 ? "var(--bull, #7ce8c0)" : "var(--bear, #ff9a9f)"
+      }
     >
       <title>{`Brick ${brick.index} · ${ist(brick.ts)} · ${brick.open} → ${brick.close}`}</title>
     </rect>
@@ -161,7 +145,11 @@ export const RenkoChart = memo(function RenkoChart({
                 y="10"
                 width={step}
                 height="325"
-                fill={o.bias_direction === 1 ? "#7ce8c0" : "#ff9a9f"}
+                fill={
+                  o.bias_direction === 1
+                    ? "var(--bull, #7ce8c0)"
+                    : "var(--bear, #ff9a9f)"
+                }
                 opacity={o.bias_strong ? 0.11 : 0.04}
               />
             ) : null;
@@ -346,7 +334,7 @@ function ChartSession({
     signals: string;
   };
 }) {
-  const [layers, setLayers] = useState(savedLayers),
+  const [layers, setLayers] = useState(readLayers),
     [windowSize, setWindowSize] = useState(100),
     [endIndex, setEndIndex] = useState<number | null>(null),
     [busy, setBusy] = useState(false),
@@ -504,14 +492,7 @@ function ChartSession({
               onChange={(e) => {
                 const next = { ...layers, [k]: e.target.checked };
                 setLayers(next);
-                try {
-                  localStorage.setItem(
-                    "aurevon.chart.layers",
-                    JSON.stringify(next),
-                  );
-                } catch {
-                  /* optional preference */
-                }
+                saveLayers(next);
               }}
             />
             {k}
