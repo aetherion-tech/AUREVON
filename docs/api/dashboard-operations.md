@@ -34,8 +34,9 @@ Audit stores request ID, timestamp, actor, known route template and HTTP outcome
 It excludes bodies, query strings, passwords, tokens and arbitrary paths. An audit
 intent commits before each API mutation (and Kite login/callback); a pending/null
 outcome after interruption requires inspection before retry. Audit completion
-failure returns 503 and does not claim the operation rolled back. Domain financial
-actions and their transactional idempotency remain blocked on execution/accounting.
+failure returns 503 and does not claim the operation rolled back. Domain financial actions now use durable command intents plus wallet/decision/
+settings idempotency keys; lost replies are recovered without duplicate effects.
+They require an explicitly attached owner service and remain unavailable normally.
 
 ## Development proxy and production origin
 
@@ -74,13 +75,19 @@ contains a broker secret or dashboard hash. Remote deployment is outside this pl
 - GET `/api/live/snapshot` and `/api/market/service/status` require authentication.
   They project the actual managed worker, selected exact contract, data quality,
   recovery/context, normalized ticks and last brick. Entries remain disabled;
-  missing indicator/execution/accounting producers are explicitly unavailable.
+  unattached domains are explicitly unavailable. A bound paper owner projects actual
+  wallet/P&L/positions and persisted replay signals; no fake zero balances.
 - Authenticated, CSRF-protected POST `/api/market/service/start` / `stop` delegate
   to the existing owner-locked service. Default service-enabled setting stays false.
 - GET `/api/bricks` and `/api/candles` use a required stream and bounded keyset
   cursors. Responses identify checkpoint revision and configuration hash; send
   the revision on later pages and reload on 409. Candles require a matching source
-  token. Indicator overlays are unavailable; BE-13-06 stays Pending.
+  token. Brick history now has typed replay overlays after explicit validated
+  source publication, availability/missing-index status and an indicator source
+  fingerprint. Start brick paging with `after=-1` (default, includes index 0).
+  Send `revision` and `indicator_source` on later brick pages; reload on 409.
+  Candle pages stay independent of Renko overlays. Normal startup does not
+  publish or activate indicators. See [BE-13-06 operation/evidence](../testing/BE-13-06-acceptance.md).
 - `/ws/live` requires a valid cookie and an allowed Origin. A new connection
   receives `{type:"snapshot", snapshot:...}` at journal sequence S. Apply only
   events with a higher sequence in that run. Resume with `run_id` and `after=S`.
@@ -93,12 +100,15 @@ contains a broker secret or dashboard hash. Remote deployment is outside this pl
   changed run requires snapshot/history resync. A slow send times out in two
   seconds and closes 1013; overflow sends `resync_required` then closes 1013.
   Reauthenticate after close 1008. Refresh the REST snapshot/history after 1013;
-  do not continue applying a stale run. Domain trade resync needs the pending APIs.
+  do not continue applying a stale run. Reload the current snapshot and paged
+  signals/history/alerts using the completed domain APIs.
 - GET `/api/alerts` pages durable alerts; POST `/api/alerts/{id}/ack` is idempotent
-  and audited. Real recovery/source-quality conditions are wired; risk and
-  reconciliation producers remain Pending, so BE-13-14 is not complete.
+  and audited. Real recovery/source-quality, paper risk rejects and reconciliation
+  producers now retain/emit public alerts; BE-13-14 code is complete.
 - GET/POST `/api/mode` is PAPER/unarmed only. LIVE returns 403, arming returns 409,
-  and no real-order path exists. Paper execution and its risk gates remain Pending.
+  and no real-order path exists. Entry status reflects an explicitly attached owner
+  capability; normal startup stays disabled and actual reference/operational gates
+  remain Pending.
 
 ## Isolated development replay
 
@@ -123,5 +133,7 @@ REST and WebSocket schemas to `docs/api/openapi.v1.json`; `--check` detects drif
 From tools/api-contracts, run `npm.cmd ci`, `npm.cmd run generate`, then
 `npm.cmd run check`. Locked openapi-typescript generates `docs/api/api-v1.d.ts`;
 TypeScript checks REST login, frame narrowing and rejection of live-mode types.
-This tooling is separate from the future frontend application. BE-13-20 remains
-Pending for unavailable domain actions and full frontend/action integration.
+The framework-independent frontend/src/api/client.ts imports these generated
+types and is verified against a real isolated test backend. BE-13-20 contract
+integration is complete; React scaffold/browser wiring remains FE-14. See
+[domain API operation and boundaries](../testing/BE-13-domain-acceptance.md).

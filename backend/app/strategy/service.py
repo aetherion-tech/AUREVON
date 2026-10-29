@@ -1,6 +1,7 @@
 """Read-only catalog/quotes and durable nonexecuting preview decisions."""
 
 from datetime import UTC, datetime
+from hashlib import sha256
 from typing import Literal, cast
 from uuid import uuid4
 
@@ -66,6 +67,10 @@ def _load_catalog(engine: Engine, at: datetime) -> Catalog:
         )
 
 
+def decision_identity(key: str) -> str:
+    return sha256(("api-prepare:" + key).encode()).hexdigest()[:32]
+
+
 def save_decision(
     engine: Engine,
     result: PlanDecision,
@@ -73,10 +78,33 @@ def save_decision(
     settings: StrategySettings,
     at: datetime,
     quotes: dict[int, OptionQuote] | None = None,
+    idempotency_key: str | None = None,
 ) -> PlanDecision:
-    identity = uuid4().hex
+    identity = (
+        decision_identity(idempotency_key)
+        if idempotency_key is not None
+        else uuid4().hex
+    )
     decision = result.model_copy(update={"decision_id": identity})
     with Session(engine) as db, db.begin():
+        from app.api.decision_store import retain
+
+        existing = db.get(StrategyDecision, identity)
+        if existing is not None:
+            if existing.input != signal.model_dump_json():
+                raise ValueError("prepared decision idempotency conflict")
+            return PlanDecision.model_validate_json(existing.payload)
+
+        retain(
+            db,
+            "PAPER",
+            identity,
+            signal.signal_id,
+            at,
+            "PREVIEW",
+            decision.accepted,
+            [decision.reason],
+        )
         db.add(
             StrategyDecision(
                 id=identity,

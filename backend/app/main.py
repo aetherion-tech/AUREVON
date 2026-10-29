@@ -18,7 +18,10 @@ from starlette.middleware.base import RequestResponseEndpoint
 from starlette.responses import Response
 
 from app.api.dashboard_routes import DashboardSessions, dashboard_router
+from app.api.domain_routes import domain_router
+from app.api.domain_service import DomainService
 from app.api.event_hub import EventHub
+from app.api.execution_routes import execution_router
 from app.api.instrument_routes import instrument_router
 from app.api.kite_routes import kite_router
 from app.api.live_routes import live_router
@@ -123,6 +126,16 @@ def create_app(
     application.state.dashboard_security = security
     application.state.database_engine = engine
     application.state.live_service = live
+    domain = DomainService(
+        engine,
+        market,
+        lambda: getattr(application.state, "paper_execution", None),
+        lambda: getattr(application.state, "paper_runtime", None),
+    )
+    application.state.domain_service = domain
+    domain.publish = hub.publish
+    live.domain_sample = domain.sample
+    market.paper_poll = domain.poll
     application.state.event_hub = hub
     application.state.replay_service = replay
     application.include_router(dashboard_router(settings, sessions))
@@ -130,8 +143,10 @@ def create_app(
     application.include_router(instrument_router(instruments))
     application.include_router(live_router(live, security))
     application.include_router(replay_router(replay, security))
-    application.include_router(mode_router(security))
-    application.include_router(strategy_router(market))
+    application.include_router(mode_router(security, domain))
+    application.include_router(strategy_router(market, domain.settings))
+    application.include_router(execution_router(domain))
+    application.include_router(domain_router(domain, security))
 
     def error_response(
         request: Request,

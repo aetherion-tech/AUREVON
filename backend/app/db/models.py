@@ -3,7 +3,7 @@
 from datetime import date, datetime
 from decimal import Decimal
 
-from sqlalchemy import Date, DateTime, ForeignKey, Integer, Numeric, String, Text
+from sqlalchemy import Date, DateTime, ForeignKey, Index, Integer, Numeric, String, Text
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
 
@@ -166,3 +166,114 @@ class StrategyDecision(Base):
     settings: Mapped[str] = mapped_column(Text)
     quotes: Mapped[str] = mapped_column(Text)
     payload: Mapped[str] = mapped_column(Text)
+
+
+class PaperExecutionBook(Base):
+    __tablename__ = "paper_execution_books"
+    id: Mapped[str] = mapped_column(String(40), primary_key=True)
+    revision: Mapped[int] = mapped_column(Integer)
+    payload: Mapped[str] = mapped_column(Text)
+
+
+class WalletAccount(Base):
+    __tablename__ = "wallet_accounts"
+    id: Mapped[str] = mapped_column(String(120), primary_key=True)
+    user_id: Mapped[str] = mapped_column(String(80))
+    mode: Mapped[str] = mapped_column(String(10))
+    revision: Mapped[int] = mapped_column(Integer)
+    balance: Mapped[str] = mapped_column(String(40))
+    reserved: Mapped[str] = mapped_column(String(40))
+    __table_args__ = (Index("ix_wallet_scope", "user_id", "mode", unique=True),)
+
+
+class WalletLedger(Base):
+    __tablename__ = "wallet_ledger"
+    account_id: Mapped[str] = mapped_column(String(120), primary_key=True)
+    sequence: Mapped[int] = mapped_column(Integer, primary_key=True)
+    key: Mapped[str] = mapped_column(String(240))
+    at: Mapped[str] = mapped_column(String(40))
+    kind: Mapped[str] = mapped_column(String(30))
+    payload: Mapped[str] = mapped_column(Text)
+    __table_args__ = (
+        Index("ix_wallet_ledger_key", "account_id", "key", unique=True),
+        Index("ix_wallet_ledger_time", "account_id", "at", "sequence"),
+    )
+
+
+class PaperTradeSummary(Base):
+    __tablename__ = "paper_trade_summaries"
+    account_id: Mapped[str] = mapped_column(String(120), primary_key=True)
+    trade_id: Mapped[str] = mapped_column(String(80), primary_key=True)
+    closed_at: Mapped[str] = mapped_column(String(40))
+    day: Mapped[str] = mapped_column(String(10))
+    family: Mapped[str] = mapped_column(String(5))
+    direction: Mapped[int] = mapped_column(Integer)
+    grade: Mapped[int] = mapped_column(Integer)
+    result: Mapped[str] = mapped_column(String(10))
+    payload: Mapped[str] = mapped_column(Text)
+    __table_args__ = (
+        Index("ix_paper_history_time", "account_id", "closed_at", "trade_id"),
+        Index(
+            "ix_paper_history_filters",
+            "account_id",
+            "family",
+            "direction",
+            "grade",
+            "result",
+            "day",
+        ),
+    )
+
+
+class PaperDailyPnL(Base):
+    __tablename__ = "paper_daily_pnl"
+    account_id: Mapped[str] = mapped_column(String(120), primary_key=True)
+    day: Mapped[str] = mapped_column(String(10), primary_key=True)
+    payload: Mapped[str] = mapped_column(Text)
+
+
+class WalletPeriod(Base):
+    __tablename__ = "wallet_periods"
+    account_id: Mapped[str] = mapped_column(String(120), primary_key=True)
+    kind: Mapped[str] = mapped_column(String(10), primary_key=True)
+    start: Mapped[str] = mapped_column(String(10), primary_key=True)
+    payload: Mapped[str] = mapped_column(Text)
+
+
+class WalletReconciliationRun(Base):
+    __tablename__ = "wallet_reconciliation_runs"
+    account_id: Mapped[str] = mapped_column(String(120), primary_key=True)
+    day: Mapped[str] = mapped_column(String(10), primary_key=True)
+    revision: Mapped[int] = mapped_column(Integer, primary_key=True)
+    at: Mapped[str] = mapped_column(String(40))
+    status: Mapped[str] = mapped_column(String(5))
+
+
+class DomainDecision(Base):
+    __tablename__ = "domain_decisions"
+    scope: Mapped[str] = mapped_column(String(120), primary_key=True)
+    id: Mapped[str] = mapped_column(String(240), primary_key=True)
+    at: Mapped[str] = mapped_column(String(40))
+    kind: Mapped[str] = mapped_column(String(30))
+    payload: Mapped[str] = mapped_column(Text)
+    __table_args__ = (Index("ix_domain_decision_time", "scope", "at", "id"),)
+
+
+class DashboardSettingsVersion(Base):
+    __tablename__ = "dashboard_settings_versions"
+    scope: Mapped[str] = mapped_column(String(120), primary_key=True)
+    revision: Mapped[int] = mapped_column(Integer, primary_key=True)
+    payload: Mapped[str] = mapped_column(Text)
+    command_key: Mapped[str | None] = mapped_column(String(160), nullable=True)
+    __table_args__ = (
+        Index("ix_settings_command", "scope", "command_key", unique=True),
+    )
+
+
+class DomainCommand(Base):
+    __tablename__ = "domain_commands"
+    scope: Mapped[str] = mapped_column(String(120), primary_key=True)
+    key: Mapped[str] = mapped_column(String(160), primary_key=True)
+    fingerprint: Mapped[str] = mapped_column(String(64))
+    result: Mapped[str | None] = mapped_column(Text, nullable=True)
+    status: Mapped[int | None] = mapped_column(Integer, nullable=True)

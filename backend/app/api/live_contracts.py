@@ -4,6 +4,8 @@ from typing import Literal
 
 from pydantic import Field, JsonValue, model_validator
 
+from app.api.chart_contracts import IndicatorHistorySource, IndicatorOverlay
+from app.api.domain_contracts import PnlSummary, PositionView, SignalRecord, WalletView
 from app.api.schemas import Contract, DecimalValue, ISTTimestamp, RupeeAmount
 
 
@@ -47,7 +49,7 @@ class LiveSnapshot(Contract):
     at: ISTTimestamp
     mode: Literal["PAPER"] = "PAPER"
     armed: Literal[False] = False
-    entries_enabled: Literal[False] = False
+    entries_enabled: bool = False
     state: str
     desired: bool
     selected: SelectedInstrument | None
@@ -58,6 +60,11 @@ class LiveSnapshot(Contract):
     latest_brick: BrickData | None
     stream: str
     configuration_id: str
+    wallet: WalletView | None = None
+    pnl: PnlSummary | None = None
+    positions: list[PositionView] = Field(default_factory=list)
+    signals: list["SignalData"] = Field(default_factory=list)
+    last_trade: PositionView | None = None
     unavailable: list[str] = Field(
         default_factory=lambda: [
             "indicators",
@@ -77,7 +84,9 @@ class StatusData(Contract):
     quality: DataQuality
     recovery: dict[str, JsonValue]
     context: dict[str, JsonValue]
-    entries_enabled: Literal[False] = False
+    entries_enabled: bool = False
+    wallet: WalletView | None = None
+    pnl: PnlSummary | None = None
 
 
 class SignalData(Contract):
@@ -86,6 +95,8 @@ class SignalData(Contract):
     accepted: bool
     reason: str
     explanation: str
+    mode: Literal["INDICATOR_REPLAY"] = "INDICATOR_REPLAY"
+    detail: SignalRecord | None = None
 
 
 class TradeData(Contract):
@@ -97,7 +108,8 @@ class TradeData(Contract):
 class PositionData(Contract):
     trade_id: str
     state: str
-    mtm: RupeeAmount
+    mtm: RupeeAmount | None
+    detail: PositionView | None = None
 
 
 class AlertData(Contract):
@@ -184,15 +196,25 @@ class HistoryIdentity(Contract):
     revision: int
     configuration_id: str
     configuration: dict[str, JsonValue]
-    indicators_available: Literal[False] = False
 
 
 class BrickHistory(HistoryIdentity):
+    indicators_available: bool = False
     items: list[BrickData]
     next_after: int | None
+    indicator_source: IndicatorHistorySource | None = None
+    overlays: list[IndicatorOverlay] = Field(default_factory=list)
+    missing_overlay_indices: list[int] = Field(default_factory=list)
+    overlay_status: Literal["unavailable", "partial", "complete", "empty"] = (
+        "unavailable"
+    )
+    overlay_reason: Literal[
+        "not_published", "source_changed", "indicator_advanced", "none"
+    ] = "not_published"
 
 
 class CandleHistory(HistoryIdentity):
+    indicators_available: Literal[False] = False
     token: int
     items: list[CandleData]
     next_after: str | None

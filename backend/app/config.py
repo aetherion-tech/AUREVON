@@ -32,6 +32,7 @@ class Settings(BaseSettings):
     )
     readiness_entry_delay_seconds: int = Field(default=60, ge=60, le=3600)
     market_service_enabled: bool = False
+    wallet_reconciliation_enabled: bool = False
     dashboard_password_hash: SecretStr = SecretStr("")
     dashboard_session_seconds: int = Field(default=28800, ge=60, le=86400)
     dashboard_lockout_seconds: int = Field(default=900, ge=60, le=86400)

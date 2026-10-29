@@ -2,6 +2,7 @@
 
 import hashlib
 import json
+from collections.abc import Callable
 from datetime import datetime
 from decimal import Decimal
 from threading import Lock
@@ -29,6 +30,7 @@ from app.api.live_contracts import (
 from app.api.schemas import ISTTimestamp, Page, Pagination
 from app.broker.kite_auth import IST
 from app.db.models import DashboardAlert, MarketCheckpoint, StoredBrick, StoredCandle
+from app.indicator.chart_history import overlays
 from app.market.persistence import encode
 from app.market.service import MarketService
 
@@ -42,12 +44,14 @@ class LiveService:
         self.brick_cursor: tuple[str, int] | None = None
         self.conditions: set[str] = set()
         self.alert_lock = Lock()
+        self.domain_sample: Callable[[], dict[str, Any]] | None = None
 
     def sample(self) -> LiveSnapshot:
         # Called on the application event loop, with no awaits. The snapshot and
         # journal high-water mark are copied within one hub lock.
         with self.hub.lock:
             raw = self.market.status()
+            domain = self.domain_sample() if self.domain_sample is not None else {}
             worker = raw["worker"] or {}
             quality = DataQuality.model_validate(
                 json.loads(
@@ -71,6 +75,9 @@ class LiveService:
                 quality=quality,
                 recovery=raw["recovery"],
                 context=json.loads(encode(raw["context"])),
+                entries_enabled=domain.get("entries_enabled", False),
+                wallet=domain.get("wallet"),
+                pnl=domain.get("pnl"),
             )
             encoded = status.model_dump_json()
             if encoded != self.last_status or monotonic() - self.last_status_at >= 5:
@@ -142,6 +149,23 @@ class LiveService:
                 latest_brick=latest_brick,
                 stream=stream,
                 configuration_id=hashlib.sha256(configuration.encode()).hexdigest(),
+                wallet=domain.get("wallet"),
+                pnl=domain.get("pnl"),
+                positions=domain.get("positions", []),
+                signals=domain.get("signals", []),
+                last_trade=domain.get("last_trade"),
+                entries_enabled=domain.get("entries_enabled", False),
+                unavailable=domain.get(
+                    "unavailable",
+                    [
+                        "indicators",
+                        "signals",
+                        "execution",
+                        "positions",
+                        "wallet",
+                        "pnl",
+                    ],
+                ),
             )
             self.hub.latest = result
             return result
@@ -255,9 +279,17 @@ class LiveService:
         }
 
     def bricks(
-        self, stream: str, after: int, limit: int, revision: int | None
+        self,
+        stream: str,
+        after: int,
+        limit: int,
+        revision: int | None,
+        indicator_source: str | None = None,
     ) -> BrickHistory:
-        with Session(self.engine) as db, db.begin():
+        with self.engine.connect() as connection, Session(bind=connection) as db:
+            # SQLite legacy transaction mode does not snapshot SELECT statements
+            # from Session.begin alone. Identity, bricks and overlays must agree.
+            connection.exec_driver_sql("BEGIN")
             identity = self._identity(db, stream, revision)
             rows = db.scalars(
                 select(StoredBrick)
@@ -267,6 +299,7 @@ class LiveService:
             ).all()
             return BrickHistory(
                 **identity,
+                **overlays(db, identity, list(rows[:limit]), indicator_source),
                 items=[BrickData.model_validate_json(r.payload) for r in rows[:limit]],
                 next_after=rows[limit - 1].index if len(rows) > limit else None,
             )
@@ -279,7 +312,8 @@ class LiveService:
         limit: int,
         revision: int | None,
     ) -> CandleHistory:
-        with Session(self.engine) as db, db.begin():
+        with self.engine.connect() as connection, Session(bind=connection) as db:
+            connection.exec_driver_sql("BEGIN")
             identity = self._identity(db, stream, revision)
             if token not in (
                 identity["configuration"]["spot"],

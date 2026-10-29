@@ -51,18 +51,27 @@ def live_router(service: LiveService, security: DashboardSecurity) -> APIRouter:
         return service.sample()
 
     @router.post("/api/market/service/stop")
-    async def stop() -> LiveSnapshot:
+    async def stop(request: Request) -> LiveSnapshot:
+        execution = getattr(request.app.state, "paper_execution", None)
+        if execution is not None:
+            from app.execution.service import ACTIVE
+
+            if any(p.status in ACTIVE for p in execution.snapshot().positions.values()):
+                raise HTTPException(409)
         await service.market.stop()
         return service.sample()
 
     @router.get("/api/bricks", dependencies=protected)
     def bricks(
         stream: Annotated[str, Query(min_length=1, max_length=160)],
-        after: Annotated[int, Query(ge=0)] = 0,
+        after: Annotated[int, Query(ge=-1)] = -1,
         limit: Annotated[int, Query(ge=1, le=300)] = 100,
         revision: Annotated[int | None, Query(ge=0)] = None,
+        indicator_source: Annotated[
+            str | None, Query(pattern=r"^[0-9a-f]{64}$")
+        ] = None,
     ) -> BrickHistory:
-        return service.bricks(stream, after, limit, revision)
+        return service.bricks(stream, after, limit, revision, indicator_source)
 
     @router.get("/api/candles", dependencies=protected)
     def candles(

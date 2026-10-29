@@ -188,7 +188,7 @@ def test_additive_migration_preserves_rows_and_downgrades(tmp_path, monkeypatch)
                 "VALUES ('preserve','{}')"
             )
         before = set(inspect(db).get_table_names())
-        command.upgrade(config, "head")
+        command.upgrade(config, "0008_strategy")
         assert set(inspect(db).get_table_names()) == before | {"strategy_decisions"}
         with db.connect() as connection:
             assert (
@@ -199,7 +199,7 @@ def test_additive_migration_preserves_rows_and_downgrades(tmp_path, monkeypatch)
             )
         command.downgrade(config, "0007_indicator")
         assert set(inspect(db).get_table_names()) == before
-        command.upgrade(config, "head")
+        command.upgrade(config, "0008_strategy")
     finally:
         db.dispose()
 

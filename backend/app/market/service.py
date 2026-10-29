@@ -23,6 +23,7 @@ from app.market.recovery_progress import RecoveryProgress
 from app.market.session_context import session_context
 from app.market.tick_recording import TickRecorder
 from app.market.warmup import SessionCalendar
+from app.wallet.reconciliation import WalletReconciler
 
 T = TypeVar("T")
 
@@ -131,6 +132,8 @@ class MarketService:
         self.generation: str | None = None
         self.auth_checked: datetime | None = None
         self.reason = "stopped"
+        self.wallet_reconciler = WalletReconciler(engine)
+        self.paper_poll: Callable[[datetime], None] | None = None
         self.retry_at: datetime | None = None
         self.failures = 0
         self.context: dict[str, Any] = {}
@@ -189,6 +192,11 @@ class MarketService:
                 return
             try:
                 self.lease.acquire()
+                paper_poll = self.paper_poll
+                if paper_poll is not None:
+                    await blocking(lambda: paper_poll(self.clock()))
+                if self.settings.wallet_reconciliation_enabled:
+                    await blocking(lambda: self.wallet_reconciler.poll(self.clock()))
                 await self._step()
             except asyncio.CancelledError:
                 await self._stop_worker()

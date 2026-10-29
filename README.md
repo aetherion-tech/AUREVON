@@ -12,18 +12,22 @@ trading with Zerodha Kite market data. Development follows small, testable steps
 | 3a. Instrument catalog | Completed | Daily NSE/NFO catalog; real download verified |
 | 3b. Price data and Renko | Pending | Managed data/recovery core completed; real-market acceptance and TradingView parity pending |
 | 4. Indicator engine | Pending | Pine port and TradingView signal parity |
-| 5. Paper execution | Pending | Option mapping, risk limits, wallet, simulated fills |
-| 6. React dashboard | Pending | Live, History, Wallet, Settings; frontend directory not created |
+| 5. Paper execution | Pending | Replay strategy/execution/wallet code complete; managed pipeline and reference/gate acceptance pending |
+| 6. React dashboard | Pending | Live, History, Wallet, Settings; React scaffold/build absent; typed API client module exists |
 
-The current application reports PAPER mode; it does not simulate fills yet.
+The current application reports PAPER mode. An isolated replay paper executor
+simulates fills; managed application execution remains inactive pending gates.
 Kite login and instrument metadata are implemented. Live prices, strategy
 calculations, and live orders are not implemented in the web application. A
 standalone live price monitor is available as described below.
 The original project specification is saved in [docs/SPEC.md](docs/SPEC.md).
 
+Local browser paper trading is **not ready**. Track the remaining work and the
+verified startup/use instructions in [local paper UI readiness](docs/operations/local-paper-ui.md).
+
 ## Start here - delivery plan v2 (45-day target, 60-day review)
 
-**Plan updated: 2026-10-28. Product status: 132 Completed / 148 Pending of 280.**
+**Plan updated: 2026-10-29. Product status: 168 Completed / 112 Pending of 280.**
 **Cash target: INR 10,000; absolute project ceiling: INR 20,000 including taxes/fees.**
 This replaces the execution schedule, not the product acceptance requirements.
 The original master checklist, stable IDs and all unfinished scope remain below.
@@ -33,18 +37,18 @@ The original master checklist, stable IDs and all unfinished scope remain below.
 | Short next-session handoff | [NEXT_SESSION.md](docs/plans/NEXT_SESSION.md) |
 | Immutable Version 1 backup | [README.v1.md](docs/plans/README.v1.md), [SHA-256](docs/plans/README.v1.sha256) |
 | Plan preparation | Completed on 2026-10-26; documentation only, outside the 280 product tasks |
-| Current implementation slot | D01 code Completed: BE-05-10/11; REF-00-03 Pending user settings. BE-05 (17/17) and BE-06 (11/11) complete; BE-13-01 shared contracts Completed; BE-13 now 10/20 accepted on D02; remaining domain APIs depend on BE-08 through BE-12. BE-08-01 through BE-08-13 complete; BE-08-14 awaits REF-00-07 debug export. BE-09-01 through BE-09-18 complete; QA-09-19/20 await actual reference exports/G2. BE-10 complete (10/10): nonexecuting exact-decimal option planning/quotes/preview. Next independent code: BE-11-01. |
-| Kickoff / elapsed day | 2026-10-26 IST / current D03 (2026-10-28); task carry-over and early batches are recorded without renumbering elapsed days |
+| Current implementation slot | BE-13 complete (20/20) as backend/domain API and frontend-client contract code. Signals, controls, history, P&L, wallet, settings, preview, alerts and typed client integration accepted. Next: FE-14-01 React scaffold. Normal startup stays detached/PAPER/unarmed; managed activation and actual reference/G2/G3 gates remain Pending. Local UI paper trading is NOT READY. |
+| Kickoff / elapsed day | 2026-10-26 IST / current D04 (2026-10-29); task carry-over and early batches are recorded without renumbering elapsed days |
 | Existing plan, all-in price, renewal and usage-reset times | Unverified; obtain actual account readings, never assume a reset/renewal date |
 | Cash already spent / reserved / remaining | Unverified; reconcile receipts before proposing any purchase |
-| Paper status | Manual practice can begin with the user's Pine chart; automated paper and formal burn-in not ready |
+| Paper status | Manual Pine practice remains separate. Isolated execution/accounting code is ready; managed automated paper and the local trading UI remain inactive. Readiness: python -m app.tools.local_ui_readiness; docs/operations/local-paper-ui.md. |
 | Qualified formal paper sessions | 0 evidenced; dates, release/config identity, shadow checks and reconciliation required |
-| Latest application verification | D03, 2026-10-28: 598 tests (74 new BE-10), Ruff lint/format and strict mypy passed; OpenAPI drift, generated TypeScript drift and compilation passed; one existing dependency warning. |
+| Latest application verification | D04, 2026-10-29 BE-13 domain batch: 768 full tests passed, 47 new domain cases; actual typed frontend client against an isolated FastAPI server. Ruff lint/format, strict mypy, OpenAPI/TypeScript drift/compile passed; one existing warning. docs/testing/BE-13-domain-acceptance.md. |
 
 ### Delivery scope, day numbering and realistic targets
 
-- D01-D45 target the local, single-user NIFTY **paper application** and the 148
-  remaining reference/backend/frontend/paper-release tasks. D46-D60 reserve time
+- D01-D45 target the local, single-user NIFTY **paper application** and the 112
+  unfinished reference/backend/frontend/paper-release tasks. D46-D60 reserve time
   for observation, verified defects and acceptance. All dates are targets.
 - D01 is the actual kickoff calendar day in IST, not a billing date. Later day
   numbers are elapsed calendar slots, not 60 guaranteed trading sessions. Record
@@ -189,8 +193,8 @@ any additional renewal. Cancel/avoid an unnecessary renewal when coding is done.
 
 From D01 the user may manually journal simulated decisions from the original Pine
 chart in [paper-journal.csv](docs/plans/paper-journal.csv), using `MANUAL_PRACTICE`.
-This plan does not implement that execution service, create any trade or claim a
-day's profit. Record real observed prices and assumed fills/costs honestly; a day
+Manual chart practice does not activate the automated execution service or claim
+a day's profit. Record real observed prices and assumed fills/costs honestly; a day
 with no signal is `NO_SIGNAL`, unavailable data is `BLOCKED`, and replay is `REPLAY`.
 These are not qualifying automated burn-in sessions and do not become such later.
 
@@ -198,7 +202,7 @@ An **automated paper trial** can start as soon as the managed pipeline, paper fi
 position/ledger path, readiness/risk gates, manual close/kill and restart checks
 are actually ready, without waiting for all frontend polish. Target D24-D30; use
 authenticated operator APIs/commands first. Before then the current application
-still does not simulate trades. Never place a real order to obtain paper evidence.
+has only isolated replay fills/accounting; managed application execution remains inactive. Never place a real order to obtain paper evidence.
 
 **Formal burn-in** starts only after G1/G2/G3, required failure drills and daily
 shadow comparison setup pass. Target the first eligible session after D25. Count
@@ -245,20 +249,20 @@ Day statuses below are separate from the 280 product-task counts.
 | D14 | Completed | Trade IDs, indicator entries/exits, text and persistence | BE-09-12, BE-09-13, BE-09-14, BE-09-15, BE-09-16 | H; extra cash 0 by default | Completed early D03: matching BE-09 implementation IDs verified; docs/testing/BE-09-acceptance.md. No real reference/paper observation. |
 | D15 | Pending | Indicator parity CLI, reference coverage and G2 review | BE-09-17, BE-09-18, QA-09-19, QA-09-20 | H; extra cash 0 by default | BE-09-17/18 Completed early D03; QA-09-19/20 Pending actual ten-session debug export and G1/G2 acceptance. Next independent code BE-10-01. |
 | D16 | Completed | Two-leg plan, option contracts/quotes and spread valuation | BE-10-01, BE-10-02, BE-10-03, BE-10-04, BE-10-05, BE-10-06 | H; extra cash 0 by default | Completed early D03: matching BE-10 code IDs; 74 synthetic cases; paper margin estimate/capital contract only; no real quotes/fills or wallet mutation. |
-| D17 | Pending | Paper wallet primitives and persisted broker/mode models | BE-12-01, BE-12-02, BE-12-03, BE-11-01, BE-11-13 | H; extra cash 0 by default | Use exact currency and migrations before execution implementation. |
+| D17 | Completed | Paper wallet primitives and persisted broker/mode models | BE-12-01, BE-12-02, BE-12-03, BE-11-01, BE-11-13 | H; extra cash 0 by default | Completed early D04: scoped exact wallet/ledger/history projections, initialization, withdrawals/reset and persisted PAPER mode; docs/testing/BE-12-acceptance.md. No managed paper activation. |
 | D18 | Completed | Sizing, margin, strike preview and strategy validation | BE-10-07, BE-10-08, BE-10-09, BE-10-10 | H; extra cash 0 by default | Completed early D03: matching BE-10 code IDs; 74 synthetic cases; paper margin estimate/capital contract only; no real quotes/fills or wallet mutation. |
-| D19 | Pending | Paper fills, hedge-first lifecycle and durable idempotency | BE-11-02, BE-11-03, BE-11-04, BE-11-05, BE-11-06, BE-12-07 | H; extra cash 0 by default | Configure current cost assumptions; no blind retry of ambiguous fills. |
-| D20 | Pending | MTM, exits, final entry gates and atomic margin/P&L | BE-11-07, BE-11-08, BE-11-09, BE-11-10, BE-12-04, BE-12-06 | H; extra cash 0 by default | Integrate accounting and execution as one batch; do not mark partial gates complete. |
-| D21 | Pending | Top-ups, returns, summaries, history and ledger reconciliation | BE-12-05, BE-12-08, BE-12-09, BE-12-10, BE-12-11, BE-12-12 | H; extra cash 0 by default | Weekly budget and renewal-date review; prior task evidence decides next batch. |
-| D22 | Pending | Kill/session locks, execution drills, repeatable replay and G3 | BE-11-11, BE-11-12, BE-11-14, QA-11-15, QA-11-16 | H; extra cash 0 by default | Check 20 strike examples; formal paper sessions require accepted G1/G2/G3. |
-| D23 | Pending | Dashboard access and authenticated headless paper controls | BE-13-02, BE-13-03, BE-13-04, BE-13-08, BE-13-11, BE-13-15, BE-13-19 | H; extra cash 0 by default | BE-13-02/03/04/15/19 Completed early D02; BE-13-08/11 await execution/accounting. No arming or trading enabled. |
-| D24 | Pending | Feed/chart/signal snapshots; shadow-check service slice | BE-13-05, BE-13-06, BE-13-07 | H; extra cash 0 by default | BE-13-05 Completed early D02; BE-13-06 history partial without overlays; BE-13-07 awaits signal/risk services. Shadow slice still Pending. |
+| D19 | Completed | Paper fills, hedge-first lifecycle and durable idempotency | BE-11-02, BE-11-03, BE-11-04, BE-11-05, BE-11-06, BE-12-07 | H; extra cash 0 by default | Completed early D04: durable fills/lifecycle and versioned effective-dated itemized paper cost estimates; no actual broker debit or ambiguous-fill retry. |
+| D20 | Completed | MTM, exits, final entry gates and atomic margin/P&L | BE-11-07, BE-11-08, BE-11-09, BE-11-10, BE-12-04, BE-12-06 | H; extra cash 0 by default | Completed early D04: atomic margin, once-only gross/cost settlement, final risk/readiness gates and quote-aware MTM; rollback/projection checks passed. |
+| D21 | Completed | Top-ups, returns, summaries, history and ledger reconciliation | BE-12-05, BE-12-08, BE-12-09, BE-12-10, BE-12-11, BE-12-12 | H; extra cash 0 by default | Completed early D04: exact-shortfall opt-in funding, capital bases/returns, filtered history/export and nightly reconciliation; 44 wallet cases. Managed feed/UI remain inactive. |
+| D22 | Pending | Kill/session locks, execution drills, repeatable replay and G3 | BE-11-11, BE-11-12, BE-11-14, QA-11-15, QA-11-16 | H; extra cash 0 by default | BE-11-11/12/14 Completed early D04; QA-11-15/16 Pending actual recorded pipeline, BE-12, 20 manually checked strikes and G3. |
+| D23 | Completed | Dashboard access and authenticated headless paper controls | BE-13-02, BE-13-03, BE-13-04, BE-13-08, BE-13-11, BE-13-15, BE-13-19 | H; extra cash 0 by default | Completed early D04: authenticated idempotent domain controls/wallet APIs and existing security/mode/replay contracts. Normal paper runtime stays detached; no actual market trial. |
+| D24 | Pending | Feed/chart/signal snapshots; shadow-check service slice | BE-13-05, BE-13-06, BE-13-07 | H; extra cash 0 by default | Completed early D04: feed/snapshot, source-bound chart history, signals/decisions and domain socket projections. Shadow-check slice/real comparison acceptance remains Pending; no observed evidence invented. |
 | D25 | Pending | Failure drills before formal paper observation | QA-19-11, QA-19-12, QA-19-13 | H; extra cash 0 by default | Prepare OPS-19-02 operator command slice; final packaging is D41. Shadow setup and readiness required. |
-| D26 | Pending | History/settings/preview/alerts APIs; paper observation start target | BE-13-09, BE-13-10, BE-13-12, BE-13-13, BE-13-14 | H; extra cash 0 by default | First eligible exchange session after gates/drills/shadow setup; actual session count starts at zero. |
+| D26 | Pending | History/settings/preview/alerts APIs; paper observation start target | BE-13-09, BE-13-10, BE-13-12, BE-13-13, BE-13-14 | H; extra cash 0 by default | Matching BE-13 API code completed early D04. Daily paper-observation acceptance remains Pending actual gates/drills/shadow setup and an eligible real exchange session; qualifying count 0. |
 | D27 | Completed | Bounded WebSocket delivery, ordering and snapshot resync | BE-13-16, BE-13-17, BE-13-18 | H; extra cash 0 by default | Code batch completed early D02: typed bounded WebSocket transport, ordered resync; 367 tests. Domain producers/real paper observations remain separate Pending gates. |
 | D28 | Pending | Frontend scaffold, shared UI, number/time formats and typed client | FE-14-01, FE-14-02, FE-14-03, FE-14-04, FE-14-05, FE-14-06 | M; extra cash 0 by default | Weekly budget review; check renewal due dates, not an assumed monthly reset. |
 | D29 | Pending | Login, Kite status, top bar, wallet chip and kill dialog | FE-14-07, FE-14-08, FE-14-09, FE-14-10, FE-14-11 | M; extra cash 0 by default | Session-time read-only observation; merge UI changes after market close. |
-| D30 | Pending | Socket reducers, shared error states, tests and contract generation | FE-14-12, FE-14-13, FE-14-14, FE-14-15, BE-13-20 | H; extra cash 0 by default | Formal D30 delivery/usage review; discuss second subscription only if actually due and useful. |
+| D30 | Pending | Socket reducers, shared error states, tests and contract generation | FE-14-12, FE-14-13, FE-14-14, FE-14-15, BE-13-20 | H; extra cash 0 by default | BE-13-20 completed early D04 with generated contracts and real frontend-client auth/action/resync integration. FE-14-12/13/14/15 remain Pending React/browser integration. |
 | D31 | Pending | Live Renko chart, history loading and indicator/event overlays | FE-15-01, FE-15-02, FE-15-03, FE-15-04, FE-15-05 | M; extra cash 0 by default | Use stable brick indices and shared fixtures; never redraw entire history per tick. |
 | D32 | Pending | Trade/level overlays, toolbar, direction and active-position actions | FE-15-06, FE-15-07, FE-15-08, FE-15-09, FE-15-10 | M; extra cash 0 by default | Verify manual close/kill result semantics; preserve paper accounting baseline. |
 | D33 | Pending | Live summaries, signals, alerts, resync and shadow UI completion | FE-15-11, FE-15-12, FE-15-13, FE-15-14, FE-15-15, OPS-19-08 | M; extra cash 0 by default | Complete shadow ingestion/comparison/UI row only with full evidence; retain earlier daily comparisons. |
@@ -360,7 +364,7 @@ Status rules:
    before selecting work. Never restart a Completed task merely because chat history
    is unavailable. Keep the original Pine reference intact.
 2. Select the next Pending task whose prerequisites are satisfied. Report its ID.
-   Default next independent backend task: **BE-11-01**; BE-08-14 and QA-09-19/20 await actual reference exports/G1/G2 acceptance. Use the v2 daily batch and
+   Default next product task: **FE-14-01**; BE-08-14 and QA-09-19/20 await actual reference exports/G1/G2 acceptance; QA-11-15/16 await real replay/manual examples and G3. Use the v2 daily batch and
    `docs/plans/NEXT_SESSION.md` for dependency-ready batching and usage checks.
 3. Implement the scoped behavior and its meaningful acceptance checks. If only
    part is finished, split the row into stable sub-IDs and leave unfinished parts
@@ -630,39 +634,39 @@ wallet updates must form one coherent persisted lifecycle before G3.
 
 | ID | Status | Task and completion requirement | Evidence / prerequisite |
 | --- | --- | --- | --- |
-| BE-11-01 | Pending | Define shared broker protocol, order/fill/position enums and persistence migrations. | SPEC 12/13; BE-10 TradePlan |
-| BE-11-02 | Pending | Implement paper market fills from bid/ask or configurable last-price slippage, with `P-` order IDs. | BE-10-04; BE-11-01 |
-| BE-11-03 | Pending | Implement touch-based limit fills, cancellation, simulated latency and deterministic fill timestamps. | BE-11-02 |
-| BE-11-04 | Pending | Orchestrate hedge-first entries, fill tracking, partial failure and safe unwind; record every state transition. | BE-11-01–03 |
-| BE-11-05 | Pending | Persist trade/leg/order/fill state machine; restore open paper positions after restart. | BE-11-04 |
-| BE-11-06 | Pending | Use durable signal/order idempotency keys; repeated signals or retries cannot duplicate trades/fills. | BE-09 events; BE-11-05 |
-| BE-11-07 | Pending | Monitor both leg prices, spread debit, MTM and realised/unrealised P&L with quote-quality checks. | BE-10-04; BE-11-05 |
-| BE-11-08 | Pending | Close positions on indicator exits, premium stops/targets, manual close and configured time square-off. | BE-09-14; BE-11-07 |
-| BE-11-09 | Pending | Enforce daily loss/max trades/position limits, entry window, capital and configured event restrictions. Persist rejects. | BE-12 accounting; SPEC risk rules |
-| BE-11-10 | Pending | Enforce feed/session/recovery/clock readiness and one-position rules at the final entry gate. | BE-05/06; BE-11-09 |
-| BE-11-11 | Pending | Implement kill actions from service/API and flag-file polling; cancel pending orders, close paper positions and lock entries. | BE-11-08/10 |
-| BE-11-12 | Pending | Reset daily risk counters on valid session rollover; persist session loss-limit locks across restart. | BE-06 calendar; BE-11-09 |
-| BE-11-13 | Pending | Represent PAPER/LIVE/armed state explicitly; startup stays PAPER and live sending remains unavailable until stage 20. | Current PAPER-only health; execution mode service |
-| BE-11-14 | Pending | Test fill semantics, partial legs, duplicate events, manual/scheduled exits, kill, stale data and restart. | BE-11-01–13 |
-| QA-11-15 | Pending | Run recorded market data through indicator, strategy and paper execution twice and prove identical trades/fills. | BE-06-10; G2; BE-11/12 |
-| QA-11-16 | Pending | Accept G3 after strike preview matches 20 manually checked examples and risk rejects/end-to-end paper accounting agree. | BE-10-10; BE-11-14; QA-11-15 |
+| BE-11-01 | Completed | Define shared broker protocol, order/fill/position enums and persistence migrations. | D04 isolated PAPER code: docs/testing/BE-11-acceptance.md; SPEC 12/13; BE-10 TradePlan |
+| BE-11-02 | Completed | Implement paper market fills from bid/ask or configurable last-price slippage, with `P-` order IDs. | D04 isolated PAPER code: docs/testing/BE-11-acceptance.md; BE-10-04; BE-11-01 |
+| BE-11-03 | Completed | Implement touch-based limit fills, cancellation, simulated latency and deterministic fill timestamps. | D04 isolated PAPER code: docs/testing/BE-11-acceptance.md; BE-11-02 |
+| BE-11-04 | Completed | Orchestrate hedge-first entries, fill tracking, partial failure and safe unwind; record every state transition. | D04 isolated PAPER code: docs/testing/BE-11-acceptance.md; BE-11-01–03 |
+| BE-11-05 | Completed | Persist trade/leg/order/fill state machine; restore open paper positions after restart. | D04 isolated PAPER code: docs/testing/BE-11-acceptance.md; BE-11-04 |
+| BE-11-06 | Completed | Use durable signal/order idempotency keys; repeated signals or retries cannot duplicate trades/fills. | D04 isolated PAPER code: docs/testing/BE-11-acceptance.md; BE-09 events; BE-11-05 |
+| BE-11-07 | Completed | Monitor both leg prices, spread debit, MTM and realised/unrealised P&L with quote-quality checks. | D04 isolated PAPER code: docs/testing/BE-11-acceptance.md; BE-10-04; BE-11-05 |
+| BE-11-08 | Completed | Close positions on indicator exits, premium stops/targets, manual close and configured time square-off. | D04 isolated PAPER code: docs/testing/BE-11-acceptance.md; BE-09-14; BE-11-07 |
+| BE-11-09 | Completed | Enforce daily loss/max trades/position limits, entry window, capital and configured event restrictions. Persist rejects. | D04 isolated PAPER code: docs/testing/BE-11-acceptance.md; BE-12 accounting; SPEC risk rules |
+| BE-11-10 | Completed | Enforce feed/session/recovery/clock readiness and one-position rules at the final entry gate. | D04 isolated PAPER code: docs/testing/BE-11-acceptance.md; BE-05/06; BE-11-09 |
+| BE-11-11 | Completed | Implement kill actions from service/API and flag-file polling; cancel pending orders, close paper positions and lock entries. | D04 isolated PAPER code: docs/testing/BE-11-acceptance.md; BE-11-08/10 |
+| BE-11-12 | Completed | Reset daily risk counters on valid session rollover; persist session loss-limit locks across restart. | D04 isolated PAPER code: docs/testing/BE-11-acceptance.md; BE-06 calendar; BE-11-09 |
+| BE-11-13 | Completed | Represent PAPER/LIVE/armed state explicitly; startup stays PAPER and live sending remains unavailable until stage 20. | D04 isolated PAPER code: docs/testing/BE-11-acceptance.md; Current PAPER-only health; execution mode service |
+| BE-11-14 | Completed | Test fill semantics, partial legs, duplicate events, manual/scheduled exits, kill, stale data and restart. | D04 isolated PAPER code: docs/testing/BE-11-acceptance.md; BE-11-01–13 |
+| QA-11-15 | Pending | Run recorded market data through indicator, strategy and paper execution twice and prove identical trades/fills. | D04 still Pending: actual recorded pipeline/G2 evidence absent; BE-12 code now accepted; BE-06-10; G2; BE-11/12 |
+| QA-11-16 | Pending | Accept G3 after strike preview matches 20 manually checked examples and risk rejects/end-to-end paper accounting agree. | D04 still Pending: actual recorded pipeline/G2 and 20 manual strike/G3 examples absent; BE-12 code now accepted; BE-10-10; BE-11-14; QA-11-15 |
 
 ### 12. Wallet, costs, P&L and history storage
 
 | ID | Status | Task and completion requirement | Evidence / prerequisite |
 | --- | --- | --- | --- |
-| BE-12-01 | Pending | Create mode/user-scoped wallet, ledger, trade summaries and daily P&L tables with indexes and migrations. | SPEC 13/16 |
-| BE-12-02 | Pending | Initialize configured paper capital once and support positive exact-currency deposits within storage precision. | BE-12-01 |
-| BE-12-03 | Pending | Support withdrawals limited to free balance and a reset ledger baseline; do not silently erase trade history. | BE-12-02 |
-| BE-12-04 | Pending | Block/release spread margin atomically with order/position state; reject insufficient free balance. | BE-10-08; BE-11 lifecycle |
-| BE-12-05 | Pending | Implement optional exact-shortfall auto-top-up as an auditable DEPOSIT entry. | BE-12-04 |
-| BE-12-06 | Pending | Book gross realised P&L and separate costs exactly once on closure, including restart/retry handling. | BE-11-05/08; BE-12-04 |
-| BE-12-07 | Pending | Implement configurable brokerage/tax/fee estimates and version their assumptions; do not hard-code outdated rates. | SPEC cost model; verify rates when implementing |
-| BE-12-08 | Pending | Snapshot period-start capital and calculate margin/capital return percentages without counting deposits as profit. | BE-12-06/07 |
-| BE-12-09 | Pending | Produce daily totals and derived weekly/monthly/all-time summaries consistent with trades and ledger. | BE-12-08 |
-| BE-12-10 | Pending | Query history by date/mode/family/direction/grade/result with deterministic paging, detail and exports. | Trade indexes; BE-12-09 |
-| BE-12-11 | Pending | Verify ledger identity nightly; alert on balance, margin, trade or daily-summary mismatch. | BE-12-06–10; scheduler |
-| BE-12-12 | Pending | Test deposits/withdrawals, reset/open-position restrictions, repeated close, auto-top-up and period-boundary percentages. | BE-12-01–11 |
+| BE-12-01 | Completed | Create mode/user-scoped wallet, ledger, trade summaries and daily P&L tables with indexes and migrations. | D04 code acceptance: docs/testing/BE-12-acceptance.md; SPEC 13/16 |
+| BE-12-02 | Completed | Initialize configured paper capital once and support positive exact-currency deposits within storage precision. | D04 code acceptance: docs/testing/BE-12-acceptance.md; BE-12-01 |
+| BE-12-03 | Completed | Support withdrawals limited to free balance and a reset ledger baseline; do not silently erase trade history. | D04 code acceptance: docs/testing/BE-12-acceptance.md; BE-12-02 |
+| BE-12-04 | Completed | Block/release spread margin atomically with order/position state; reject insufficient free balance. | D04 code acceptance: docs/testing/BE-12-acceptance.md; BE-10-08; BE-11 lifecycle |
+| BE-12-05 | Completed | Implement optional exact-shortfall auto-top-up as an auditable DEPOSIT entry. | D04 code acceptance: docs/testing/BE-12-acceptance.md; BE-12-04 |
+| BE-12-06 | Completed | Book gross realised P&L and separate costs exactly once on closure, including restart/retry handling. | D04 code acceptance: docs/testing/BE-12-acceptance.md; BE-11-05/08; BE-12-04 |
+| BE-12-07 | Completed | Implement configurable brokerage/tax/fee estimates and version their assumptions; do not hard-code outdated rates. | D04 code acceptance: docs/testing/BE-12-acceptance.md; SPEC cost model; verify rates when implementing |
+| BE-12-08 | Completed | Snapshot period-start capital and calculate margin/capital return percentages without counting deposits as profit. | D04 code acceptance: docs/testing/BE-12-acceptance.md; BE-12-06/07 |
+| BE-12-09 | Completed | Produce daily totals and derived weekly/monthly/all-time summaries consistent with trades and ledger. | D04 code acceptance: docs/testing/BE-12-acceptance.md; BE-12-08 |
+| BE-12-10 | Completed | Query history by date/mode/family/direction/grade/result with deterministic paging, detail and exports. | D04 code acceptance: docs/testing/BE-12-acceptance.md; Trade indexes; BE-12-09 |
+| BE-12-11 | Completed | Verify ledger identity nightly; alert on balance, margin, trade or daily-summary mismatch. | D04 code acceptance: docs/testing/BE-12-acceptance.md; BE-12-06–10; scheduler |
+| BE-12-12 | Completed | Test deposits/withdrawals, reset/open-position restrictions, repeated close, auto-top-up and period-boundary percentages. | D04 code acceptance: docs/testing/BE-12-acceptance.md; BE-12-01–11 |
 
 ### 13. Dashboard access, REST APIs and live WebSocket contracts
 
@@ -676,26 +680,27 @@ routes remain valid; reconcile naming in the API contract rather than breaking t
 | BE-13-03 | Completed | Protect mutating routes and WebSockets with authentication/origin/CSRF rules; implement the specified five-failure login lockout and audit mutations. | 2026-10-27: Persistent five-failure lockout; shared auth/origin/CSRF middleware; durable audit intents/outcomes and session-bound Kite OAuth callback delegation; WebSocket session expiry/logout enforcement; 367 tests and quality/type checks passed; docs/testing/BE-13-acceptance.md |
 | BE-13-04 | Completed | Configure explicit development origins/proxy and production same-origin serving; never expose secrets to clients. | 2026-10-27: Explicit credentialed CORS, HTTPS development proxy contract and optional same-origin static mount; docs/api/dashboard-operations.md; static hosting and rejected-origin checks; 367 tests and quality/type checks passed; docs/testing/BE-13-acceptance.md |
 | BE-13-05 | Completed | Add managed feed/readiness/status API and initial `/api/live/snapshot` with selected instrument and data-quality state. | 2026-10-27: Authenticated managed service status/start/stop and /api/live/snapshot; exact selected contract, real worker quality/recovery/context and source configuration identity; 367 tests and quality/type checks passed; docs/testing/BE-13-acceptance.md |
-| BE-13-06 | Pending | Add paged brick/candle/chart-history queries with indicator overlays and source/configuration identity. | Partial 2026-10-27: bounded keyset brick/candle history plus revision/config hash; indicator overlays still require BE-09. docs/testing/BE-13-acceptance.md |
-| BE-13-07 | Pending | Add signals/decisions endpoints including rejected reasons and explanation text. | BE-09; BE-11 risk decisions |
-| BE-13-08 | Pending | Add open-position, trade-detail, manual-close, decision-confirm and kill endpoints with idempotency and audit. | BE-11; BE-13-03 |
-| BE-13-09 | Pending | Add trade filters/paging/detail and CSV export using the same query filters. | BE-12-10 |
-| BE-13-10 | Pending | Add P&L summary, daily series, period tables and by-family statistics endpoints. | BE-12-09 |
-| BE-13-11 | Pending | Add wallet read/deposit/withdraw/reset endpoints with validation and ledger paging. | BE-12; BE-13-03 |
-| BE-13-12 | Pending | Add settings read/update/defaults/import/export schemas, versioned persistence and audit; require rebuild for grid changes. | BE-08 inputs; BE-13-03; BE-10 preview-strikes endpoint implemented, settings CRUD/versioned persistence still Pending |
-| BE-13-13 | Pending | Add strike preview endpoint with no side effects; show missing quote/expiry/liquidity errors. | BE-10-09; BE-13-12 |
-| BE-13-14 | Pending | Add alerts read/acknowledge service and persisted risk/recovery/reconciliation alerts. | Partial 2026-10-27: durable alert read/ack and real recovery/source-quality producers; BE-11 risk/reconciliation producers remain missing. |
+| BE-13-06 | Completed | Add paged brick/candle/chart-history queries with indicator overlays and source/configuration identity. | D04: validated replay publication, typed chart maths/bias/levels/markers, index-0/equal-time paging, SQLite snapshot and source/settings fences; 25 new cases. docs/testing/BE-13-06-acceptance.md. Managed pipeline remains inactive. |
+| BE-13-07 | Completed | Add signals/decisions endpoints including rejected reasons and explanation text. | D04: Persisted source-linked signals/explanations and indexed preview/admission/reject decisions; bounded authenticated reads. docs/testing/BE-13-domain-acceptance.md. |
+| BE-13-08 | Completed | Add open-position, trade-detail, manual-close, decision-confirm and kill endpoints with idempotency and audit. | D04: Owner-provided PAPER runtime, durable prepare/confirm/close/kill, current server evidence and final gates, actual legs/orders/fills; retries/audit verified. docs/testing/BE-13-domain-acceptance.md. |
+| BE-13-09 | Completed | Add trade filters/paging/detail and CSV export using the same query filters. | D04: Scoped history/keyset/detail and matching bounded CSV filters/media contract; exact-money schemas. docs/testing/BE-13-domain-acceptance.md. |
+| BE-13-10 | Completed | Add P&L summary, daily series, period tables and by-family statistics endpoints. | D04: Verified summary, daily series, period tables and by-family net; external cash flows excluded from profit. docs/testing/BE-13-domain-acceptance.md. |
+| BE-13-11 | Completed | Add wallet read/deposit/withdraw/reset endpoints with validation and ledger paging. | D04: Actual attached wallet/read/init/deposit/withdraw/reset/ledger; exact input, idempotency, reset confirmation, missing owner 409. docs/testing/BE-13-domain-acceptance.md. |
+| BE-13-12 | Completed | Add settings read/update/defaults/import/export schemas, versioned persistence and audit; require rebuild for grid changes. | D04: Validated canonical versioned settings/defaults/schema/import/export; CAS/idempotency recovery; stateful rebuild and stopped/flat verified owner rebind. docs/testing/BE-13-domain-acceptance.md. |
+| BE-13-13 | Completed | Add strike preview endpoint with no side effects; show missing quote/expiry/liquidity errors. | D04: Read-only canonical /api/strikes/preview: no subscription/decision/reservation/order effects beyond security audit; legacy endpoint retained. docs/testing/BE-13-domain-acceptance.md. |
+| BE-13-14 | Completed | Add alerts read/acknowledge service and persisted risk/recovery/reconciliation alerts. | D04: Transactional risk reject + existing recovery/reconciliation producers; contract-valid durable read/ack/live projection. docs/testing/BE-13-domain-acceptance.md. |
 | BE-13-15 | Completed | Add mode/status/arming contracts with paper-only behavior until live gate is enabled. | 2026-10-27: PAPER/unarmed mode/status contract; LIVE denied with 403 and all arming denied with 409 until execution/risk integration; no real orders; 367 tests and quality/type checks passed; docs/testing/BE-13-acceptance.md |
 | BE-13-16 | Completed | Implement one typed event hub and `/ws/live` with tick/brick/signal/trade/position/status/alert messages. | 2026-10-27: One public typed hub and /ws/live, seven typed payload kinds; actual worker tick/brick/status and durable alert projection; signal/trade/position producer work remains BE-09/11/12; 367 tests and quality/type checks passed; docs/testing/BE-13-acceptance.md |
 | BE-13-17 | Completed | Throttle high-rate tick events, bound slow-client queues and preserve reliable trade/alert delivery. | 2026-10-27: Global four-per-second spot tick throttle; 256-event journal, reliable-kind bypass, two-second send timeout, explicit cursor-overflow resync/1013; no unbounded per-client queue; 367 tests and quality/type checks passed; docs/testing/BE-13-acceptance.md |
 | BE-13-18 | Completed | Define snapshot/event ordering, sequence IDs and reconnect resync so browsers neither miss nor duplicate state changes. | 2026-10-27: Atomic snapshot/high-water sequence, run IDs, ordered cursor replay, restart/expired/future cursor resync and auth-revocation close; production multi-brick projection test; 367 tests and quality/type checks passed; docs/testing/BE-13-acceptance.md |
 | BE-13-19 | Completed | Expose development replay with PAPER-only restrictions; disable it for armed/live operation. | 2026-10-27: Opt-in authenticated bounded recording replay; separate temporary SQLite production-persistence path; feed/job exclusion, source immutability and joined shutdown; 367 tests and quality/type checks passed; docs/testing/BE-13-acceptance.md |
-| BE-13-20 | Pending | Generate/version OpenAPI and frontend client types; verify schemas and integration tests for auth/actions/WebSocket recovery. | Partial 2026-10-27: docs/api/openapi.v1.json and api-v1.d.ts; locked tools/api-contracts and drift/compile checks. Domain actions and FE-14 integration still required. |
+| BE-13-20 | Completed | Generate/version OpenAPI and frontend client types; verify schemas and integration tests for auth/actions/WebSocket recovery. | D04: Generated REST/WS types plus actual frontend/src/api/client.ts; real Node-to-FastAPI auth/actions/CSRF/exact INR and resync integration; React scaffold remains FE-14. docs/testing/BE-13-domain-acceptance.md. |
 
 ### 14. Frontend project, shared UI and data foundation
 
-All frontend rows are Pending: no `frontend/` project exists yet. This stage may
-start now; backend-dependent controls stay unavailable or use clearly labeled mocks.
+All frontend rows remain Pending. `frontend/src/api/client.ts` now provides a
+verified framework-independent typed client, but no React package/scaffold/build
+exists. Start FE-14-01; do not call the client module a usable trading dashboard.
 
 | ID | Status | Task and completion requirement | Evidence / prerequisite |
 | --- | --- | --- | --- |
@@ -703,7 +708,7 @@ start now; backend-dependent controls stay unavailable or use clearly labeled mo
 | FE-14-02 | Pending | Add routes for Live, History, Wallet and Settings with persistent shell/navigation and not-found handling. | FE-14-01 |
 | FE-14-03 | Pending | Define dark theme, spacing/type/color tokens, accessible contrast and reusable cards/buttons/inputs/dialogs. | FE-14-01; SPEC 15 |
 | FE-14-04 | Pending | Add Indian currency/number grouping and explicit IST date/time/percentage formatters. | FE-14-01; API conventions |
-| FE-14-05 | Pending | Add typed API client, development proxy/base URL, cancellation and consistent error handling. | Existing health/auth/catalog endpoints; BE-13 contracts |
+| FE-14-05 | Pending | Add typed API client, development proxy/base URL, cancellation and consistent error handling. | D04 partial foundation: frontend/src/api/client.ts typed/cancellable same-origin/CSRF/idempotency transport verified against actual test backend; Vite/React proxy/browser wiring remains FE-14. |
 | FE-14-06 | Pending | Add request cache/state management with separate server data and local display preferences. | FE-14-05 |
 | FE-14-07 | Pending | Add dashboard login/logout/session-expiry screens with guarded routes. | BE-13-02/03; may mock initially |
 | FE-14-08 | Pending | Add Kite login action and verified/configured/expired status UI without exposing broker secrets. | Existing `/api/auth/kite/login` and `/status` |
@@ -845,6 +850,75 @@ claimed before requirements are agreed.
 | FUT-21-05 | Pending | Design backtesting UI or mobile client only if requested; retain CLI replay as the current testing scope. | Explicit future requirements |
 
 ### Task update history
+
+- **2026-10-29 (D04, remaining BE-13 domain batch):** Completed BE-13-07/08/09/
+  10/11/12/13/14/20. Actual authenticated source-linked signals/decisions, persisted
+  paper controls, history/export, P&L, exact wallet/ledger APIs, versioned settings
+  with rebuild/owner rebind, read-only preview, durable risk/recon alerts and live
+  domain producers. Command recovery covers commits before lost replies; settings
+  changes cannot mutate an open observation baseline. Added the real typed
+  frontend client and Node-to-isolated-FastAPI auth/action/resync integration.
+  768 full tests passed, including 47 new domain cases; Ruff lint/format, strict
+  mypy and OpenAPI/TypeScript drift/compile passed; one existing warning. Evidence:
+  docs/testing/BE-13-domain-acceptance.md. Migration 0011 tested/backfilled only
+  in isolated DBs; old feed snapshots remain usable before domain migrations.
+  Normal runtime remains detached; owner capabilities/providers are not HTTP
+  activation switches. No real feed/trial, actual trade, purchase or G2/G3 claim.
+  BE-13 20/20; 168 Completed / 112 Pending of 280. Next FE-14-01; React scaffold/
+  build and browser paper trading remain absent. Usage/allowance, cash/headroom,
+  renewal/reset Unknown; extra paid usage INR 0; qualifying formal sessions 0.
+
+- **2026-10-29 (D04, early D24 BE-13-06):** Completed chart-history acceptance.
+  Existing keyset brick/candle APIs now include source-bound typed replay overlays:
+  RSI/ATR/Supertrend, bias/factors, levels/triggers and indicator ENTRY/T1/EXIT.
+  Explicit publication validates stored prefix/input/settings/context and binds
+  to market revision/configuration with per-result fingerprints. Reads are pure;
+  no live indicator activation. Fixed skipped index 0 and SQLite snapshot reads;
+  equal-time bricks retain index order; missing/warm-up/stale overlays are explicit.
+  25 new cases, 43 focused dashboard/chart cases and 721 full tests passed;
+  Ruff lint/format, strict mypy, OpenAPI/TypeScript drift/compile passed; one existing
+  dependency warning. Evidence: docs/testing/BE-13-06-acceptance.md. No migration,
+  local DB/feed/Pine change, purchase or qualifying paper session. BE-13 11/20;
+  159 Completed / 121 Pending of 280. Next BE-13-07. UI paper trading still
+  unavailable; readiness check and operator guide updated. Usage/allowance,
+  spend/headroom and renewal/reset remain Unknown; extra paid usage INR 0.
+
+- **2026-10-29 (D04, early D17/D19/D20/D21 BE-12):** Completed all 12 BE-12
+  tasks. Added scoped indexed wallet/ledger/trade/daily/period/reconciliation
+  storage; explicit initialization, exact deposits/withdrawals, history-preserving
+  reset, opt-in exact-shortfall top-up, atomic margin/once-only settlement,
+  versioned itemized paper costs, flow-excluding period returns, filtered keyset
+  history/detail/CSV and durable nightly reconciliation alerts in the existing
+  opt-in owned scheduler. Projection mismatches fail closed; no silent repair.
+  696 full tests passed, including 44 new wallet cases; Ruff lint/format, strict mypy, OpenAPI and TypeScript drift/compile
+  passed; one existing warning. Evidence: docs/testing/BE-12-acceptance.md.
+  Migration 0010 and legacy bootstrap tested on isolated DBs only; local DB,
+  original Pine and observation baseline unchanged. No frontend source/build:
+  browser paper trading remains NOT READY. Added read-only local_ui_readiness
+  command and docs/operations/local-paper-ui.md; recheck and provide verified
+  startup/use steps as soon as the actual integrated UI is ready, not just a shell.
+  Counts: 158 Completed / 122 Pending of 280. Next remaining BE-13 APIs, runtime
+  integration and usable FE-14/15/17/18 slice. Reference/G2/G3 gates remain Pending.
+  Tokens/allowance, spend/headroom and renewal/reset Unknown; INR 0 extra paid
+  usage; zero qualifying paper sessions; no purchases or actual trades invented.
+
+- **2026-10-29 (D04, early D17/D19/D20/D22 BE-11 code):** Completed
+  BE-11-01 through BE-11-14 as isolated PAPER execution. Shared broker contracts,
+  depth/fallback/touch/latency fills, durable hedge-first entry/short-first exit,
+  idempotent admission and exact margin/settlement, quote-aware MTM, all exit
+  sources, final readiness/risk rejects, persistent loss/kill/session controls.
+  Added authenticated kill/manual-close hooks; default executor remains detached.
+  54 synthetic tests include ten restart boundaries, concurrency, rollback and
+  ledger/fill reconciliation. Full suite 652 passed; Ruff lint/format, strict
+  mypy and OpenAPI/TypeScript drift/compile passed; one existing warning.
+  Evidence: docs/testing/BE-11-acceptance.md. Migration 0009 tested only on
+  isolated DBs; local DB and market baseline unchanged. BE-12 wallet/reporting
+  acceptance remains Pending despite tested accounting primitives. QA-11-15/16
+  Pending actual recorded pipeline/G2, BE-12, 20 manually checked strike examples
+  and explicit G3. No real fills, trial/burn-in or gate acceptance invented.
+  Counts: 146 Completed / 134 Pending of 280. Next BE-12-01. Tokens/allowance,
+  cash/headroom and renewal dates Unknown; INR 0 extra paid usage; zero qualifying
+  paper sessions. No purchases or receipts supplied.
 
 - **2026-10-28 (D03, early D16/D18 BE-10):** Completed all ten BE-10 tasks.
   Added versioned exact-decimal input/TradePlan/capital contracts, catalog-derived
@@ -1544,7 +1618,7 @@ adapter; this does not prevent the tests or application from running.
 4. The original Pine reference is already saved at `docs/pine/renko_indicator.pine`.
 5. Record actual chart settings/anchor and export TradingView reference data for
    REF-00-03–07. The comparison tool exists; real parity is still Pending.
-6. Continue independent implementation at BE-11-01; integrate BE-12 wallet primitives before any paper execution. BE-08-14 and QA-09-19/20 still require actual exported debug data and G1/G2 acceptance. Do not claim G2 parity. Use the master task record and v2 daily plan above.
+6. BE-12 (12/12) and BE-13 (20/20) code are complete. Next task is FE-14-01, integrating the existing typed client into the React foundation. Managed startup/real reference/operational gates still need acceptance before a local paper-trading UI is usable. At each implementation session run python -m app.tools.local_ui_readiness from backend and report the actual browser-paper readiness; provide verified startup/use steps in docs/operations/local-paper-ui.md when ready. BE-08-14, QA-09-19/20 and QA-11-15/16 still require actual reference/recorded/manual evidence and G1/G2/G3. Code completion does not activate trading.
 
 ## Step 3a: daily instrument catalog
 

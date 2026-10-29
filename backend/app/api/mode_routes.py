@@ -4,6 +4,7 @@ from typing import Literal
 
 from fastapi import APIRouter, Depends, HTTPException
 
+from app.api.domain_service import DomainService
 from app.api.schemas import Contract
 from app.api.security import DashboardSecurity
 
@@ -12,10 +13,10 @@ class ModeStatus(Contract):
     mode: Literal["PAPER"] = "PAPER"
     armed: Literal[False] = False
     live_orders_enabled: Literal[False] = False
-    entries_enabled: Literal[False] = False
+    entries_enabled: bool = False
     arming_available: Literal[False] = False
-    reason: Literal["execution_and_risk_not_implemented"] = (
-        "execution_and_risk_not_implemented"
+    reason: Literal["paper_execution_not_activated", "paper_owner_attached"] = (
+        "paper_execution_not_activated"
     )
 
 
@@ -25,12 +26,19 @@ class ModeRequest(Contract):
     confirm: str | None = None
 
 
-def mode_router(security: DashboardSecurity) -> APIRouter:
+def mode_router(
+    security: DashboardSecurity, domain: DomainService | None = None
+) -> APIRouter:
     router = APIRouter(tags=["Paper mode"])
 
     @router.get("/api/mode", dependencies=[Depends(security.require)])
     def status() -> ModeStatus:
-        return ModeStatus()
+        return ModeStatus(
+            entries_enabled=domain.entries_enabled() if domain else False,
+            reason="paper_owner_attached"
+            if domain and domain.execution_provider() is not None
+            else "paper_execution_not_activated",
+        )
 
     @router.post("/api/mode")
     def update(body: ModeRequest) -> ModeStatus:
@@ -38,6 +46,6 @@ def mode_router(security: DashboardSecurity) -> APIRouter:
             raise HTTPException(403)
         if body.armed:
             raise HTTPException(409)
-        return ModeStatus()
+        return status()
 
     return router
