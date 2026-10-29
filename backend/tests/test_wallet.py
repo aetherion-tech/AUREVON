@@ -365,6 +365,64 @@ def test_history_filters_cursor_detail_and_export_agree(wallet):
         wallet.history(query.model_copy(update={"cursor": first["next_cursor"]}))
 
 
+@pytest.mark.parametrize("sort", ["net", "closed_at"])
+@pytest.mark.parametrize("order", ["asc", "desc"])
+def test_history_global_sort_cursor_export_and_readonly_display(wallet, sort, order):
+    for i, price in enumerate(["85", "95", "90"]):
+        plan = make_plan(wallet, signal_id=f"sorted{i}")
+        identity = wallet.enter(f"sorted{i}", plan, NOW, ready(), prices(plan))
+        drive(wallet, plan, count=4)
+        close_trade(wallet, identity, plan, short=price)
+    with Session(wallet.engine) as db:
+        before = {r.trade_id: r.payload for r in db.scalars(select(PaperTradeSummary))}
+    all_rows = wallet.history(HistoryQuery(limit=100))["items"]
+    key = (
+        (lambda r: (D(r["net"]), r["closed_at"], r["trade_id"]))
+        if sort == "net"
+        else (lambda r: (r["closed_at"], r["trade_id"]))
+    )
+    expected = sorted(all_rows, key=key, reverse=order == "desc")
+    query = HistoryQuery(sort=sort, order=order, limit=1)
+    records = []
+    while True:
+        page = wallet.history(query)
+        records.extend(page["items"])
+        if page["next_cursor"] is None:
+            break
+        query = query.model_copy(update={"cursor": page["next_cursor"]})
+    assert [r["trade_id"] for r in records] == [r["trade_id"] for r in expected]
+    assert len({r["trade_id"] for r in records}) == 3
+    for row in records:
+        p = wallet.snapshot().positions[row["trade_id"]]
+        assert row["quantity"] == p.plan.short.quantity
+        assert D(row["short_entry"]) == p.orders["entry_short"].fill.price
+        assert D(row["short_exit"]) == p.orders["exit_short"].fill.price
+        assert D(row["hedge_exit"]) == p.orders["exit_hedge"].fill.price
+        assert row["duration_seconds"] == 0
+    exported = list(
+        csv.DictReader(
+            io.StringIO(
+                wallet.export_csv(HistoryQuery(sort=sort, order=order, limit=1))
+            )
+        )
+    )
+    assert [r["trade_id"] for r in exported] == [r["trade_id"] for r in records]
+    with Session(wallet.engine) as db:
+        assert {
+            r.trade_id: r.payload for r in db.scalars(select(PaperTradeSummary))
+        } == before
+    first = wallet.history(HistoryQuery(sort=sort, order=order, limit=1))
+    with pytest.raises(ValueError, match="cursor"):
+        wallet.history(
+            HistoryQuery(
+                sort=sort,
+                order="desc" if order == "asc" else "asc",
+                limit=1,
+                cursor=first["next_cursor"],
+            )
+        )
+
+
 @pytest.mark.parametrize(
     "table",
     [WalletAccount, WalletLedger, PaperTradeSummary, PaperDailyPnL, WalletPeriod],

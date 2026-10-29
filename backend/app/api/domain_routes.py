@@ -6,6 +6,7 @@ from typing import Annotated, Any, Literal
 
 from fastapi import APIRouter, Depends, Header, HTTPException, Query, Request
 from fastapi.routing import APIRoute
+from pydantic import BeforeValidator
 from starlette.responses import Response
 
 from app.api.domain_contracts import (
@@ -28,9 +29,30 @@ from app.api.domain_contracts import (
 from app.api.domain_service import DomainService, position_view, wallet_view
 from app.api.schemas import Page, Pagination
 from app.api.security import DashboardSecurity
+from app.execution.models import PaperBook
 from app.execution.service import ACTIVE
 from app.strategy.models import Frozen, PlanDecision
-from app.wallet.reporting import HistoryQuery, Period, bounds, summary
+from app.wallet.reporting import HistoryQuery, Period, bounds, summary, trades
+
+
+def period_view(book: PaperBook, start: date, end: date) -> PnlSummary:
+    from decimal import Decimal
+
+    report = summary(book, start, end)
+    selected = [
+        t for t in trades(book) if start.isoformat() <= t["day"] <= end.isoformat()
+    ]
+    if selected:
+        best = max(selected, key=lambda t: (Decimal(t["net"]), t["trade_id"]))
+        worst = min(selected, key=lambda t: (Decimal(t["net"]), t["trade_id"]))
+        report.update(
+            best_trade_id=best["trade_id"],
+            best_trade_net=best["net"],
+            worst_trade_id=worst["trade_id"],
+            worst_trade_net=worst["net"],
+        )
+    return PnlSummary.model_validate(report)
+
 
 Key = Annotated[
     str,
@@ -43,6 +65,44 @@ Key = Annotated[
 ]
 Limit = Annotated[int, Query(ge=1, le=200)]
 Offset = Annotated[int, Query(ge=0, le=1_000_000)]
+
+
+def query_direction(value: Any) -> Any:
+    return int(value) if isinstance(value, str) and value in {"1", "-1"} else value
+
+
+def history_query(
+    mode: Literal["PAPER"] = "PAPER",
+    start: date | None = None,
+    end: date | None = None,
+    family: Literal["CO", "DIV", "OT"] | None = None,
+    direction: Annotated[
+        Literal[-1, 1] | None, BeforeValidator(query_direction)
+    ] = None,
+    grade: Annotated[int | None, Query(ge=1, le=3)] = None,
+    result: Literal["WIN", "LOSS", "FLAT"] | None = None,
+    limit: Annotated[int, Query(ge=1, le=100)] = 50,
+    cursor: Annotated[str | None, Query(max_length=2000)] = None,
+    sort: Literal["closed_at", "net"] = "closed_at",
+    order: Literal["asc", "desc"] = "asc",
+) -> HistoryQuery:
+    # HTTP query values arrive as strings; parse at the boundary, keeping the
+    # internal accounting query's strict integer validation intact.
+    if start is not None and end is not None and end < start:
+        raise HTTPException(422)
+    return HistoryQuery(
+        mode=mode,
+        start=start,
+        end=end,
+        family=family,
+        direction=direction,
+        grade=grade,
+        result=result,
+        limit=limit,
+        cursor=cursor,
+        sort=sort,
+        order=order,
+    )
 
 
 class EmptyAction(Frozen):
@@ -140,7 +200,7 @@ def domain_router(service: DomainService, security: DashboardSecurity) -> APIRou
             }
         },
     )
-    def export(query: Annotated[HistoryQuery, Depends()]) -> Response:
+    def export(query: Annotated[HistoryQuery, Depends(history_query)]) -> Response:
         content = service.wallet().export_csv(query)
         return Response(
             content,
@@ -149,12 +209,14 @@ def domain_router(service: DomainService, security: DashboardSecurity) -> APIRou
         )
 
     @router.get("/api/trades")
-    def trades(query: Annotated[HistoryQuery, Depends()]) -> TradePage:
+    def trades(query: Annotated[HistoryQuery, Depends(history_query)]) -> TradePage:
         return TradePage.model_validate(service.wallet().history(query))
 
     @router.get("/api/trades/{identity}")
     def trade_detail(identity: str, mode: Literal["PAPER"] = "PAPER") -> PositionView:
-        return position_view(service.execution().snapshot().positions[identity])
+        return position_view(
+            service.execution().snapshot().positions[identity], service.engine
+        )
 
     @router.get("/api/wallet")
     def wallet(mode: Literal["PAPER"] = "PAPER") -> WalletView:
@@ -224,8 +286,12 @@ def domain_router(service: DomainService, security: DashboardSecurity) -> APIRou
 
     @router.get("/api/pnl/summary")
     def pnl(period: Period = "daily", mode: Literal["PAPER"] = "PAPER") -> PnlSummary:
-        return PnlSummary.model_validate(
-            service.wallet().period(period, service.market.clock())
+        wallet = service.wallet()
+        report = wallet.period(period, service.market.clock())
+        return period_view(
+            wallet.snapshot(),
+            date.fromisoformat(report["start"]),
+            date.fromisoformat(report["end"]),
         )
 
     @router.get("/api/pnl/daily")
@@ -237,9 +303,7 @@ def domain_router(service: DomainService, security: DashboardSecurity) -> APIRou
         start, end = report_dates(start, end)
         book = service.wallet().snapshot()
         return [
-            PnlSummary.model_validate(
-                summary(book, start + timedelta(days=i), start + timedelta(days=i))
-            )
+            period_view(book, start + timedelta(days=i), start + timedelta(days=i))
             for i in range((end - start).days + 1)
         ]
 
@@ -254,9 +318,7 @@ def domain_router(service: DomainService, security: DashboardSecurity) -> APIRou
         records = []
         for _ in range(count):
             start, end = bounds(period, day, day)
-            records.append(
-                PnlSummary.model_validate(summary(book, start, min(end, today)))
-            )
+            records.append(period_view(book, start, min(end, today)))
             day = start - timedelta(days=1)
         return records
 

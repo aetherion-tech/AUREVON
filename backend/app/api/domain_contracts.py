@@ -59,6 +59,10 @@ class WalletView(Contract):
     killed: bool
     loss_locked: bool
     day_trades: int
+    risk_day: date | None = None
+    daily_loss_limit: DecimalValue | None = None
+    daily_loss_used: DecimalValue | None = None
+    daily_loss_utilisation_pct: DecimalValue | None = None
 
 
 class LedgerView(Contract):
@@ -119,6 +123,15 @@ class PositionView(Contract):
     spread_debit: DecimalValue | None
     exit_reason: str | None
     orders: list["OrderView"]
+    stop_debit_per_unit: DecimalValue | None = None
+    profit_capture_debit_per_unit: DecimalValue | None = None
+    profit_capture_enabled: bool | None = None
+    margin_return_pct: DecimalValue | None = None
+    closed_at: ISTTimestamp | None = None
+    signal_stream: str | None = None
+    signal_index: int | None = None
+    signal_explanation: str | None = None
+    indicator_trade_id: str | None = None
 
 
 class OrderView(Contract):
@@ -131,6 +144,8 @@ class OrderView(Contract):
     fill_price: DecimalValue | None
     costs: RupeeAmount | None
     reason: str | None
+    created_at: ISTTimestamp | None = None
+    eligible_at: ISTTimestamp | None = None
 
 
 class ExecutionControl(Contract):
@@ -158,6 +173,14 @@ class TradeRecord(Contract):
     reason: str | None
     short_symbol: str
     hedge_symbol: str
+    created_at: ISTTimestamp | None = None
+    quantity: int | None = None
+    short_entry: DecimalValue | None = None
+    hedge_entry: DecimalValue | None = None
+    short_exit: DecimalValue | None = None
+    hedge_exit: DecimalValue | None = None
+    duration_seconds: int | None = None
+    signal_id: str | None = None
 
 
 class TradePage(Contract):
@@ -180,6 +203,10 @@ class PnlSummary(Contract):
     capital_return_pct: DecimalValue | None
     by_family_net: dict[str, RupeeAmount]
     basis: Literal["CLOSED_TRADES_NET_OF_ESTIMATED_COSTS"]
+    best_trade_id: str | None = None
+    best_trade_net: RupeeAmount | None = None
+    worst_trade_id: str | None = None
+    worst_trade_net: RupeeAmount | None = None
 
 
 class DataSettings(Frozen):

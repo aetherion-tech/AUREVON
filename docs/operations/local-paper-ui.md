@@ -1,9 +1,14 @@
 # Local paper-trading UI: readiness and usage
 
 Updated 2026-10-29, D04. **Not ready for paper trading from the browser.**
-BE-12 accounting and all 20 BE-13 API/client tasks are code accepted. A typed
-frontend/src/api/client.ts exists, but there is no React scaffold,
-`frontend/package.json` or built dashboard yet. Normal startup does not attach
+BE-12 accounting, all 20 BE-13 API/client tasks, all 15 FE-14 foundation tasks and
+all 15 FE-15 Live tasks and all 8 FE-16 History tasks are code accepted. React provides sign-in/navigation,
+Kite/feed status, exact paper balance/deposit, kill/socket recovery, a source-bound
+Renko chart/overlays, direction, spreads/close, results, signals and durable alerts.
+History includes summaries/charts/period tables, URL filters, server-sorted pages,
+trade details/timeline/chart and matching CSV. Wallet/Settings detail screens remain
+pending (FE-17/18).
+Normal startup does not attach
 an executor or enable entries. `/docs` is an API explorer, not the trading UI.
 Starting the backend does not start taking paper trades.
 
@@ -34,7 +39,7 @@ exports, G2/G3 and runtime integration remain outstanding.
 | --- | --- |
 | Backend accounting | BE-12-01 through 12 and BE-13-09/10/11 are complete with exact accounting/API integration. Actual runtime/observation acceptance remains separate. |
 | Public execution path | All BE-13 APIs and typed-client integration are complete. Explicit owner runtime/providers and clock/poll hooks are tested; normal startup remains detached. Actual managed indicator/strategy generation, reference/operational readiness and browser workflow still need acceptance. Unattached actions return 409. |
-| Local UI | FE-14 login/shell/client/socket/kill controls; FE-15 chart/signals/open spread/manual close/results/alerts; FE-17 wallet; FE-18 strategy/risk/preview controls and validation. No browser trading feature is delivered by BE-12 alone. |
+| Local UI | FE-14/15/16 complete with isolated HTTPS browser evidence. FE-17 Wallet and FE-18 strategy/risk/preview detail tools remain. No real-session or managed trial acceptance is implied. |
 | Data and paper gates | Actual chart settings/exports, BE-08-14, QA-09-19/20, QA-11-15/16, recorded end-to-end reconciliation and manual strike checks. Replay tests are not those actual exports. |
 | Operator verification | An actual local HTTPS run; login; PAPER/unarmed; valid calendar/clock/session; fresh catalog/feed/recovery; known risk/cost configuration; reconciled wallet; browser close/kill/error/reconnect tests. |
 
@@ -42,18 +47,131 @@ Optional history deletion, sounds and other polish need not delay an explicitly
 accepted first paper UI slice. The report currently tracks a conservative full
 UI milestone. Any smaller first slice must retain working controls, error states,
 accounting and browser evidence before being described as usable for paper trades.
-Next task: FE-14-01 React scaffold, integrating the existing typed API client.
-Client source is not a screen and does not enable trading. A first paper UI slice
+Next task: FE-17-01 Wallet balances.
+The foundation does not enable trading. A first paper UI slice
 may be accepted before optional polish only with all required controls/gates. A shell or screenshot alone will not be reported
 as paper-trading ready.
 
-## Startup steps to publish when the UI is actually ready
+## Verified foundation start/build workflow
 
-The exact frontend run/build commands, URL, TLS certificate paths and activation
-procedure will be verified and added here when that frontend exists. Do not run
-invented `npm` commands against a nonexistent frontend or enable execution by
-editing flags now. Existing HTTPS/same-origin requirements are described in
+Use Node and the installed backend development environment. From PowerShell:
+
+```powershell
+Set-Location D:\WorkSpace\AUREVON\frontend
+npm.cmd ci
+npm.cmd run build
+npm.cmd run lint
+npm.cmd test
+```
+
+`build` runs strict TypeScript checking and generates `frontend/dist` with base
+`/dashboard/`. `npm.cmd` avoids the PC's PowerShell npm.ps1 execution restriction.
+For an actual local operator run, start the existing backend on 127.0.0.1:8000
+using its documented setup. Keep it PAPER/unarmed and preserve observation data;
+do not apply pending migrations outside the owner/backup procedure. Set up local
+HTTPS once from the frontend directory:
+
+```powershell
+npm.cmd run setup:https
+npm.cmd run dev
+```
+
+Open **https://127.0.0.1:5173/dashboard/** (or https://localhost:5173/dashboard/).
+Setup generates an exact local server certificate covering localhost, 127.0.0.1
+and ::1, and trusts that certificate in `Cert:\CurrentUser\Root`. It is not a
+certificate authority and cannot sign other certificates. It requires no paid
+tool or system-wide trust installation. Windows may show its trust confirmation.
+The setup script's execution-policy option applies only to that process.
+
+Vite automatically uses `frontend/.local-tls/localhost-key.pem` and
+`localhost-cert.pem`; no environment variables are needed. The directory is Git
+ignored and its permissions are restricted to this Windows user and SYSTEM.
+Keep its private key on this PC. Re-running setup reuses the matching unexpired
+pair. To use an existing certificate instead, set both `LOCAL_TLS_KEY` and
+`LOCAL_TLS_CERT` to its absolute paths. Vite fails closed without certificate
+files and proxies `/api` and `/ws` to the backend, retaining the browser's origin
+and Secure cookies. Never put passwords, hashes or broker secrets in Vite variables.
+The server-only `LOCAL_API_TARGET` can select an isolated backend; it is not a
+browser cross-origin API base.
+
+Local setup verified 2026-10-29: certificate thumbprint
+`5532F5F6C4B5337ECF1F473E456EB8BF1CE94D9E`, expires 2027-10-29 17:25:53 IST.
+Both URLs return HTTP 200 with normal Windows certificate validation. Chromium
+opens the dashboard sign-in screen using TLS 1.3 with **no certificate bypass**.
+The existing backend on port 8000 was left running; no sign-in, migration or
+market/trading action was performed. Restart the browser if an existing window
+retains an earlier certificate error. No renewal automation is installed.
+
+Trust can be removed specifically for this certificate when no longer needed:
+
+```powershell
+Remove-Item -LiteralPath 'Cert:\CurrentUser\Root\5532F5F6C4B5337ECF1F473E456EB8BF1CE94D9E'
+```
+
+Windows import mechanism: [Microsoft Import-Certificate documentation](https://learn.microsoft.com/en-us/powershell/module/pki/import-certificate).
+
+The automated workflow **was verified** at that HTTPS URL against an isolated
+FastAPI server on 18765 at **https://127.0.0.1:5174/dashboard/**, with a temporary test-only self-signed certificate and
+Chromium's test-scoped certificate override:
+
+```powershell
+npx.cmd playwright install chromium
+npm.cmd run test:browser
+```
+
+This test command starts its own temporary SQLite schema and dummy wallet,
+uses a fixture password, and never loads the actual `.env` or enables the market
+feed. Ports 5174/18765 must be free; operator ports 5173/8000 are left alone.
+It verifies real secure-cookie login, deposit, kill, logout, keyboard dialogs,
+session expiry, reconnect, mobile navigation, lost-reply financial recovery and
+the FE-15 Live and FE-16 History workflows. The temporary DB holds 655 real
+stored synthetic replay bricks with published indicator results. Kite status
+variants, spread/result scenarios and network failures are test
+fixtures; there was no broker login or actual market session. See
+[FE-14 evidence](../testing/FE-14-acceptance.md).
+
+If sign-in says the service is unavailable, check whether a dashboard password
+is configured. Generating a hash without saving it does not configure the server.
+The sign-in screen now shows setup instructions when configured=false. From
+PowerShell in the backend directory, run:
+
+```powershell
+cd D:\WorkSpace\AUREVON\backend
+.\.venv\Scripts\python.exe -m app.tools.dashboard_password --save
+```
+
+Choose and confirm a password of at least 12 characters in the hidden local
+prompts. The command saves its hash directly to the ignored `.env`; it prints
+neither password nor hash and preserves other settings. Stop the existing backend
+with Ctrl+C at a safe owner boundary, then restart it using the documented command.
+Refresh the dashboard and use the password you chose. Never send it in chat.
+The running process reads the hash at startup, so saving alone needs a restart.
+
+In the normal shell, sign in with the existing local dashboard password. Use the
+official Kite link only when configured; its secrets remain on the server. Missing
+wallet ownership remains unavailable/409. A kill with pending closures requires
+fresh quotes and settlement verification. Retry an ambiguous deposit from the same
+tab to reuse its saved action; review the ledger before deliberately discarding it.
+The Live and History routes are implemented; Wallet/Settings detail tools remain
+pending. Open https://127.0.0.1:5173/dashboard/history to inspect FE-16 progress.
+Fixed-period summaries are account-wide PAPER; family/direction/result/grade
+filters scope the table and all-page CSV. Date-range charts are labelled
+separately. Missing data/owners remain unavailable, rather than fabricated zeroes.
+Stop the existing backend safely with Ctrl+C before rerunning the backend command
+at the top of NEXT_SESSION.md to load new history sorting/metadata/extrema views.
+Reuse an existing frontend on 5173 and refresh, instead of starting a duplicate.
+Every future task completion must provide the exact BE/FE commands and URL, per
+the standing user instruction saved at the top of NEXT_SESSION.md.
+See [FE-16 evidence](../testing/FE-16-acceptance.md).
+The operator backend was not restarted in FE-15. Its next safe owner restart
+loads optional plan stop/target, closed-time and dated loss projections plus the
+HTTP integer history-filter fix. No new migration was introduced; never apply
+the earlier pending migrations during a running observation baseline. See
+[FE-15 evidence](../testing/FE-15-acceptance.md).
+Existing owner/security requirements remain in
 [dashboard operations](../api/dashboard-operations.md).
+
+## Operator trading workflow still awaiting acceptance
 
 The verified operator workflow must then be:
 

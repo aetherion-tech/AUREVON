@@ -127,6 +127,8 @@ class HistoryQuery(Frozen):
     result: Literal["WIN", "LOSS", "FLAT"] | None = None
     limit: int = Field(default=50, ge=1, le=100, strict=True)
     cursor: str | None = Field(default=None, max_length=2000)
+    sort: Literal["closed_at", "net"] = "closed_at"
+    order: Literal["asc", "desc"] = "asc"
 
     @model_validator(mode="after")
     def dates(self) -> "HistoryQuery":

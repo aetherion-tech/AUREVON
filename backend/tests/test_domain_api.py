@@ -227,6 +227,109 @@ def admitted(d):
     return identity, r.json()["trade_id"]
 
 
+def test_live_display_plan_risk_and_final_close_projections(domain):
+    from app.api.domain_service import wallet_view
+
+    _, identity = admitted(domain)
+    wallet = domain["wallet"]
+    book = wallet.snapshot()
+    position = book.positions[identity]
+    view = domain["client"].get(f"/api/trades/{identity}").json()
+    assert D(view["stop_debit_per_unit"]) == position.plan.stop_debit_per_unit
+    assert D(view["profit_capture_debit_per_unit"]) == (
+        position.plan.profit_capture_debit_per_unit
+    )
+    assert view["profit_capture_enabled"] == position.plan.profit_capture_enabled
+    assert view["closed_at"] is None
+    assert D(view["margin_return_pct"]) == (
+        position.unrealised / position.plan.required_margin * 100
+    )
+    risk = wallet_view(wallet, book)
+    limit = book.day_capital * wallet.risk.daily_loss_pct / 100
+    assert risk.risk_day == book.day
+    assert risk.daily_loss_limit == limit
+    expected_used = max(D(0), -(book.day_net + position.unrealised - position.costs))
+    assert risk.daily_loss_used == expected_used
+    assert risk.daily_loss_utilisation_pct == expected_used / limit * 100
+    response = post(domain, f"/api/trades/{identity}/close", key="live-close")
+    assert response.status_code == 200
+    for _ in range(6):
+        domain["service"].poll(domain["wall"][0])
+    final = domain["client"].get(f"/api/trades/{identity}").json()
+    assert final["state"] == "CLOSED"
+    assert final["exit_reason"] == "manual"
+    assert final["closed_at"] is not None
+    assert D(final["margin_return_pct"]) == (
+        (D(final["gross"]) - D(final["costs"])) / D(final["margin"]) * 100
+    )
+
+
+def test_live_loss_projection_preserves_unknown_open_marks(domain):
+    from app.api.domain_service import wallet_view
+
+    _, identity = admitted(domain)
+    wallet = domain["wallet"]
+    book = wallet.snapshot()
+    original = book.positions[identity]
+    book.positions[identity] = original.model_copy(update={"unrealised": None})
+    risk = wallet_view(wallet, book)
+    assert risk.daily_loss_limit is not None
+    assert risk.daily_loss_used is None
+    assert risk.daily_loss_utilisation_pct is None
+    assert wallet.snapshot().positions[identity].unrealised == original.unrealised
+
+
+def test_history_http_integer_filters_and_export_keep_internal_validation(domain):
+    from pydantic import ValidationError
+
+    from app.wallet.reporting import HistoryQuery
+
+    client = domain["client"]
+    for path in ("/api/trades", "/api/trades/export"):
+        assert client.get(path + "?limit=1&grade=1").status_code == 200
+        assert client.get(path + "?limit=1&direction=1").status_code == 200
+        assert client.get(path + "?limit=1&direction=-1").status_code == 200
+        assert client.get(path + "?direction=0").status_code == 422
+        assert client.get(path + "?direction=1.5").status_code == 422
+        assert client.get(path + "?limit=1.5").status_code == 422
+        assert client.get(path + "?limit=0").status_code == 422
+    with pytest.raises(ValidationError):
+        HistoryQuery(limit="1")
+
+
+def test_history_period_extremes_and_trade_lineage_are_readonly(domain):
+    _, identity = admitted(domain)
+    c = domain["client"]
+    detail = c.get(f"/api/trades/{identity}").json()
+    assert detail["signal_stream"] == "api-test"
+    assert detail["signal_index"] == domain["index"]
+    assert detail["signal_explanation"]
+    assert detail["orders"][0]["created_at"]
+    assert detail["orders"][0]["eligible_at"]
+    assert (
+        post(domain, f"/api/trades/{identity}/close", key="history-close").status_code
+        == 200
+    )
+    for _ in range(6):
+        domain["service"].poll(domain["wall"][0])
+    before = domain["wallet"].snapshot()
+    row = c.get("/api/trades?sort=net&order=desc&limit=1").json()["items"][0]
+    report = c.get("/api/pnl/summary?period=all").json()
+    assert report["best_trade_id"] == report["worst_trade_id"] == identity
+    assert D(report["best_trade_net"]) == D(row["net"])
+    assert report["best_trade_net"] == report["worst_trade_net"]
+    assert row["created_at"] == detail["created_at"]
+    assert row["signal_id"] == before.positions[identity].plan.signal.signal_id
+    assert domain["wallet"].snapshot() == before
+
+
+def test_empty_period_extremes_remain_unavailable(domain):
+    report = domain["client"].get("/api/pnl/summary?period=all").json()
+    assert report["trades"] == 0
+    assert report["best_trade_id"] is None and report["best_trade_net"] is None
+    assert report["worst_trade_id"] is None and report["worst_trade_net"] is None
+
+
 @pytest.mark.parametrize(
     "path",
     [

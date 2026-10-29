@@ -2472,6 +2472,30 @@
             ],
             "title": "Costs"
           },
+          "created_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Created At"
+          },
+          "eligible_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Eligible At"
+          },
           "fill_price": {
             "anyOf": [
               {
@@ -2825,6 +2849,29 @@
             "title": "Basis",
             "type": "string"
           },
+          "best_trade_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Best Trade Id"
+          },
+          "best_trade_net": {
+            "anyOf": [
+              {
+                "pattern": "^-?[0-9]+\\.[0-9]{2}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Best Trade Net"
+          },
           "by_family_net": {
             "additionalProperties": {
               "pattern": "^-?[0-9]+\\.[0-9]{2}$",
@@ -2886,6 +2933,29 @@
           "wins": {
             "title": "Wins",
             "type": "integer"
+          },
+          "worst_trade_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Worst Trade Id"
+          },
+          "worst_trade_net": {
+            "anyOf": [
+              {
+                "pattern": "^-?[0-9]+\\.[0-9]{2}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Worst Trade Net"
           }
         },
         "required": [
@@ -2962,6 +3032,18 @@
       "PositionView": {
         "additionalProperties": false,
         "properties": {
+          "closed_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Closed At"
+          },
           "costs": {
             "pattern": "^-?[0-9]+\\.[0-9]{2}$",
             "title": "Costs",
@@ -2992,6 +3074,17 @@
             "title": "Gross",
             "type": "string"
           },
+          "indicator_trade_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Indicator Trade Id"
+          },
           "legs": {
             "items": {
               "$ref": "#/components/schemas/LegView"
@@ -3003,6 +3096,17 @@
             "pattern": "^-?[0-9]+\\.[0-9]{2}$",
             "title": "Margin",
             "type": "string"
+          },
+          "margin_return_pct": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Margin Return Pct"
           },
           "mark_at": {
             "anyOf": [
@@ -3034,6 +3138,61 @@
             "title": "Orders",
             "type": "array"
           },
+          "profit_capture_debit_per_unit": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Profit Capture Debit Per Unit"
+          },
+          "profit_capture_enabled": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Profit Capture Enabled"
+          },
+          "signal_explanation": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Signal Explanation"
+          },
+          "signal_index": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Signal Index"
+          },
+          "signal_stream": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Signal Stream"
+          },
           "spread_debit": {
             "anyOf": [
               {
@@ -3047,6 +3206,17 @@
           },
           "state": {
             "$ref": "#/components/schemas/PositionStatus"
+          },
+          "stop_debit_per_unit": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Stop Debit Per Unit"
           },
           "trade_id": {
             "title": "Trade Id",
@@ -4955,6 +5125,18 @@
             "title": "Costs",
             "type": "string"
           },
+          "created_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Created At"
+          },
           "day": {
             "format": "date",
             "title": "Day",
@@ -4967,6 +5149,17 @@
             ],
             "title": "Direction",
             "type": "integer"
+          },
+          "duration_seconds": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Duration Seconds"
           },
           "entry_capital": {
             "pattern": "^-?[0-9]+\\.[0-9]{2}$",
@@ -4990,6 +5183,28 @@
             "pattern": "^-?[0-9]+\\.[0-9]{2}$",
             "title": "Gross",
             "type": "string"
+          },
+          "hedge_entry": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Hedge Entry"
+          },
+          "hedge_exit": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Hedge Exit"
           },
           "hedge_symbol": {
             "title": "Hedge Symbol",
@@ -5016,6 +5231,17 @@
             "title": "Net",
             "type": "string"
           },
+          "quantity": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Quantity"
+          },
           "reason": {
             "anyOf": [
               {
@@ -5036,9 +5262,42 @@
             "title": "Result",
             "type": "string"
           },
+          "short_entry": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Short Entry"
+          },
+          "short_exit": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Short Exit"
+          },
           "short_symbol": {
             "title": "Short Symbol",
             "type": "string"
+          },
+          "signal_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Signal Id"
           },
           "trade_id": {
             "title": "Trade Id",
@@ -5136,6 +5395,39 @@
             "title": "Balance",
             "type": "string"
           },
+          "daily_loss_limit": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Daily Loss Limit"
+          },
+          "daily_loss_used": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Daily Loss Used"
+          },
+          "daily_loss_utilisation_pct": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Daily Loss Utilisation Pct"
+          },
           "day_trades": {
             "title": "Day Trades",
             "type": "integer"
@@ -5167,6 +5459,18 @@
             "pattern": "^-?[0-9]+\\.[0-9]{2}$",
             "title": "Reserved",
             "type": "string"
+          },
+          "risk_day": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Risk Day"
           }
         },
         "required": [
@@ -12361,6 +12665,34 @@
               ],
               "title": "Cursor"
             }
+          },
+          {
+            "in": "query",
+            "name": "sort",
+            "required": false,
+            "schema": {
+              "default": "closed_at",
+              "enum": [
+                "closed_at",
+                "net"
+              ],
+              "title": "Sort",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "order",
+            "required": false,
+            "schema": {
+              "default": "asc",
+              "enum": [
+                "asc",
+                "desc"
+              ],
+              "title": "Order",
+              "type": "string"
+            }
           }
         ],
         "responses": {
@@ -12667,6 +12999,34 @@
                 }
               ],
               "title": "Cursor"
+            }
+          },
+          {
+            "in": "query",
+            "name": "sort",
+            "required": false,
+            "schema": {
+              "default": "closed_at",
+              "enum": [
+                "closed_at",
+                "net"
+              ],
+              "title": "Sort",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "order",
+            "required": false,
+            "schema": {
+              "default": "asc",
+              "enum": [
+                "asc",
+                "desc"
+              ],
+              "title": "Order",
+              "type": "string"
             }
           }
         ],

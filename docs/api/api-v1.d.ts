@@ -1893,6 +1893,10 @@ export interface components {
         OrderView: {
             /** Costs */
             costs: string | null;
+            /** Created At */
+            created_at?: string | null;
+            /** Eligible At */
+            eligible_at?: string | null;
             /** Fill Price */
             fill_price: string | null;
             /** Filled At */
@@ -2015,6 +2019,10 @@ export interface components {
              * @constant
              */
             basis: "CLOSED_TRADES_NET_OF_ESTIMATED_COSTS";
+            /** Best Trade Id */
+            best_trade_id?: string | null;
+            /** Best Trade Net */
+            best_trade_net?: string | null;
             /** By Family Net */
             by_family_net: {
                 [key: string]: string;
@@ -2045,6 +2053,10 @@ export interface components {
             trades: number;
             /** Wins */
             wins: number;
+            /** Worst Trade Id */
+            worst_trade_id?: string | null;
+            /** Worst Trade Net */
+            worst_trade_net?: string | null;
         };
         /** PositionData */
         PositionData: {
@@ -2064,6 +2076,8 @@ export interface components {
         PositionStatus: "ENTERING" | "OPEN" | "CLOSING" | "UNWINDING" | "CLOSED";
         /** PositionView */
         PositionView: {
+            /** Closed At */
+            closed_at?: string | null;
             /** Costs */
             costs: string;
             /**
@@ -2077,10 +2091,14 @@ export interface components {
             exit_reason: string | null;
             /** Gross */
             gross: string;
+            /** Indicator Trade Id */
+            indicator_trade_id?: string | null;
             /** Legs */
             legs: components["schemas"]["LegView"][];
             /** Margin */
             margin: string;
+            /** Margin Return Pct */
+            margin_return_pct?: string | null;
             /** Mark At */
             mark_at: string | null;
             /**
@@ -2093,9 +2111,21 @@ export interface components {
             net: string;
             /** Orders */
             orders: components["schemas"]["OrderView"][];
+            /** Profit Capture Debit Per Unit */
+            profit_capture_debit_per_unit?: string | null;
+            /** Profit Capture Enabled */
+            profit_capture_enabled?: boolean | null;
+            /** Signal Explanation */
+            signal_explanation?: string | null;
+            /** Signal Index */
+            signal_index?: number | null;
+            /** Signal Stream */
+            signal_stream?: string | null;
             /** Spread Debit */
             spread_debit: string | null;
             state: components["schemas"]["PositionStatus"];
+            /** Stop Debit Per Unit */
+            stop_debit_per_unit?: string | null;
             /** Trade Id */
             trade_id: string;
             /** Unrealised */
@@ -3049,6 +3079,8 @@ export interface components {
             closed_at: string;
             /** Costs */
             costs: string;
+            /** Created At */
+            created_at?: string | null;
             /**
              * Day
              * Format: date
@@ -3059,6 +3091,8 @@ export interface components {
              * @enum {integer}
              */
             direction: -1 | 1;
+            /** Duration Seconds */
+            duration_seconds?: number | null;
             /** Entry Capital */
             entry_capital: string;
             /**
@@ -3070,6 +3104,10 @@ export interface components {
             grade: number;
             /** Gross */
             gross: string;
+            /** Hedge Entry */
+            hedge_entry?: string | null;
+            /** Hedge Exit */
+            hedge_exit?: string | null;
             /** Hedge Symbol */
             hedge_symbol: string;
             /** Margin */
@@ -3078,6 +3116,8 @@ export interface components {
             margin_return_pct: string | null;
             /** Net */
             net: string;
+            /** Quantity */
+            quantity?: number | null;
             /** Reason */
             reason: string | null;
             /**
@@ -3085,8 +3125,14 @@ export interface components {
              * @enum {string}
              */
             result: "WIN" | "LOSS" | "FLAT";
+            /** Short Entry */
+            short_entry?: string | null;
+            /** Short Exit */
+            short_exit?: string | null;
             /** Short Symbol */
             short_symbol: string;
+            /** Signal Id */
+            signal_id?: string | null;
             /** Trade Id */
             trade_id: string;
         };
@@ -3134,6 +3180,12 @@ export interface components {
             auto_topup: boolean;
             /** Balance */
             balance: string;
+            /** Daily Loss Limit */
+            daily_loss_limit?: string | null;
+            /** Daily Loss Used */
+            daily_loss_used?: string | null;
+            /** Daily Loss Utilisation Pct */
+            daily_loss_utilisation_pct?: string | null;
             /** Day Trades */
             day_trades: number;
             /** Free */
@@ -3152,6 +3204,8 @@ export interface components {
             mode: "PAPER";
             /** Reserved */
             reserved: string;
+            /** Risk Day */
+            risk_day?: string | null;
         };
         WebSocketMessage: components["schemas"]["SnapshotFrame"] | components["schemas"]["EventBatch"] | components["schemas"]["ResyncFrame"] | components["schemas"]["HeartbeatFrame"];
     };
@@ -8892,6 +8946,8 @@ export interface operations {
                 result?: ("WIN" | "LOSS" | "FLAT") | null;
                 limit?: number;
                 cursor?: string | null;
+                sort?: "closed_at" | "net";
+                order?: "asc" | "desc";
             };
             header?: never;
             path?: never;
@@ -9039,6 +9095,8 @@ export interface operations {
                 result?: ("WIN" | "LOSS" | "FLAT") | null;
                 limit?: number;
                 cursor?: string | null;
+                sort?: "closed_at" | "net";
+                order?: "asc" | "desc";
             };
             header?: never;
             path?: never;

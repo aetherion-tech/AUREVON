@@ -46,6 +46,26 @@ from app.wallet.service import WalletService
 
 def wallet_view(wallet: WalletService, b: PaperBook | None = None) -> WalletView:
     b = b if b is not None else wallet.snapshot()
+    active = [p for p in b.positions.values() if p.status in ACTIVE]
+    limit = b.day_capital * wallet.risk.daily_loss_pct / 100
+    used = (
+        max(
+            Decimal(0),
+            -(
+                b.day_net
+                + sum(
+                    (
+                        p.unrealised - p.costs
+                        for p in active
+                        if p.unrealised is not None
+                    ),
+                    Decimal(0),
+                )
+            ),
+        )
+        if all(p.unrealised is not None for p in active)
+        else None
+    )
     return WalletView(
         initialized=bool(b.ledger),
         balance=b.balance,
@@ -55,10 +75,52 @@ def wallet_view(wallet: WalletService, b: PaperBook | None = None) -> WalletView
         killed=b.killed,
         loss_locked=b.loss_locked,
         day_trades=b.day_trades,
+        risk_day=b.day,
+        daily_loss_limit=limit if b.day is not None and limit > 0 else None,
+        daily_loss_used=used if b.day is not None and limit > 0 else None,
+        daily_loss_utilisation_pct=(
+            used / limit * 100
+            if used is not None and b.day is not None and limit > 0
+            else None
+        ),
     )
 
 
-def position_view(p: Position) -> PositionView:
+def position_view(p: Position, engine: Engine | None = None) -> PositionView:
+    source: dict[str, Any] = {}
+    if engine is not None:
+        try:
+            stream, raw_index, raw_ordinal = p.plan.signal.signal_id.rsplit(":", 2)
+            index, ordinal = int(raw_index), int(raw_ordinal)
+            with Session(engine) as db:
+                row = db.get(IndicatorResult, (stream, index))
+                if row is not None and ordinal >= 0:
+                    result = json.loads(row.payload)
+                    event = result["events"][ordinal]
+                    if (
+                        event["kind"] == "ENTRY"
+                        and event["trade_id"] == p.plan.signal.trade_id
+                        and event["direction"] == p.plan.signal.direction
+                    ):
+                        explanation = next(
+                            (
+                                s.get("explanation", {}).get("tooltip")
+                                for s in result["signals"]
+                                if s["accepted"]
+                                and s["type"] == event["type"]
+                                and s["direction"] == event["direction"]
+                            ),
+                            None,
+                        )
+                        source = dict(
+                            signal_stream=stream,
+                            signal_index=index,
+                            signal_explanation=explanation,
+                            indicator_trade_id=event["trade_id"],
+                        )
+        except (ValueError, IndexError, KeyError):
+            pass
+    return_basis = p.gross - p.costs if p.status.value == "CLOSED" else p.unrealised
     legs = []
     for label, leg in (("entry_short", p.plan.short), ("entry_hedge", p.plan.hedge)):
         order = p.orders.get(label)
@@ -74,6 +136,7 @@ def position_view(p: Position) -> PositionView:
             )
         )
     return PositionView(
+        **source,
         trade_id=p.id,
         decision_id=p.decision_id,
         state=p.status,
@@ -87,6 +150,15 @@ def position_view(p: Position) -> PositionView:
         unrealised=p.unrealised,
         spread_debit=p.spread_debit,
         exit_reason=p.exit_reason,
+        stop_debit_per_unit=p.plan.stop_debit_per_unit,
+        profit_capture_debit_per_unit=p.plan.profit_capture_debit_per_unit,
+        profit_capture_enabled=p.plan.profit_capture_enabled,
+        margin_return_pct=(
+            return_basis / p.plan.required_margin * 100
+            if p.plan.required_margin > 0 and return_basis is not None
+            else None
+        ),
+        closed_at=p.transitions[-1].at if p.status.value == "CLOSED" else None,
         orders=[
             OrderView(
                 id=o.id,
@@ -98,6 +170,8 @@ def position_view(p: Position) -> PositionView:
                 fill_price=o.fill.price if o.fill else None,
                 costs=o.fill.costs if o.fill else None,
                 reason=o.reason,
+                created_at=o.at,
+                eligible_at=o.eligible_at,
             )
             for o in p.orders.values()
         ],

@@ -16,3 +16,6 @@ backend/data/
 *.db-wal
 node_modules/
 dist/
+.local-tls/
+test-results/
+playwright-report/

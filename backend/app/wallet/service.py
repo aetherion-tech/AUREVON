@@ -6,19 +6,38 @@ import hashlib
 import io
 import json
 from datetime import datetime
-from decimal import Decimal
+from decimal import Decimal, InvalidOperation
 from typing import Any
 
 from sqlalchemy import Engine, select, tuple_
 from sqlalchemy.orm import Session
 
 from app.db.models import PaperTradeSummary, WalletAccount
-from app.execution.models import FillSettings, PaperBook, RiskSettings
+from app.execution.models import FillSettings, PaperBook, Position, RiskSettings
 from app.execution.service import ACTIVE, PaperExecution
 from app.market.warmup import SessionCalendar, local_time
 from app.strategy.models import CapitalSnapshot
 from app.wallet.contracts import MAX_MONEY, WalletSettings, money
 from app.wallet.reporting import HistoryQuery, Period, bounds, summary
+
+
+def history_display(p: Position) -> dict[str, Any]:
+    def fill(label: str) -> str | None:
+        order = p.orders.get(label)
+        return str(order.fill.price) if order and order.fill else None
+
+    return dict(
+        created_at=p.transitions[0].at.isoformat(),
+        quantity=p.plan.short.quantity,
+        short_entry=fill("entry_short"),
+        hedge_entry=fill("entry_hedge"),
+        short_exit=fill("exit_short"),
+        hedge_exit=fill("exit_hedge"),
+        duration_seconds=int(
+            (p.transitions[-1].at - p.transitions[0].at).total_seconds()
+        ),
+        signal_id=p.plan.signal.signal_id,
+    )
 
 
 class WalletService(PaperExecution):
@@ -127,7 +146,7 @@ class WalletService(PaperExecution):
 
     def history(self, query: HistoryQuery | None = None) -> dict[str, Any]:
         query = query or HistoryQuery()
-        revision = self._mutate(lambda b, r: r)
+        revision, positions = self._mutate(lambda b, r: (r, dict(b.positions)))
         fingerprint = hashlib.sha256(
             (
                 self.account_id
@@ -135,6 +154,7 @@ class WalletService(PaperExecution):
             ).encode()
         ).hexdigest()
         after: tuple[str, str] | None = None
+        after_net = Decimal(0)
         if query.cursor:
             try:
                 cursor = json.loads(base64.urlsafe_b64decode(query.cursor.encode()))
@@ -143,7 +163,11 @@ class WalletService(PaperExecution):
                 after = cursor["at"], cursor["id"]
                 if not all(isinstance(v, str) for v in after):
                     raise ValueError("invalid cursor")
-            except (KeyError, TypeError, ValueError) as error:
+                if query.sort == "net":
+                    after_net = Decimal(cursor["value"])
+                    if not after_net.is_finite():
+                        raise ValueError("invalid net cursor")
+            except (KeyError, TypeError, ValueError, InvalidOperation) as error:
                 raise ValueError("invalid or stale history cursor") from error
         with self.engine.connect() as connection, Session(bind=connection) as db:
             connection.exec_driver_sql("BEGIN")
@@ -167,16 +191,58 @@ class WalletService(PaperExecution):
                 statement = statement.where(
                     PaperTradeSummary.day <= query.end.isoformat()
                 )
-            if after is not None:
+            if after is not None and query.sort == "closed_at":
+                key = tuple_(PaperTradeSummary.closed_at, PaperTradeSummary.trade_id)
                 statement = statement.where(
-                    tuple_(PaperTradeSummary.closed_at, PaperTradeSummary.trade_id)
-                    > after
+                    key > after if query.order == "asc" else key < after
                 )
-            found = db.scalars(
-                statement.order_by(
-                    PaperTradeSummary.closed_at, PaperTradeSummary.trade_id
-                ).limit(query.limit + 1)
-            ).all()
+            if query.sort == "net":
+                candidates = db.scalars(statement.limit(10001)).all()
+                if len(candidates) > 10000:
+                    raise ValueError("net sort exceeds 10000 trades; narrow dates")
+                found = sorted(
+                    candidates,
+                    key=lambda r: (
+                        Decimal(json.loads(r.payload)["net"]),
+                        r.closed_at,
+                        r.trade_id,
+                    ),
+                    reverse=query.order == "desc",
+                )
+                if after is not None:
+                    boundary = (after_net, *after)
+                    found = [
+                        r
+                        for r in found
+                        if (
+                            (
+                                Decimal(json.loads(r.payload)["net"]),
+                                r.closed_at,
+                                r.trade_id,
+                            )
+                            > boundary
+                            if query.order == "asc"
+                            else (
+                                Decimal(json.loads(r.payload)["net"]),
+                                r.closed_at,
+                                r.trade_id,
+                            )
+                            < boundary
+                        )
+                    ]
+                found = found[: query.limit + 1]
+            else:
+                columns = (PaperTradeSummary.closed_at, PaperTradeSummary.trade_id)
+                found = list(
+                    db.scalars(
+                        statement.order_by(
+                            *(
+                                c.asc() if query.order == "asc" else c.desc()
+                                for c in columns
+                            )
+                        ).limit(query.limit + 1)
+                    ).all()
+                )
             selected = found[: query.limit]
             cursor_text = None
             if len(found) > query.limit:
@@ -188,11 +254,15 @@ class WalletService(PaperExecution):
                             query=fingerprint,
                             at=last.closed_at,
                             id=last.trade_id,
+                            value=json.loads(last.payload)["net"],
                         )
                     ).encode()
                 ).decode()
             return dict(
-                items=[json.loads(r.payload) for r in selected],
+                items=[
+                    {**json.loads(r.payload), **history_display(positions[r.trade_id])}
+                    for r in selected
+                ],
                 next_cursor=cursor_text,
                 revision=revision,
                 mode="PAPER",

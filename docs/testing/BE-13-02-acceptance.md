@@ -28,11 +28,22 @@ an authenticated session and CSRF header; revoked sessions receive 401.
 
 ## Local setup
 
-From backend, run `uv run python -m app.tools.dashboard_password` locally. Enter
-and confirm a unique password of at least 12 characters at the hidden prompts.
-Copy the resulting Argon2 hash into the ignored `.env` as
-`DASHBOARD_PASSWORD_HASH`. Do not send passwords or hashes in conversation.
-Restart the application after changing the hash. Actual `.env` was not changed.
+From backend, run
+`.\.venv\Scripts\python.exe -m app.tools.dashboard_password --save` locally.
+Enter and confirm a unique password of at least 12 characters at hidden prompts.
+Save mode writes the quoted Argon2 hash directly to the ignored `backend/.env`,
+preserving other settings and printing neither password nor hash. Without
+`--save`, the original hash-printing mode remains available for manual setup.
+Do not send passwords or hashes in conversation. Restart the application after
+changing the hash. Enter the chosen password in the browser, not the hash.
+
+2026-10-29 login follow-up: the actual backend reported configured=false and its
+local hash was absent. Added direct save mode and a clear React setup state that
+does not offer login until configured. 3 temporary-file setup tests, 10 existing
+auth tests, 15 frontend tests and two targeted HTTPS browser flows cover this
+follow-up; build/typecheck/lint, Ruff and tool mypy pass. Earlier full backend
+result remains 771; this does not claim a new full-suite run. Actual password
+selection is performed by the operator in a local hidden prompt.
 
 Use HTTPS for portable Secure cookie behavior. Tests use https://testserver;
 development proxy and production serving configuration remain BE-13-04. Do not

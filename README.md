@@ -1,6 +1,6 @@
 # AUREVON
 
-A Python application for a Renko indicator, a future React dashboard, and paper
+A Python application for a Renko indicator, a React dashboard foundation, and paper
 trading with Zerodha Kite market data. Development follows small, testable steps.
 
 ## Current progress
@@ -13,7 +13,7 @@ trading with Zerodha Kite market data. Development follows small, testable steps
 | 3b. Price data and Renko | Pending | Managed data/recovery core completed; real-market acceptance and TradingView parity pending |
 | 4. Indicator engine | Pending | Pine port and TradingView signal parity |
 | 5. Paper execution | Pending | Replay strategy/execution/wallet code complete; managed pipeline and reference/gate acceptance pending |
-| 6. React dashboard | Pending | Live, History, Wallet, Settings; React scaffold/build absent; typed API client module exists |
+| 6. React dashboard | Pending | Live, History, Wallet, Settings; FE-14/15/16 complete; Live and History delivered; Wallet/Settings detail screens remain |
 
 The current application reports PAPER mode. An isolated replay paper executor
 simulates fills; managed application execution remains inactive pending gates.
@@ -27,7 +27,7 @@ verified startup/use instructions in [local paper UI readiness](docs/operations/
 
 ## Start here - delivery plan v2 (45-day target, 60-day review)
 
-**Plan updated: 2026-10-29. Product status: 168 Completed / 112 Pending of 280.**
+**Plan updated: 2026-10-29. Product status: 206 Completed / 74 Pending of 280.**
 **Cash target: INR 10,000; absolute project ceiling: INR 20,000 including taxes/fees.**
 This replaces the execution schedule, not the product acceptance requirements.
 The original master checklist, stable IDs and all unfinished scope remain below.
@@ -37,17 +37,17 @@ The original master checklist, stable IDs and all unfinished scope remain below.
 | Short next-session handoff | [NEXT_SESSION.md](docs/plans/NEXT_SESSION.md) |
 | Immutable Version 1 backup | [README.v1.md](docs/plans/README.v1.md), [SHA-256](docs/plans/README.v1.sha256) |
 | Plan preparation | Completed on 2026-10-26; documentation only, outside the 280 product tasks |
-| Current implementation slot | BE-13 complete (20/20) as backend/domain API and frontend-client contract code. Signals, controls, history, P&L, wallet, settings, preview, alerts and typed client integration accepted. Next: FE-14-01 React scaffold. Normal startup stays detached/PAPER/unarmed; managed activation and actual reference/G2/G3 gates remain Pending. Local UI paper trading is NOT READY. |
+| Current implementation slot | FE-16 complete (8/8): History/P&L cards, charts, period tables, URL filters, globally sorted cursor paging, detail/timeline/chart and matching CSV. Next FE-17-01 Wallet. Evidence: docs/testing/FE-16-acceptance.md. Managed/reference/G2/G3 acceptance remains Pending; local paper trading is NOT READY. |
 | Kickoff / elapsed day | 2026-10-26 IST / current D04 (2026-10-29); task carry-over and early batches are recorded without renumbering elapsed days |
 | Existing plan, all-in price, renewal and usage-reset times | Unverified; obtain actual account readings, never assume a reset/renewal date |
 | Cash already spent / reserved / remaining | Unverified; reconcile receipts before proposing any purchase |
 | Paper status | Manual Pine practice remains separate. Isolated execution/accounting code is ready; managed automated paper and the local trading UI remain inactive. Readiness: python -m app.tools.local_ui_readiness; docs/operations/local-paper-ui.md. |
 | Qualified formal paper sessions | 0 evidenced; dates, release/config identity, shadow checks and reconciliation required |
-| Latest application verification | D04, 2026-10-29 BE-13 domain batch: 768 full tests passed, 47 new domain cases; actual typed frontend client against an isolated FastAPI server. Ruff lint/format, strict mypy, OpenAPI/TypeScript drift/compile passed; one existing warning. docs/testing/BE-13-domain-acceptance.md. |
+| Latest application verification | D04 FE-16: 780 full backend tests plus 7 targeted follow-up checks; 21 frontend tests; 20 HTTPS Chromium flows. Build/typecheck/lint, Ruff/strict mypy and OpenAPI/TypeScript drift/compile pass. One existing warning. docs/testing/FE-16-acceptance.md. |
 
 ### Delivery scope, day numbering and realistic targets
 
-- D01-D45 target the local, single-user NIFTY **paper application** and the 112
+- D01-D45 target the local, single-user NIFTY **paper application** and the 74
   unfinished reference/backend/frontend/paper-release tasks. D46-D60 reserve time
   for observation, verified defects and acceptance. All dates are targets.
 - D01 is the actual kickoff calendar day in IST, not a billing date. Later day
@@ -236,7 +236,7 @@ Day statuses below are separate from the 280 product-task counts.
 | D01 | Pending | Code Completed: correction + bounded retry; input still Pending | BE-05-10, BE-05-11, REF-00-03 | H; extra cash 0 by default | BE-05-10 through BE-05-17 and BE-06-01 through BE-06-11 and BE-13-01 Completed; latest checks below; REF-00-03 awaits actual settings. Billing/tokens Unknown; no recharge initiated. Next ready code: BE-13-02. |
 | D02 | Pending | REST pacing and recording/checkpoint crash reconciliation | BE-05-12, BE-05-13, REF-00-04 | H; extra cash 0 by default | BE-05-12/13 complete early D01; BE-13 now 10/20 accepted (367 tests plus generated types). REF-00-04 Pending. Next upstream BE-08-01; no observation/purchase; account facts Unknown. |
 | D03 | Completed | Readiness, delay, recovery checks and explicit tick-fidelity policy | BE-05-14, BE-05-15, BE-05-16, BE-05-17 | H; extra cash 0 by default | BE-05-14/15/16/17 verified early on D01 with 290 tests and quality checks. Calibration/account readings remain Unknown; no entries enabled. |
-| D04 | Completed | Managed worker ownership and initial typed contracts | BE-06-01, BE-06-02, BE-06-03, BE-13-01 | H; extra cash 0 by default | BE-06-01/02/03 and BE-13-01 Completed early on D01; 328 tests and quality checks passed. Dashboard auth next; no worker-control route activated. |
+| D04 | Completed | Managed worker ownership and initial typed contracts | BE-06-01, BE-06-02, BE-06-03, BE-13-01 | H; extra cash 0 by default | BE-06-01/02/03 and BE-13-01 Completed early on D01; 328 tests and quality checks passed. FE-14-01 through 15 also completed D04: 8 component/unit and 6 HTTPS browser flows, 94 backend regressions; FE-15-01 through 15 also completed D04: 771 backend tests, 15 frontend tests and 13 HTTPS browser flows; FE-16-01 through 08 also completed D04: 780 backend tests, 21 frontend tests and 20 browser flows; next FE-17-01. No managed paper activation. |
 | D05 | Completed | Expiry, calendar, morning catalog and scheduled sessions | BE-06-04, BE-06-05, BE-06-06, BE-06-07 | H; extra cash 0 by default | BE-06-04/05/06/07 verified early on D01 using sourced 2026 calendar and fake broker/socket tests. Account/billing still Unknown; no purchase. |
 | D06 | Pending | Day context, quality events, production replay and lifecycle tests | BE-06-08, BE-06-09, BE-06-10, BE-06-11 | H; extra cash 0 by default | BE-06-08/09/10/11 Completed early on D01 (308 tests); actual market recording/observation remains unperformed, so daily observation acceptance stays Pending. |
 | D07 | Pending | Reference exports and real historical/feed checks | REF-00-05, REF-00-06, REF-00-07, QA-07-01, QA-07-02 | M; extra cash 0 by default | Weekly usage/cash review; input-dependent work stays Pending if exports/feed unavailable. |
@@ -260,14 +260,14 @@ Day statuses below are separate from the 280 product-task counts.
 | D25 | Pending | Failure drills before formal paper observation | QA-19-11, QA-19-12, QA-19-13 | H; extra cash 0 by default | Prepare OPS-19-02 operator command slice; final packaging is D41. Shadow setup and readiness required. |
 | D26 | Pending | History/settings/preview/alerts APIs; paper observation start target | BE-13-09, BE-13-10, BE-13-12, BE-13-13, BE-13-14 | H; extra cash 0 by default | Matching BE-13 API code completed early D04. Daily paper-observation acceptance remains Pending actual gates/drills/shadow setup and an eligible real exchange session; qualifying count 0. |
 | D27 | Completed | Bounded WebSocket delivery, ordering and snapshot resync | BE-13-16, BE-13-17, BE-13-18 | H; extra cash 0 by default | Code batch completed early D02: typed bounded WebSocket transport, ordered resync; 367 tests. Domain producers/real paper observations remain separate Pending gates. |
-| D28 | Pending | Frontend scaffold, shared UI, number/time formats and typed client | FE-14-01, FE-14-02, FE-14-03, FE-14-04, FE-14-05, FE-14-06 | M; extra cash 0 by default | Weekly budget review; check renewal due dates, not an assumed monthly reset. |
-| D29 | Pending | Login, Kite status, top bar, wallet chip and kill dialog | FE-14-07, FE-14-08, FE-14-09, FE-14-10, FE-14-11 | M; extra cash 0 by default | Session-time read-only observation; merge UI changes after market close. |
-| D30 | Pending | Socket reducers, shared error states, tests and contract generation | FE-14-12, FE-14-13, FE-14-14, FE-14-15, BE-13-20 | H; extra cash 0 by default | BE-13-20 completed early D04 with generated contracts and real frontend-client auth/action/resync integration. FE-14-12/13/14/15 remain Pending React/browser integration. |
-| D31 | Pending | Live Renko chart, history loading and indicator/event overlays | FE-15-01, FE-15-02, FE-15-03, FE-15-04, FE-15-05 | M; extra cash 0 by default | Use stable brick indices and shared fixtures; never redraw entire history per tick. |
-| D32 | Pending | Trade/level overlays, toolbar, direction and active-position actions | FE-15-06, FE-15-07, FE-15-08, FE-15-09, FE-15-10 | M; extra cash 0 by default | Verify manual close/kill result semantics; preserve paper accounting baseline. |
-| D33 | Pending | Live summaries, signals, alerts, resync and shadow UI completion | FE-15-11, FE-15-12, FE-15-13, FE-15-14, FE-15-15, OPS-19-08 | M; extra cash 0 by default | Complete shadow ingestion/comparison/UI row only with full evidence; retain earlier daily comparisons. |
-| D34 | Pending | History cards, P&L charts, period tables and filters | FE-16-01, FE-16-02, FE-16-03, FE-16-04 | M; extra cash 0 by default | Daily paper session/reconciliation note; no strategy tuning during observation. |
-| D35 | Pending | Trade table/details/export and consistency verification | FE-16-05, FE-16-06, FE-16-07, FE-16-08 | M; extra cash 0 by default | Weekly usage/cash and qualifying-session count review. |
+| D28 | Completed | Frontend scaffold, shared UI, number/time formats and typed client | FE-14-01, FE-14-02, FE-14-03, FE-14-04, FE-14-05, FE-14-06 | M; extra cash 0 by default | Completed early D04: all assigned code IDs accepted; FE-14 evidence in docs/testing/FE-14-acceptance.md. Cash/renewal facts remain Unknown; no actual market observation or trade claimed. |
+| D29 | Completed | Login, Kite status, top bar, wallet chip and kill dialog | FE-14-07, FE-14-08, FE-14-09, FE-14-10, FE-14-11 | M; extra cash 0 by default | Completed early D04: all assigned code IDs accepted; FE-14 evidence in docs/testing/FE-14-acceptance.md. Cash/renewal facts remain Unknown; no actual market observation or trade claimed. |
+| D30 | Completed | Socket reducers, shared error states, tests and contract generation | FE-14-12, FE-14-13, FE-14-14, FE-14-15, BE-13-20 | H; extra cash 0 by default | Completed early D04: all assigned code IDs accepted; FE-14 evidence in docs/testing/FE-14-acceptance.md. Cash/renewal facts remain Unknown; no actual market observation or trade claimed. |
+| D31 | Completed | Live Renko chart, history loading and indicator/event overlays | FE-15-01, FE-15-02, FE-15-03, FE-15-04, FE-15-05 | M; extra cash 0 by default | Completed early D04; all assigned FE-15 code IDs accepted; docs/testing/FE-15-acceptance.md. No actual market observation or gate waiver. |
+| D32 | Completed | Trade/level overlays, toolbar, direction and active-position actions | FE-15-06, FE-15-07, FE-15-08, FE-15-09, FE-15-10 | M; extra cash 0 by default | Completed early D04; all assigned FE-15 code IDs accepted; docs/testing/FE-15-acceptance.md. No actual market observation or gate waiver. |
+| D33 | Pending | Live summaries, signals, alerts, resync and shadow UI completion | FE-15-11, FE-15-12, FE-15-13, FE-15-14, FE-15-15, OPS-19-08 | M; extra cash 0 by default | FE-15-11 through 15 completed early D04; OPS-19-08 remains Pending actual shadow ingestion/comparison evidence. docs/testing/FE-15-acceptance.md. |
+| D34 | Completed | History cards, P&L charts, period tables and filters | FE-16-01, FE-16-02, FE-16-03, FE-16-04 | M; extra cash 0 by default | Completed early D04: all assigned FE-16 code IDs accepted; docs/testing/FE-16-acceptance.md. Cash/renewal facts Unknown; no actual market observation inferred. |
+| D35 | Completed | Trade table/details/export and consistency verification | FE-16-05, FE-16-06, FE-16-07, FE-16-08 | M; extra cash 0 by default | Completed early D04: all assigned FE-16 code IDs accepted; docs/testing/FE-16-acceptance.md. Cash/renewal facts Unknown; no actual market observation inferred. |
 | D36 | Pending | Wallet balances/deposit/withdraw/reset controls | FE-17-01, FE-17-02, FE-17-03, FE-17-04 | M; extra cash 0 by default | Do not reset the observation wallet or erase paper records. |
 | D37 | Pending | Ledger/history options/top-up display and wallet verification | FE-17-05, FE-17-06, FE-17-07, FE-17-08 | M; extra cash 0 by default | Keep optional destructive UI unavailable unless its backend contract exists. |
 | D38 | Pending | Settings forms, Pine defaults and strategy groups | FE-18-01, FE-18-02, FE-18-03, FE-18-04 | M; extra cash 0 by default | Match backend schema rather than duplicate validation rules. |
@@ -331,16 +331,22 @@ using included Codex usage. Preserve paper observation, run required checks, and
 update master statuses, daily usage, cash evidence and the handoff. Do not purchase
 credits or mark unverified acceptance complete.`
 
+User completion-handoff requirement: every completed task/batch response must
+include exact backend and frontend PowerShell commands, dashboard URL and the
+screen to inspect. Reuse existing servers; explain safe backend restarts for
+Python changes. This standing instruction is also saved at the top of
+docs/plans/NEXT_SESSION.md and must be preserved by future contributors.
+
 <!-- END V2 EXECUTION PLAN: original product master record follows. -->
 
 ## Master task record: backend, frontend and release
 
-**Last reviewed: 2026-10-26. This README is the authoritative task/status record.**
+**Last reviewed: 2026-10-29. This README is the authoritative task/status record.**
 The specification describes intended behavior; an unchecked box in the original
 specification is not evidence that implemented work is missing. The checklist below
 was reconciled with the current application, tests and previous verification notes.
 
-**Task totals: 280 — Completed: 82; Pending: 198.** Frontend: 57 Pending.
+**Task totals: 280 - Completed: 206; Pending: 74.** Frontend: 38 Completed / 19 Pending.
 These are checklist counts, not time/effort percentages. Recount them whenever
 rows are added, split or completed.
 
@@ -364,7 +370,7 @@ Status rules:
    before selecting work. Never restart a Completed task merely because chat history
    is unavailable. Keep the original Pine reference intact.
 2. Select the next Pending task whose prerequisites are satisfied. Report its ID.
-   Default next product task: **FE-14-01**; BE-08-14 and QA-09-19/20 await actual reference exports/G1/G2 acceptance; QA-11-15/16 await real replay/manual examples and G3. Use the v2 daily batch and
+   Default next product task: **FE-17-01**; BE-08-14 and QA-09-19/20 await actual reference exports/G1/G2 acceptance; QA-11-15/16 await real replay/manual examples and G3. Use the v2 daily batch and
    `docs/plans/NEXT_SESSION.md` for dependency-ready batching and usage checks.
 3. Implement the scoped behavior and its meaningful acceptance checks. If only
    part is finished, split the row into stable sub-IDs and leave unfinished parts
@@ -394,14 +400,14 @@ Status rules:
 | 07 | Market-data acceptance gate G1 | Pending | Real downloads/feed, then zero Renko mismatches over ten trading days |
 | 08–09 | Pine indicator port and acceptance gate G2 | Pending | Maths/state/signals/exits implemented and reference-verified |
 | 10–12 | Strategy, paper execution, wallet and gate G3 | Pending | Reproducible option-spread trades, risk controls and accounting |
-| 13 | Dashboard API and event contracts | Pending | Stable REST/WebSocket snapshots, actions and recovery semantics |
-| 14–18 | Frontend foundation, Live, History, Wallet, Settings | Pending | Can start foundation now; integrate each screen as its BE services become available |
+| 13 | Dashboard API and event contracts | Completed | All 20 BE-13 code tasks accepted; runtime/reference gates remain separate |
+| 14–18 | Frontend foundation, Live, History, Wallet, Settings | Pending | FE-14 through FE-16 complete; FE-17/18 detail screens remain; next FE-17-01 |
 | 19 | Integrated paper release and acceptance | Pending | Browser replay, operational drills and paper burn-in completed |
 | 20 | Live-money deployment and pilot | Pending | Later phase; not a prerequisite for frontend or paper-dashboard development |
 | 21 | Explicit future extensions | Pending | Deferred beyond the single-user, single-underlying v1 scope |
 
-**Frontend can start now at FE-14-01.** Build the shell, login/status and instrument
-views against existing endpoints. Mock unavailable services explicitly after agreeing
+**FE-14 through FE-16 are complete. Next: FE-17-01.** Build the Wallet
+layout against existing endpoints. Mock unavailable services explicitly after agreeing
 contracts. Real charts depend on BE-06 and BE-13; indicator overlays depend on BE-08/09;
 wallet/history/positions depend on BE-10/11/12 and their APIs. Starting frontend does
 not imply the paper trading backend or live-money execution is ready.
@@ -698,27 +704,29 @@ routes remain valid; reconcile naming in the API contract rather than breaking t
 
 ### 14. Frontend project, shared UI and data foundation
 
-All frontend rows remain Pending. `frontend/src/api/client.ts` now provides a
-verified framework-independent typed client, but no React package/scaffold/build
-exists. Start FE-14-01; do not call the client module a usable trading dashboard.
+FE-14 is complete (15/15), accepted on D04, 2026-10-29. React/TypeScript shell,
+HTTPS client, guarded auth, status, quick deposit, kill and socket recovery are
+verified against an isolated backend. FE-15 Live is also complete; detail screens
+remain FE-17/18; FE-16 History is also complete.
+Evidence: [FE-14 acceptance](docs/testing/FE-14-acceptance.md). Paper trading remains blocked.
 
 | ID | Status | Task and completion requirement | Evidence / prerequisite |
 | --- | --- | --- | --- |
-| FE-14-01 | Pending | Create React + TypeScript frontend project, package lock, scripts and documented local start/build workflow. | Frontend starting task; SPEC technical choices |
-| FE-14-02 | Pending | Add routes for Live, History, Wallet and Settings with persistent shell/navigation and not-found handling. | FE-14-01 |
-| FE-14-03 | Pending | Define dark theme, spacing/type/color tokens, accessible contrast and reusable cards/buttons/inputs/dialogs. | FE-14-01; SPEC 15 |
-| FE-14-04 | Pending | Add Indian currency/number grouping and explicit IST date/time/percentage formatters. | FE-14-01; API conventions |
-| FE-14-05 | Pending | Add typed API client, development proxy/base URL, cancellation and consistent error handling. | D04 partial foundation: frontend/src/api/client.ts typed/cancellable same-origin/CSRF/idempotency transport verified against actual test backend; Vite/React proxy/browser wiring remains FE-14. |
-| FE-14-06 | Pending | Add request cache/state management with separate server data and local display preferences. | FE-14-05 |
-| FE-14-07 | Pending | Add dashboard login/logout/session-expiry screens with guarded routes. | BE-13-02/03; may mock initially |
-| FE-14-08 | Pending | Add Kite login action and verified/configured/expired status UI without exposing broker secrets. | Existing `/api/auth/kite/login` and `/status` |
-| FE-14-09 | Pending | Build top bar with underlying/price, Kite/feed/market chips and IST clock; render missing data honestly. | FE-14-03–08; BE-13-05 for live data |
-| FE-14-10 | Pending | Add paper wallet chip/quick deposit and mode display; keep live controls unavailable until live implementation. | BE-13-11/15 |
-| FE-14-11 | Pending | Add global kill dialog with pending/result/error feedback and duplicate-click prevention. | BE-13-08 |
-| FE-14-12 | Pending | Implement one live-socket hook with reconnect/backoff, authentication handling and snapshot reload after reconnect. | BE-13-16–18 |
-| FE-14-13 | Pending | Apply typed event reducers without duplicate trade markers or chart-wide rerenders on every tick. | FE-14-06/12 |
-| FE-14-14 | Pending | Add explicit loading, empty, stale, disconnected, unauthorized and recoverable-error states across shared components. | FE-14-05/12 |
-| FE-14-15 | Pending | Add unit/component tests, lint/typecheck/build scripts and accessible keyboard/focus behavior checks. | FE-14-01–14 |
+| FE-14-01 | Completed | Create React + TypeScript frontend project, package lock, scripts and documented local start/build workflow. | D04: docs/testing/FE-14-acceptance.md; 8 unit/component + 6 HTTPS browser flows; build/typecheck/lint; 94 backend regressions. |
+| FE-14-02 | Completed | Add routes for Live, History, Wallet and Settings with persistent shell/navigation and not-found handling. | D04: docs/testing/FE-14-acceptance.md; 8 unit/component + 6 HTTPS browser flows; build/typecheck/lint; 94 backend regressions. |
+| FE-14-03 | Completed | Define dark theme, spacing/type/color tokens, accessible contrast and reusable cards/buttons/inputs/dialogs. | D04: docs/testing/FE-14-acceptance.md; 8 unit/component + 6 HTTPS browser flows; build/typecheck/lint; 94 backend regressions. |
+| FE-14-04 | Completed | Add Indian currency/number grouping and explicit IST date/time/percentage formatters. | D04: docs/testing/FE-14-acceptance.md; 8 unit/component + 6 HTTPS browser flows; build/typecheck/lint; 94 backend regressions. |
+| FE-14-05 | Completed | Add typed API client, development proxy/base URL, cancellation and consistent error handling. | D04: docs/testing/FE-14-acceptance.md; 8 unit/component + 6 HTTPS browser flows; build/typecheck/lint; 94 backend regressions. |
+| FE-14-06 | Completed | Add request cache/state management with separate server data and local display preferences. | D04: docs/testing/FE-14-acceptance.md; 8 unit/component + 6 HTTPS browser flows; build/typecheck/lint; 94 backend regressions. |
+| FE-14-07 | Completed | Add dashboard login/logout/session-expiry screens with guarded routes. | D04: docs/testing/FE-14-acceptance.md; 8 unit/component + 6 HTTPS browser flows; build/typecheck/lint; 94 backend regressions. |
+| FE-14-08 | Completed | Add Kite login action and verified/configured/expired status UI without exposing broker secrets. | D04: docs/testing/FE-14-acceptance.md; 8 unit/component + 6 HTTPS browser flows; build/typecheck/lint; 94 backend regressions. |
+| FE-14-09 | Completed | Build top bar with underlying/price, Kite/feed/market chips and IST clock; render missing data honestly. | D04: docs/testing/FE-14-acceptance.md; 8 unit/component + 6 HTTPS browser flows; build/typecheck/lint; 94 backend regressions. |
+| FE-14-10 | Completed | Add paper wallet chip/quick deposit and mode display; keep live controls unavailable until live implementation. | D04: docs/testing/FE-14-acceptance.md; 8 unit/component + 6 HTTPS browser flows; build/typecheck/lint; 94 backend regressions. |
+| FE-14-11 | Completed | Add global kill dialog with pending/result/error feedback and duplicate-click prevention. | D04: docs/testing/FE-14-acceptance.md; 8 unit/component + 6 HTTPS browser flows; build/typecheck/lint; 94 backend regressions. |
+| FE-14-12 | Completed | Implement one live-socket hook with reconnect/backoff, authentication handling and snapshot reload after reconnect. | D04: docs/testing/FE-14-acceptance.md; 8 unit/component + 6 HTTPS browser flows; build/typecheck/lint; 94 backend regressions. |
+| FE-14-13 | Completed | Apply typed event reducers without duplicate trade markers or chart-wide rerenders on every tick. | D04: docs/testing/FE-14-acceptance.md; 8 unit/component + 6 HTTPS browser flows; build/typecheck/lint; 94 backend regressions. |
+| FE-14-14 | Completed | Add explicit loading, empty, stale, disconnected, unauthorized and recoverable-error states across shared components. | D04: docs/testing/FE-14-acceptance.md; 8 unit/component + 6 HTTPS browser flows; build/typecheck/lint; 94 backend regressions. |
+| FE-14-15 | Completed | Add unit/component tests, lint/typecheck/build scripts and accessible keyboard/focus behavior checks. | D04: docs/testing/FE-14-acceptance.md; 8 unit/component + 6 HTTPS browser flows; build/typecheck/lint; 94 backend regressions. |
 
 ### 15. Frontend Live screen
 
@@ -727,34 +735,34 @@ real behavior only as stage 13 and the indicator/paper services become available
 
 | ID | Status | Task and completion requirement | Evidence / prerequisite |
 | --- | --- | --- | --- |
-| FE-15-01 | Pending | Build responsive chart/cards layout and load initial live snapshot with quality/readiness banners. | FE-14 shell; BE-13-05 |
-| FE-15-02 | Pending | Render no-wick Renko bricks with stable brick-index ordering, including multiple bricks sharing exchange time. | BE-13-06; chart library time-axis adapter |
-| FE-15-03 | Pending | Add zoom to last 100/300 bricks, incremental updates and older-history loading without full chart rebuilds. | FE-15-02 |
-| FE-15-04 | Pending | Render Supertrend segments/flips, bias tint and source/configuration identity. | BE-09 result data; FE-15-02 |
-| FE-15-05 | Pending | Render ENTRY/T1/EXIT markers with family/direction/trade ID and detailed tooltips. | BE-09 events/text; FE-15-02 |
-| FE-15-06 | Pending | Render entry/T1/T2/safety, ceiling/floor and next-brick price lines; remove/update them on position changes. | BE-13 snapshot/event models |
-| FE-15-07 | Pending | Add chart toolbar layer toggles and persist display preferences. | FE-15-03–06; FE-18 display settings |
-| FE-15-08 | Pending | Build direction/strength/score card and expandable ten-factor explanation. | BE-09-10/11 |
-| FE-15-09 | Pending | Build active spread card with both legs, quantities, prices, MTM, margin return, targets, stop and duration. | BE-11-07; BE-13-08 |
-| FE-15-10 | Pending | Wire manual close with confirmation, in-flight protection and final exit reason; do not assume success from button click. | FE-15-09; close API |
-| FE-15-11 | Pending | Build last-closed-trade card with exit reason and realised results. | BE-12 summaries |
-| FE-15-12 | Pending | Build Today card with trades/wins/net/capital return and daily-loss utilization. | BE-13-10; risk state |
-| FE-15-13 | Pending | Build newest-first signal feed with grade/risk/accepted/rejected explanation. | BE-13-07 |
-| FE-15-14 | Pending | Build persistent alerts strip/feed and acknowledgment with stale/recovery/login/limit states. | BE-13-14; FE-14-12 |
-| FE-15-15 | Pending | Verify chart/event resync, repeated timestamps, empty history, stale prices and responsive layout using browser fixtures. | FE-15-01–14 |
+| FE-15-01 | Completed | Build responsive chart/cards layout and load initial live snapshot with quality/readiness banners. | D04: docs/testing/FE-15-acceptance.md; 655 real stored synthetic bricks; 771 backend tests, 15 frontend tests, 13 HTTPS browser flows; build/lint/types/drift checks. |
+| FE-15-02 | Completed | Render no-wick Renko bricks with stable brick-index ordering, including multiple bricks sharing exchange time. | D04: docs/testing/FE-15-acceptance.md; 655 real stored synthetic bricks; 771 backend tests, 15 frontend tests, 13 HTTPS browser flows; build/lint/types/drift checks. |
+| FE-15-03 | Completed | Add zoom to last 100/300 bricks, incremental updates and older-history loading without full chart rebuilds. | D04: docs/testing/FE-15-acceptance.md; 655 real stored synthetic bricks; 771 backend tests, 15 frontend tests, 13 HTTPS browser flows; build/lint/types/drift checks. |
+| FE-15-04 | Completed | Render Supertrend segments/flips, bias tint and source/configuration identity. | D04: docs/testing/FE-15-acceptance.md; 655 real stored synthetic bricks; 771 backend tests, 15 frontend tests, 13 HTTPS browser flows; build/lint/types/drift checks. |
+| FE-15-05 | Completed | Render ENTRY/T1/EXIT markers with family/direction/trade ID and detailed tooltips. | D04: docs/testing/FE-15-acceptance.md; 655 real stored synthetic bricks; 771 backend tests, 15 frontend tests, 13 HTTPS browser flows; build/lint/types/drift checks. |
+| FE-15-06 | Completed | Render entry/T1/T2/safety, ceiling/floor and next-brick price lines; remove/update them on position changes. | D04: docs/testing/FE-15-acceptance.md; 655 real stored synthetic bricks; 771 backend tests, 15 frontend tests, 13 HTTPS browser flows; build/lint/types/drift checks. |
+| FE-15-07 | Completed | Add chart toolbar layer toggles and persist display preferences. | D04: docs/testing/FE-15-acceptance.md; 655 real stored synthetic bricks; 771 backend tests, 15 frontend tests, 13 HTTPS browser flows; build/lint/types/drift checks. |
+| FE-15-08 | Completed | Build direction/strength/score card and expandable ten-factor explanation. | D04: docs/testing/FE-15-acceptance.md; 655 real stored synthetic bricks; 771 backend tests, 15 frontend tests, 13 HTTPS browser flows; build/lint/types/drift checks. |
+| FE-15-09 | Completed | Build active spread card with both legs, quantities, prices, MTM, margin return, targets, stop and duration. | D04: docs/testing/FE-15-acceptance.md; 655 real stored synthetic bricks; 771 backend tests, 15 frontend tests, 13 HTTPS browser flows; build/lint/types/drift checks. |
+| FE-15-10 | Completed | Wire manual close with confirmation, in-flight protection and final exit reason; do not assume success from button click. | D04: docs/testing/FE-15-acceptance.md; 655 real stored synthetic bricks; 771 backend tests, 15 frontend tests, 13 HTTPS browser flows; build/lint/types/drift checks. |
+| FE-15-11 | Completed | Build last-closed-trade card with exit reason and realised results. | D04: docs/testing/FE-15-acceptance.md; 655 real stored synthetic bricks; 771 backend tests, 15 frontend tests, 13 HTTPS browser flows; build/lint/types/drift checks. |
+| FE-15-12 | Completed | Build Today card with trades/wins/net/capital return and daily-loss utilization. | D04: docs/testing/FE-15-acceptance.md; 655 real stored synthetic bricks; 771 backend tests, 15 frontend tests, 13 HTTPS browser flows; build/lint/types/drift checks. |
+| FE-15-13 | Completed | Build newest-first signal feed with grade/risk/accepted/rejected explanation. | D04: docs/testing/FE-15-acceptance.md; 655 real stored synthetic bricks; 771 backend tests, 15 frontend tests, 13 HTTPS browser flows; build/lint/types/drift checks. |
+| FE-15-14 | Completed | Build persistent alerts strip/feed and acknowledgment with stale/recovery/login/limit states. | D04: docs/testing/FE-15-acceptance.md; 655 real stored synthetic bricks; 771 backend tests, 15 frontend tests, 13 HTTPS browser flows; build/lint/types/drift checks. |
+| FE-15-15 | Completed | Verify chart/event resync, repeated timestamps, empty history, stale prices and responsive layout using browser fixtures. | D04: docs/testing/FE-15-acceptance.md; 655 real stored synthetic bricks; 771 backend tests, 15 frontend tests, 13 HTTPS browser flows; build/lint/types/drift checks. |
 
 ### 16. Frontend History screen
 
 | ID | Status | Task and completion requirement | Evidence / prerequisite |
 | --- | --- | --- | --- |
-| FE-16-01 | Pending | Build Today/Week/Month/All-time cards with net, capital return, trades and win rate. | BE-13-10 |
-| FE-16-02 | Pending | Add daily P&L bars/cumulative line and monthly charts with consistent IST buckets. | BE-13-10; currency formatters |
-| FE-16-03 | Pending | Add weekly/monthly summary tables with gross/costs/net/return and best/worst trade. | BE-12-09/BE-13-10 |
-| FE-16-04 | Pending | Add date/mode/family/direction/result/strength filters, reset and URL persistence. | BE-13-09 filter contract |
-| FE-16-05 | Pending | Build sortable paged trade table with SPEC date/time, signal, spread, quantity, price, cost, P&L and duration columns. | FE-16-04; BE-13-09 |
-| FE-16-06 | Pending | Add expandable trade details: legs/fills, order timeline, signal explanation and trade chart. | BE-13-08/09 |
-| FE-16-07 | Pending | Export CSV using active server filters, with progress/error handling and stable field names. | BE-13-09 |
-| FE-16-08 | Pending | Test paging/filter changes, no-trade periods, zero denominators and consistency between tables/cards/charts/export. | FE-16-01–07 |
+| FE-16-01 | Completed | Build Today/Week/Month/All-time cards with net, capital return, trades and win rate. | D04: docs/testing/FE-16-acceptance.md; 780 backend tests + 7 follow-up checks, 21 frontend tests, 20 HTTPS browser flows; exact sorting/paging/CSV and read-only projections verified. |
+| FE-16-02 | Completed | Add daily P&L bars/cumulative line and monthly charts with consistent IST buckets. | D04: docs/testing/FE-16-acceptance.md; 780 backend tests + 7 follow-up checks, 21 frontend tests, 20 HTTPS browser flows; exact sorting/paging/CSV and read-only projections verified. |
+| FE-16-03 | Completed | Add weekly/monthly summary tables with gross/costs/net/return and best/worst trade. | D04: docs/testing/FE-16-acceptance.md; 780 backend tests + 7 follow-up checks, 21 frontend tests, 20 HTTPS browser flows; exact sorting/paging/CSV and read-only projections verified. |
+| FE-16-04 | Completed | Add date/mode/family/direction/result/strength filters, reset and URL persistence. | D04: docs/testing/FE-16-acceptance.md; 780 backend tests + 7 follow-up checks, 21 frontend tests, 20 HTTPS browser flows; exact sorting/paging/CSV and read-only projections verified. |
+| FE-16-05 | Completed | Build sortable paged trade table with SPEC date/time, signal, spread, quantity, price, cost, P&L and duration columns. | D04: docs/testing/FE-16-acceptance.md; 780 backend tests + 7 follow-up checks, 21 frontend tests, 20 HTTPS browser flows; exact sorting/paging/CSV and read-only projections verified. |
+| FE-16-06 | Completed | Add expandable trade details: legs/fills, order timeline, signal explanation and trade chart. | D04: docs/testing/FE-16-acceptance.md; 780 backend tests + 7 follow-up checks, 21 frontend tests, 20 HTTPS browser flows; exact sorting/paging/CSV and read-only projections verified. |
+| FE-16-07 | Completed | Export CSV using active server filters, with progress/error handling and stable field names. | D04: docs/testing/FE-16-acceptance.md; 780 backend tests + 7 follow-up checks, 21 frontend tests, 20 HTTPS browser flows; exact sorting/paging/CSV and read-only projections verified. |
+| FE-16-08 | Completed | Test paging/filter changes, no-trade periods, zero denominators and consistency between tables/cards/charts/export. | D04: docs/testing/FE-16-acceptance.md; 780 backend tests + 7 follow-up checks, 21 frontend tests, 20 HTTPS browser flows; exact sorting/paging/CSV and read-only projections verified. |
 
 ### 17. Frontend Wallet screen
 
@@ -850,6 +858,76 @@ claimed before requirements are agreed.
 | FUT-21-05 | Pending | Design backtesting UI or mobile client only if requested; retain CLI replay as the current testing scope. | Explicit future requirements |
 
 ### Task update history
+
+- **2026-10-29 (D04, early D34/D35 FE-16):** Completed all eight FE-16 IDs.
+  History account cards, exact daily/monthly plots, weekly/monthly summaries,
+  URL-persisted trade filters, globally sorted cursor paging, trade detail/fills/
+  timeline/signal/chart and identical-filter all-page CSV. Read-only plan/order
+  metadata and period extrema; exact Decimal net sort bounded to 10,000 matches;
+  preserved persisted projections and CSV columns. 780 full backend tests,
+  7 targeted follow-up checks, 21 frontend tests and 20 HTTPS browser flows pass;
+  build/lint/typecheck, Ruff/mypy and OpenAPI/TypeScript drift/compile pass. One
+  existing warning. docs/testing/FE-16-acceptance.md. Counts 206 Completed /
+  74 Pending of 280; frontend 38 Completed / 19 Pending. Next FE-17-01.
+  User requirement saved at top of NEXT_SESSION: always give exact BE/FE startup
+  commands and dashboard URL/screen in task-completion replies. No extra product
+  completion for documentation. No migration, operator backend restart, wallet
+  reset, real trade or qualifying session. Actual usage/spend/renewal Unknown;
+  extra paid cash INR 0. Managed/reference gates remain Pending.
+
+- **2026-10-29 (D04, dashboard login setup fix):** Diagnosed actual login 503 as
+  configured=false with no saved dashboard hash. Added hidden local password
+  tool --save mode to update only the ignored .env hash and preserve other settings
+  without printing secrets. React shows explicit setup instructions while missing
+  configuration. Local prompt opened for operator input; saved hash subsequently
+  verified present/format-valid and running backend configured=true. Actual HTTPS
+  password form verified without attempting login or seeing the password.
+  13 focused backend/auth tests,
+  15 frontend tests and 2 targeted browser flows; build/lint/types, Ruff/tool mypy.
+  Prior full backend result 771; totals 198/82 and next FE-16-01 unchanged.
+  Cash/usage/renewal Unknown; extra paid usage INR 0. No trading activation.
+
+- **2026-10-29 (D04, early D31-D33 FE-15):** Completed FE-15-01 through 15.
+  Live Renko index-axis chart, equal-time ordering, 100/300 windows and older/
+  incremental history; source fences, overlays/events/levels/layers; direction,
+  spread/close, results, dated risk, signals and durable alert acknowledgement.
+  Added read-only persisted plan/risk/close projections and fixed HTTP integer
+  history filters while retaining strict internal models. 771 full backend tests,
+  15 frontend tests and 13 Chromium HTTPS flows pass; build/lint/typecheck,
+  Ruff/strict mypy and OpenAPI/TypeScript drift/compile pass. One existing warning.
+  See docs/testing/FE-15-acceptance.md. Counts: 198 Completed / 82 Pending;
+  frontend 30 Completed / 27 Pending. Next FE-16-01. D33 stays Pending for
+  OPS-19-08 real shadow evidence. Tests use 655 actual stored synthetic bricks
+  and published replay overlays on isolated ports 5174/18765. The operator
+  backend on 8000 was not restarted; DB/.env/Pine and observation baseline were unchanged.
+  Reload added API code at the next safe owner restart; no new migration.
+  Runtime/reference/G2/G3 gates remain Pending; formal sessions 0; cash/usage/
+  headroom/renewal Unknown; extra paid cash INR 0.
+
+- **2026-10-29 (D04, local HTTPS setup):** Installed a local-only server
+  certificate for localhost/127.0.0.1/::1 in the current Windows user's trust
+  store; expires 2027-10-29. Ignored key directory restricted to user/SYSTEM.
+  Added reusable `npm.cmd run setup:https`; Vite auto-loads the local pair.
+  Both dashboard URLs returned HTTP 200; Chromium sign-in screen verified with
+  TLS 1.3 and no certificate bypass. Build/typecheck/lint, 8 frontend tests and
+  certificate-generator Ruff pass. Existing backend/DB/Pine/.env unchanged;
+  no login or trading action. See docs/operations/local-paper-ui.md. Counts stay
+  183 Completed / 97 Pending; next FE-15-01. Usage/cash/renewal Unknown;
+  extra paid cash INR 0. This follow-up does not add a product completion.
+
+- **2026-10-29 (D04, early D28-D30 FE-14):** Completed FE-14-01 through 15.
+  Locked React/TypeScript/Vite foundation, persistent routes/theme, exact INR/IST,
+  typed HTTPS client/cache, guarded auth/Kite/status, paper quick deposit and kill,
+  one reconnecting socket and typed immutable reducers. Browser fetch binding,
+  session-expiry guarding and dialog focus corrected from runtime evidence.
+  8 unit/component tests + 6 Chromium HTTPS flows + 94 backend regressions pass;
+  build/typecheck/ESLint and Python harness Ruff pass. Lost committed deposit
+  reply survives reload and retries once with the original key/body. Evidence:
+  docs/testing/FE-14-acceptance.md. Counts: 183 Completed / 97 Pending of 280;
+  frontend 15 Completed / 42 Pending. Next FE-15-01. Temporary synthetic DB/TLS
+  and paper funds only; local DB/.env/Pine/market baseline unchanged. Managed
+  activation and actual reference/G2/G3 remain Pending; formal sessions 0.
+  Usage/spend/headroom/renewal Unknown; extra paid cash INR 0.
 
 - **2026-10-29 (D04, remaining BE-13 domain batch):** Completed BE-13-07/08/09/
   10/11/12/13/14/20. Actual authenticated source-linked signals/decisions, persisted
@@ -1618,7 +1696,7 @@ adapter; this does not prevent the tests or application from running.
 4. The original Pine reference is already saved at `docs/pine/renko_indicator.pine`.
 5. Record actual chart settings/anchor and export TradingView reference data for
    REF-00-03–07. The comparison tool exists; real parity is still Pending.
-6. BE-12 (12/12) and BE-13 (20/20) code are complete. Next task is FE-14-01, integrating the existing typed client into the React foundation. Managed startup/real reference/operational gates still need acceptance before a local paper-trading UI is usable. At each implementation session run python -m app.tools.local_ui_readiness from backend and report the actual browser-paper readiness; provide verified startup/use steps in docs/operations/local-paper-ui.md when ready. BE-08-14, QA-09-19/20 and QA-11-15/16 still require actual reference/recorded/manual evidence and G1/G2/G3. Code completion does not activate trading.
+6. BE-12 (12/12), BE-13 (20/20), FE-14 (15/15), FE-15 (15/15) and FE-16 (8/8) code are complete. Next task is FE-17-01, Wallet layout. Managed startup/real reference/operational gates still need acceptance before a local paper-trading UI is usable. At each implementation session run python -m app.tools.local_ui_readiness from backend and report the actual browser-paper readiness; provide verified startup/use steps in docs/operations/local-paper-ui.md when ready. BE-08-14, QA-09-19/20 and QA-11-15/16 still require actual reference/recorded/manual evidence and G1/G2/G3. Code completion does not activate trading.
 
 ## Step 3a: daily instrument catalog
 

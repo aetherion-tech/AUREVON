@@ -44,8 +44,15 @@ def readiness(root: Path) -> dict[str, Any]:
         frontend_build_present=built,
         pending=missing,
         next_code=next(
-            (tasks[0] for tasks in missing.values() if tasks),
-            "operator runtime verification",
+            (
+                task
+                for task, state in statuses.items()
+                if task.startswith("FE-") and state == "Pending"
+            ),
+            next(
+                (tasks[0] for tasks in missing.values() if tasks),
+                "operator runtime verification",
+            ),
         ),
         instructions="docs/operations/local-paper-ui.md",
         note=(

@@ -63,7 +63,8 @@ export default {
 ```
 
 The certificate/key stay on the developer's PC; do not commit or expose them.
-Frontend setup remains FE-14 work. CORS accepts only explicit
+Frontend setup is delivered by FE-14; see [verified foundation commands](../operations/local-paper-ui.md).
+CORS accepts only explicit
 `DASHBOARD_ORIGINS`, with credential and CSRF-header support, never a wildcard.
 Production can set `DASHBOARD_ORIGINS=[]` and `DASHBOARD_FRONTEND_DIR` to a built
 frontend directory containing index.html. The app serves it at `/dashboard/`,
