@@ -27,7 +27,7 @@ verified startup/use instructions in [local paper UI readiness](docs/operations/
 
 ## Start here - delivery plan v2 (45-day target, 60-day review)
 
-**Plan updated: 2026-10-29. Product status: 225 Completed / 55 Pending of 280.**
+**Plan updated: 2026-10-30. Product status: 234 Completed / 46 Pending of 280.**
 **Cash target: INR 10,000; absolute project ceiling: INR 20,000 including taxes/fees.**
 This replaces the execution schedule, not the product acceptance requirements.
 The original master checklist, stable IDs and all unfinished scope remain below.
@@ -37,13 +37,13 @@ The original master checklist, stable IDs and all unfinished scope remain below.
 | Short next-session handoff | [NEXT_SESSION.md](docs/plans/NEXT_SESSION.md) |
 | Immutable Version 1 backup | [README.v1.md](docs/plans/README.v1.md), [SHA-256](docs/plans/README.v1.sha256) |
 | Plan preparation | Completed on 2026-10-26; documentation only, outside the 280 product tasks |
-| Current implementation slot | FE-18 complete (11/11): versioned Settings, all Pine/strategy/risk/data groups, guarded saves, import/export, browser preferences and read-only strike preview. Next OPS-19-01 built frontend hosting. Evidence: docs/testing/FE-18-acceptance.md. Managed/reference/G2/G3 acceptance remains Pending; local paper trading is NOT READY. |
-| Kickoff / elapsed day | 2026-10-26 IST / current D04 (2026-10-29); task carry-over and early batches are recorded without renumbering elapsed days |
+| Current implementation slot | Section 19: 9 Completed / 9 Pending. OPS-19-04/05 and QA-19-12 additionally accepted: owner close/report/restore, conservative tick retention plus 90-day P&L samples, isolated process-crash recovery. Shadow inbox/comparison/UI implemented but OPS-19-08 awaits reachable ingress/G2. Next OPS-19-03 (Windows SCM access denied, error 5). Latency and actual reference/drill/burn-in gates remain Pending. docs/testing/OPS-19-followup.md. |
+| Kickoff / elapsed day | 2026-10-26 IST / current D05 (2026-10-30); task carry-over and early batches are recorded without renumbering elapsed days |
 | Existing plan, all-in price, renewal and usage-reset times | Unverified; obtain actual account readings, never assume a reset/renewal date |
 | Cash already spent / reserved / remaining | Unverified; reconcile receipts before proposing any purchase |
 | Paper status | Manual Pine practice remains separate. Isolated execution/accounting code is ready; managed automated paper and the local trading UI remain inactive. Readiness: python -m app.tools.local_ui_readiness; docs/operations/local-paper-ui.md. |
 | Qualified formal paper sessions | 0 evidenced; dates, release/config identity, shadow checks and reconciliation required |
-| Latest application verification | D04 FE-18: 100 backend wallet/domain regressions plus 1 audit case (101 distinct; existing warning); 35 frontend tests; 35 full HTTPS browser flows plus 10 focused Settings flows (36 distinct). Build/strict TypeScript/ESLint and manifest parity pass. Prior full backend result 780. docs/testing/FE-18-acceptance.md. |
+| Latest application verification | D05 follow-up: broad backend 797/798 passed; older migration test pinned to 0011 and corrected affected suites 69/69 pass; latest retention 8/8. 35 frontend tests; final 38/38 built HTTPS browser flows pass after explicit initial-resync waits. Build/type/lint/contracts pass. docs/testing/OPS-19-followup.md. Timing p95 63.89 ms misses target; backend audit findings remain. |
 
 ### Delivery scope, day numbering and realistic targets
 
@@ -237,7 +237,7 @@ Day statuses below are separate from the 280 product-task counts.
 | D02 | Pending | REST pacing and recording/checkpoint crash reconciliation | BE-05-12, BE-05-13, REF-00-04 | H; extra cash 0 by default | BE-05-12/13 complete early D01; BE-13 now 10/20 accepted (367 tests plus generated types). REF-00-04 Pending. Next upstream BE-08-01; no observation/purchase; account facts Unknown. |
 | D03 | Completed | Readiness, delay, recovery checks and explicit tick-fidelity policy | BE-05-14, BE-05-15, BE-05-16, BE-05-17 | H; extra cash 0 by default | BE-05-14/15/16/17 verified early on D01 with 290 tests and quality checks. Calibration/account readings remain Unknown; no entries enabled. |
 | D04 | Completed | Managed worker ownership and initial typed contracts | BE-06-01, BE-06-02, BE-06-03, BE-13-01 | H; extra cash 0 by default | BE-06-01/02/03 and BE-13-01 Completed early on D01; 328 tests and quality checks passed. FE-14-01 through 15 also completed D04: 8 component/unit and 6 HTTPS browser flows, 94 backend regressions; FE-15-01 through 15 also completed D04: 771 backend tests, 15 frontend tests and 13 HTTPS browser flows; FE-16-01 through 08 also completed D04: 780 backend tests, 21 frontend tests and 20 browser flows; FE-17-01 through 08 also completed D04: 100 backend regressions, 27 frontend tests, 26 distinct browser flows; FE-18-01 through 11 also completed D04: 101 targeted backend cases, 35 frontend tests, 36 distinct browser flows; next OPS-19-01. No managed paper activation. |
-| D05 | Completed | Expiry, calendar, morning catalog and scheduled sessions | BE-06-04, BE-06-05, BE-06-06, BE-06-07 | H; extra cash 0 by default | BE-06-04/05/06/07 verified early on D01 using sourced 2026 calendar and fake broker/socket tests. Account/billing still Unknown; no purchase. |
+| D05 | Completed | Expiry, calendar, morning catalog and scheduled sessions | BE-06-04, BE-06-05, BE-06-06, BE-06-07 | H; extra cash 0 by default | D05 follow-up: OPS-19-04/05 and QA-19-12 accepted; section 19 now 9 Completed / 9 Pending; shadow code added but real ingress/G2 pending. 797/798 broad backend, corrected affected 69 pass, 35 frontend; docs/testing/OPS-19-followup.md. Next OPS-19-03 (Windows access denied). No observation/purchase. |
 | D06 | Pending | Day context, quality events, production replay and lifecycle tests | BE-06-08, BE-06-09, BE-06-10, BE-06-11 | H; extra cash 0 by default | BE-06-08/09/10/11 Completed early on D01 (308 tests); actual market recording/observation remains unperformed, so daily observation acceptance stays Pending. |
 | D07 | Pending | Reference exports and real historical/feed checks | REF-00-05, REF-00-06, REF-00-07, QA-07-01, QA-07-02 | M; extra cash 0 by default | Weekly usage/cash review; input-dependent work stays Pending if exports/feed unavailable. |
 | D08 | Pending | Reconnect evidence and ten-reference-day Renko acceptance | QA-07-03, QA-07-04, QA-07-05, QA-07-06, QA-07-07 | H; extra cash 0 by default | Historical exports can cover past sessions; never substitute synthetic G1 evidence. |
@@ -273,9 +273,9 @@ Day statuses below are separate from the 280 product-task counts.
 | D38 | Completed | Settings forms, Pine defaults and strategy groups | FE-18-01, FE-18-02, FE-18-03, FE-18-04 | M; extra cash 0 by default | Completed early D04: assigned FE-18 IDs accepted; docs/testing/FE-18-acceptance.md; 101 targeted backend cases, 35 frontend tests and 36 distinct HTTPS browser flows. No owner activation or real-session evidence. |
 | D39 | Completed | Risk/data/display settings and versioned import/export | FE-18-05, FE-18-06, FE-18-07, FE-18-08 | M; extra cash 0 by default | Completed early D04: assigned FE-18 IDs accepted; docs/testing/FE-18-acceptance.md; 101 targeted backend cases, 35 frontend tests and 36 distinct HTTPS browser flows. No owner activation or real-session evidence. |
 | D40 | Completed | Strike preview, dangerous-change controls and usability checks | FE-18-09, FE-18-10, FE-18-11 | M; extra cash 0 by default | Completed early D04: assigned FE-18 IDs accepted; docs/testing/FE-18-acceptance.md; 101 targeted backend cases, 35 frontend tests and 36 distinct HTTPS browser flows. No owner activation or real-session evidence. |
-| D41 | Pending | Local serving, Windows commands/service and backup/restore schedule | OPS-19-01, OPS-19-02, OPS-19-03, OPS-19-04 | H; extra cash 0 by default | Use existing Windows machine; preserve secrets and verify separate-database restore. |
-| D42 | Pending | Retention, access review and dependency audits | OPS-19-05, OPS-19-06, OPS-19-07 | M; extra cash 0 by default | Weekly spend/renewal review; fix actual findings, avoid unrelated rewrites. |
-| D43 | Pending | Browser end-to-end acceptance flows | QA-19-09 | H; extra cash 0 by default | Run focused browser flows against replay; no interference with market-hour observation. |
+| D41 | Pending | Local serving, Windows commands/service and backup/restore schedule | OPS-19-01, OPS-19-02, OPS-19-03, OPS-19-04 | H; extra cash 0 by default | OPS-19-01/02/04 completed early D05; OPS-19-03 actual SCM lifecycle blocked by Windows create-service access denied (error 5). |
+| D42 | Completed | Retention, access review and dependency audits | OPS-19-05, OPS-19-06, OPS-19-07 | M; extra cash 0 by default | All OPS-19-05/06/07 accepted early D05: conservative source retention, derivative P&L expiry, reviewed security and repeatable audits. Backend dependency findings remain recorded. |
+| D43 | Completed | Browser end-to-end acceptance flows | QA-19-09 | H; extra cash 0 by default | QA-19-09 accepted early D05 on built HTTPS assets; expanded shadow browser coverage in docs/testing/OPS-19-followup.md; no real-session implication. |
 | D44 | Pending | Browser/backend recorded-day reconciliation and latency checks | QA-19-10, QA-19-14 | H; extra cash 0 by default | Measure representative load; optimize demonstrated bottlenecks only. |
 | D45 | Pending | Application candidate and verified operational guide | OPS-19-18 | M; extra cash 0 by default | Application target, not automatic G4/G5 acceptance; list remaining rows/session deficit. |
 | D46 | Pending | Paper observation and first reserve-day defect triage | Carry-over/observations only; no new mandatory product IDs | L; extra cash 0 by default | Observe qualified sessions; prioritize safety/accounting defects and preserve evidence. |
@@ -341,12 +341,12 @@ docs/plans/NEXT_SESSION.md and must be preserved by future contributors.
 
 ## Master task record: backend, frontend and release
 
-**Last reviewed: 2026-10-29. This README is the authoritative task/status record.**
+**Last reviewed: 2026-10-30. This README is the authoritative task/status record.**
 The specification describes intended behavior; an unchecked box in the original
 specification is not evidence that implemented work is missing. The checklist below
 was reconciled with the current application, tests and previous verification notes.
 
-**Task totals: 280 - Completed: 225; Pending: 55.** Frontend: 57 Completed / 0 Pending.
+**Task totals: 280 - Completed: 234; Pending: 46.** Frontend: 57 Completed / 0 Pending.
 These are checklist counts, not time/effort percentages. Recount them whenever
 rows are added, split or completed.
 
@@ -370,7 +370,7 @@ Status rules:
    before selecting work. Never restart a Completed task merely because chat history
    is unavailable. Keep the original Pine reference intact.
 2. Select the next Pending task whose prerequisites are satisfied. Report its ID.
-   Default next product task: **OPS-19-01**; BE-08-14 and QA-09-19/20 await actual reference exports/G1/G2 acceptance; QA-11-15/16 await real replay/manual examples and G3. Use the v2 daily batch and
+   Default next product task: **OPS-19-03**; BE-08-14 and QA-09-19/20 await actual reference exports/G1/G2 acceptance; QA-11-15/16 await real replay/manual examples and G3. Use the v2 daily batch and
    `docs/plans/NEXT_SESSION.md` for dependency-ready batching and usage checks.
 3. Implement the scoped behavior and its meaningful acceptance checks. If only
    part is finished, split the row into stable sub-IDs and leave unfinished parts
@@ -401,13 +401,14 @@ Status rules:
 | 08–09 | Pine indicator port and acceptance gate G2 | Pending | Maths/state/signals/exits implemented and reference-verified |
 | 10–12 | Strategy, paper execution, wallet and gate G3 | Pending | Reproducible option-spread trades, risk controls and accounting |
 | 13 | Dashboard API and event contracts | Completed | All 20 BE-13 code tasks accepted; runtime/reference gates remain separate |
-| 14-18 | Frontend foundation, Live, History, Wallet, Settings | Completed | All 57 frontend tasks complete; isolated HTTPS browser acceptance; next OPS-19-01; actual operational gates remain separate |
+| 14-18 | Frontend foundation, Live, History, Wallet, Settings | Completed | All 57 frontend tasks complete; isolated HTTPS browser acceptance; hosting OPS-19-01 accepted; actual operational gates remain separate |
 | 19 | Integrated paper release and acceptance | Pending | Browser replay, operational drills and paper burn-in completed |
 | 20 | Live-money deployment and pilot | Pending | Later phase; not a prerequisite for frontend or paper-dashboard development |
 | 21 | Explicit future extensions | Pending | Deferred beyond the single-user, single-underlying v1 scope |
 
-**FE-14 through FE-18 are complete. Next: OPS-19-01.** Serve the built
-frontend through FastAPI with SPA fallback and same-origin API/WebSocket routing.
+**FE-14 through FE-18 and six section-19 rows are complete. Next: OPS-19-03.**
+Built FastAPI HTTPS hosting is accepted; actual SCM lifecycle and remaining
+managed/retention/shadow/recorded-day/drill/performance/burn-in gates are Pending.
 Preserve the existing local HTTPS development workflow and operator observation.
 Frontend completion does not imply managed paper trading or live-money readiness.
 
@@ -799,24 +800,24 @@ paper-first acceptance gates; actual observation periods cannot be replaced by t
 
 | ID | Status | Task and completion requirement | Evidence / prerequisite |
 | --- | --- | --- | --- |
-| OPS-19-01 | Pending | Serve the built frontend through FastAPI with SPA fallback and same-origin API/WebSocket routing. | FE-14–18; BE-13 |
-| OPS-19-02 | Pending | Add repeatable Windows setup/run/backup scripts and IDE run configurations without overwriting existing secrets. | Stable backend/frontend commands |
-| OPS-19-03 | Pending | Configure Windows service start/restart and graceful stop; verify one managed worker and no duplicate schedulers. | BE-06; OPS-19-01/02 |
-| OPS-19-04 | Pending | Schedule close/report/ledger reconciliation/backups after the session; verify backup restoration on a separate database. | BE-11/12; BE-06 scheduler |
-| OPS-19-05 | Pending | Add tick compression/retention, daily log rotation/90-day retention and 90-day P&L tick retention; preserve bricks/trades/audit data. | SPEC 13.6/17; current size-only logs |
-| OPS-19-06 | Pending | Review localhost binding, dashboard access, secret redaction, cookie settings and cross-origin handling against implemented paths. | BE-13 security; no company-policy assumptions |
-| OPS-19-07 | Pending | Add repeatable backend/frontend dependency audits and documented update checks; investigate actual findings. | Backend lockfile; FE package lock |
-| OPS-19-08 | Pending | Add authenticated TradingView shadow-alert ingestion, event comparison and mismatch UI; never execute trades from alerts. | G2; BE-13/FE alerts; reachable webhook setup |
-| QA-19-09 | Pending | Add Playwright flows for login/status, Live chart, history filters/export, wallet mutations, settings and manual close/kill. | FE-14–18; paper APIs |
+| OPS-19-01 | Completed | Serve the built frontend through FastAPI with SPA fallback and same-origin API/WebSocket routing. | D05: built same-origin HTTPS SPA; 36 release browser flows; docs/testing/OPS-19-acceptance.md. |
+| OPS-19-02 | Completed | Add repeatable Windows setup/run/backup scripts and IDE run configurations without overwriting existing secrets. | D05: scripts/ops.ps1, scripts/service.ps1 and shared .run configuration; secret-preserving locked setup; verified Check/Inspect, PS/XML parsing; release guide. |
+| OPS-19-03 | Pending | Configure Windows service start/restart and graceful stop; verify one managed worker and no duplicate schedulers. | D05: create-service access probe denied by Windows error 5; wrapper/Stop/lease tests and explicit recovery policy command prepared. Needs elevated identity/TLS/DPAPI/SCM lifecycle verification; no installation. |
+| OPS-19-04 | Completed | Schedule close/report/ledger reconciliation/backups after the session; verify backup restoration on a separate database. | D05 follow-up: actual isolated owner step + synthetic runtime proves stale-quote square-off wait, fresh-quote completion, exact reconciliation/report and separate-DB restore; no extra scheduler. docs/testing/OPS-19-followup.md. |
+| OPS-19-05 | Completed | Add tick compression/retention, daily log rotation/90-day retention and 90-day P&L tick retention; preserve bricks/trades/audit data. | D05 follow-up: raw ticks and verified sealed gzip retained indefinitely; 90 daily log archives; opt-in exact P&L samples pruned strictly after 90 days following backup. Finance/source evidence preserved. Migration 0012 isolated only; no raw-deletion feature. |
+| OPS-19-06 | Completed | Review localhost binding, dashboard access, secret redaction, cookie settings and cross-origin handling against implemented paths. | D05: actual auth/CSRF/Origin/WSS/audit/redaction paths reviewed; loopback/Host guard and security headers; backend dependency risks retained in acceptance report. |
+| OPS-19-07 | Completed | Add repeatable backend/frontend dependency audits and documented update checks; investigate actual findings. | D05: repeatable both-graph audits/update procedure. Patched Vitest 4.1.12; frontend clean. Backend 12 advisory records investigated and retained; audit exits 1. |
+| OPS-19-08 | Pending | Add authenticated TradingView shadow-alert ingestion, event comparison and mismatch UI; never execute trades from alerts. | D05 follow-up: authenticated source-fenced inbox, durable rate/dedup, Pine-grouped two-brick comparison and Live mismatch UI implemented. Actual reachable TLS ingress, calibrated event identity and G2 still missing. |
+| QA-19-09 | Completed | Add Playwright flows for login/status, Live chart, history filters/export, wallet mutations, settings and manual close/kill. | D05: 36/36 flows on built FastAPI HTTPS, temporary SQLite/TLS only; docs/testing/OPS-19-acceptance.md. |
 | QA-19-10 | Pending | Replay a recorded day through backend and browser; reconcile chart markers, trades, wallet and history totals. | G3; QA-19-09 |
 | QA-19-11 | Pending | Drill disconnect/overflow/token expiry and prove entries are blocked until recovery. | BE-05/06/11 |
-| QA-19-12 | Pending | Drill crash/restart mid-position, partial-leg failure and duplicate signals without double booking fills or ledger entries. | BE-11/12; persistence |
+| QA-19-12 | Completed | Drill crash/restart mid-position, partial-leg failure and duplicate signals without double booking fills or ledger entries. | D05 follow-up: actual isolated child-process abrupt exit with OPEN position; fresh process restores one position/four fills, unique ledger and exact net/balance/margin. Partial-leg/duplicate/rollback cases retained. Synthetic engineering evidence only; G5 unaccepted. |
 | QA-19-13 | Pending | Drill daily-loss lock, kill switch, manual close, square-off retry and wrong-clock warning; retain results. | BE-11 controls; UI |
-| QA-19-14 | Pending | Measure tick-to-brick-to-indicator under 50 ms and brick-to-order-dispatch under 1 second at representative load; diagnose bottlenecks. | SPEC budgets; end-to-end paper system |
+| QA-19-14 | Pending | Measure tick-to-brick-to-indicator under 50 ms and brick-to-order-dispatch under 1 second at representative load; diagnose bottlenecks. | D05 measured synthetic 500-tick/48-brick baseline: phase run p95 63.89 ms (target missed); storage 23.49 ms and indicator/readback 41.69 ms p95. No representative warmed option load or order-dispatch timing; JSON evidence retained. |
 | QA-19-15 | Pending | Run at least the specified 20 paper trading days with daily notes on signals, trades, rejects and anomalies. | G1/G2/G3; failure drills |
 | QA-19-16 | Pending | Compare daily TradingView shadow events and review weekly results by family/grade/time; log one-at-a-time settings changes. | QA-19-15; OPS-19-08 |
 | QA-19-17 | Pending | Accept paper burn-in gates G4/G5 from reconciled results, resolved anomalies and recorded failure-drill evidence. | QA-19-09–16; SPEC gate criteria |
-| OPS-19-18 | Pending | Publish local operational guide covering morning login, startup, recovery, close, backup restore and troubleshooting. | Verified release behavior |
+| OPS-19-18 | Completed | Publish local operational guide covering morning login, startup, recovery, close, backup restore and troubleshooting. | D05: docs/operations/paper-release.md; exact safe startup/recovery/close/restore/troubleshooting and staged service boundaries. |
 
 ### 20. Later live-money deployment and controlled pilot
 
@@ -857,6 +858,35 @@ claimed before requirements are agreed.
 | FUT-21-05 | Pending | Design backtesting UI or mobile client only if requested; retain CLI replay as the current testing scope. | Explicit future requirements |
 
 ### Task update history
+
+- **2026-10-30 (D05, OPS-19 follow-up):** Additionally accepted OPS-19-04/05
+  and QA-19-12. Owner square-off/quote-retry/reconciliation/report/isolated restore;
+  indefinite original tick evidence plus sealed gzip, 90-day derivative P&L expiry;
+  actual synthetic process crash and fresh-process recovery without double booking.
+  Shadow receipt/comparison/Live UI implemented; reachable ingress/G2 remains.
+  Windows create-service access denied (error 5); no service installed. Synthetic
+  timing p95 63.89 ms misses 50 ms; dispatch unmeasured. Broad backend 797/798;
+  the outdated head-migration assertion was pinned to 0011, affected suites 69 pass,
+  latest scheduled-retention 8 pass; 35 frontend tests, build/type/lint/contracts.
+  Final built HTTPS browser run 38/38 passes; earlier outcomes and failed backend
+  full-run record retained in docs/testing/OPS-19-followup.md.
+  Counts 234 Completed / 46 Pending; section 19 is 9/18 accepted. Next OPS-19-03.
+  Schema 0012 isolated only; operator DB/.env/Pine/observation preserved. Formal
+  sessions 0; account/cash/renewal Unknown; extra paid usage INR 0.
+
+- **2026-10-30 (D05, OPS-19 release batch):** Accepted OPS-19-01/02/06/07/18
+  and QA-19-09; six of 18 section rows, twelve still Pending. Built same-origin
+  HTTPS SPA, secret-preserving Windows/IDE tooling, reviewed security paths,
+  repeatable dependency audits and local operational guide. Staged SCM wrapper,
+  opt-in existing-owner nightly snapshot/report and sealed recording compression
+  remain partial under 03/04/05. No shadow ingestion, real recorded-day/drill/load
+  acceptance or 20-session evidence. 785 full backend + latest 63 focused tests
+  (790 distinct across runs), 35 frontend tests, 36/36 built HTTPS browser flows;
+  build/TypeScript/ESLint/Ruff/mypy pass. Frontend audit clean after Vitest update;
+  backend 12 advisory records retained. Counts 231 Completed / 49 Pending.
+  Next OPS-19-03. Operator state/Pine/observation unchanged; no migration or service
+  activation; formal sessions 0; usage/cash/renewal Unknown; extra paid usage INR 0.
+  Evidence: docs/testing/OPS-19-acceptance.md; docs/operations/paper-release.md.
 
 - **2026-10-29 (D04, early D38-D40 FE-18):** Completed all 11 FE-18 IDs.
   Versioned settings load/edit/validation, exact Pine groups/defaults/tooltips,
@@ -1641,7 +1671,7 @@ and `authenticated: true` after verifying the session with Kite.
 ## Logs: what to look for
 
 Application logs appear in the terminal and `backend/logs/aurevon.log` as JSON
-lines. Times are UTC; request durations are milliseconds. Files rotate at 5 MB,
+lines. Times are UTC; request durations are milliseconds. Files rotate at UTC midnight with 90 daily archives; old size archives are preserved. Previously files rotated at 5 MB,
 with five backup files retained.
 
 | Event | Meaning |
@@ -1727,7 +1757,7 @@ adapter; this does not prevent the tests or application from running.
 4. The original Pine reference is already saved at `docs/pine/renko_indicator.pine`.
 5. Record actual chart settings/anchor and export TradingView reference data for
    REF-00-03–07. The comparison tool exists; real parity is still Pending.
-6. BE-12 (12/12), BE-13 (20/20), FE-14 (15/15), FE-15 (15/15), FE-16 (8/8), FE-17 (8/8) and FE-18 (11/11) code are complete. Next task is OPS-19-01, built frontend hosting through FastAPI. Managed startup/real reference/operational gates still need acceptance before a local paper-trading UI is usable. At each implementation session run python -m app.tools.local_ui_readiness from backend and report the actual browser-paper readiness; provide verified startup/use steps in docs/operations/local-paper-ui.md when ready. BE-08-14, QA-09-19/20 and QA-11-15/16 still require actual reference/recorded/manual evidence and G1/G2/G3. Code completion does not activate trading.
+6. BE-12 (12/12), BE-13 (20/20), FE-14 (15/15), FE-15 (15/15), FE-16 (8/8), FE-17 (8/8) and FE-18 (11/11) code are complete. Built frontend hosting OPS-19-01 is complete; next OPS-19-03 isolated SCM verification. See docs/testing/OPS-19-acceptance.md. Managed startup/real reference/operational gates still need acceptance before a local paper-trading UI is usable. At each implementation session run python -m app.tools.local_ui_readiness from backend and report the actual browser-paper readiness; provide verified startup/use steps in docs/operations/local-paper-ui.md when ready. BE-08-14, QA-09-19/20 and QA-11-15/16 still require actual reference/recorded/manual evidence and G1/G2/G3. Code completion does not activate trading.
 
 ## Step 3a: daily instrument catalog
 

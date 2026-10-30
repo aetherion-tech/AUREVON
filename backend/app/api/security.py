@@ -1,6 +1,7 @@
 """Shared cookie/origin/CSRF policy and payload-free persistent mutation audit."""
 
 from datetime import datetime
+from hmac import compare_digest
 from uuid import uuid4
 
 from fastapi import HTTPException, Request, WebSocket
@@ -29,6 +30,28 @@ class DashboardSecurity:
 
     def authorize(self, request: Request) -> None:
         path = request.url.path
+        if path == "/api/shadow/tv-alert":
+            secret = self.settings.shadow_webhook_secret.get_secret_value()
+            if (
+                not self.settings.shadow_ingestion_enabled
+                or len(secret) < 32
+                or not self.settings.shadow_stream
+            ):
+                raise HTTPException(404)
+            # The TLS-authenticating ingress injects this dedicated token. Never
+            # put dashboard/broker credentials in a webhook URL or JSON message.
+            supplied = request.headers.get("authorization", "")
+            if not compare_digest(supplied.encode(), ("Bearer " + secret).encode()):
+                raise HTTPException(401)
+            if (
+                request.headers.get("content-type", "").split(";")[0]
+                != "application/json"
+            ):
+                raise HTTPException(415)
+            length = request.headers.get("content-length", "")
+            if not length.isdecimal() or int(length) > 8192:
+                raise HTTPException(413)
+            return
         if path == "/api/auth/dashboard/login":
             origin = request.headers.get("origin")
             if (

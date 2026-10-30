@@ -33,6 +33,13 @@ class Settings(BaseSettings):
     readiness_entry_delay_seconds: int = Field(default=60, ge=60, le=3600)
     market_service_enabled: bool = False
     wallet_reconciliation_enabled: bool = False
+    session_maintenance_enabled: bool = False
+    pnl_tick_recording_enabled: bool = False
+    recording_compression_enabled: bool = False
+    shadow_ingestion_enabled: bool = False
+    shadow_webhook_secret: SecretStr = SecretStr("")
+    shadow_stream: str = Field(default="", max_length=160)
+    session_backup_dir: Path = BACKEND_DIR / "data" / "backups"
     dashboard_password_hash: SecretStr = SecretStr("")
     dashboard_session_seconds: int = Field(default=28800, ge=60, le=86400)
     dashboard_lockout_seconds: int = Field(default=900, ge=60, le=86400)

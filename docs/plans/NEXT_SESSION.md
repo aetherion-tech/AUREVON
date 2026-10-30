@@ -1,6 +1,6 @@
 # Next session - budgeted delivery plan v2
 
-Updated: 2026-10-29, D04. README is authoritative.
+Updated: 2026-10-30, D05. README is authoritative.
 
 ## Required completion handoff: local execution commands
 
@@ -35,56 +35,76 @@ never request the password/hash in chat. Explain remaining paper readiness gates
 
 ## Current work and evidence
 
-- Login follow-up: actual server reported configured=false; local dashboard hash
-  was absent. Use backend .venv/Scripts/python.exe -m app.tools.dashboard_password
-  --save, entering the password only at hidden local prompts. It saves directly
-  to ignored .env, preserving settings and printing no secrets. Restart the backend
-  safely afterward. React now explains missing setup rather than offering a login
-  that must fail. Local prompt was opened; saved hash is now present/format-valid,
-  and the running backend reports configured=true. Actual HTTPS password form
-  verified without attempting login or seeing the password. 13 focused backend/auth tests,
-  15 frontend tests and two targeted browser flows covered that follow-up.
-  Current verification and next task are below.
-
-- Product tasks: 280 total; 225 Completed / 55 Pending. FE-14/15 complete
-  15/15 each; FE-16/17 complete 8/8 each; FE-18 complete 11/11.
-  Frontend 57 Completed / 0 Pending. Latest FE-18: 100 targeted backend wallet/
-  domain regressions plus 1 audit case (101 distinct; existing warning), 35 frontend
-  tests, 35 full HTTPS browser flows plus 10 focused Settings flows (36 distinct).
-  Production build/strict TypeScript/ESLint, generated Pine/backend manifest parity
-  and focused Ruff lint/format pass. Prior full backend result remains 780.
-  Evidence: docs/testing/FE-18-acceptance.md.
-- NEXT TASK: OPS-19-01 Serve built frontend through FastAPI with SPA fallback
-  and same-origin API/WebSocket routing. Do not restart accepted BE-13 or FE-14 through FE-18.
-  Settings now has every original Pine group/default/bound/tooltip, strategy/risk/
-  fill/data controls, exact validation, per-field change review, confirmation,
-  rebuild acknowledgement, stale-edit protection, unsaved navigation guards and
-  lost-reply command recovery. Versioned JSON import/export/defaults are explicit;
-  read-only strike preview uses saved strategy, shows economics or rejection and
-  never places orders. Browser layers/palette/sounds/notifications are opt-in
-  preferences; notifications only while signed in with the dashboard open.
-  Saved settings remain desired versions: owner rebind/rebuild is separate; no
-  rebuild-progress API or automatic activation is invented. Success and stale
-  rejection have verified server audit records. Keyboard and mobile are verified.
-  Backend/API/schema implementation unchanged; one acceptance test added. No new
-  migration or operator restart. Existing working edits preserved.
-  Isolated synthetic browser DB/TLS on ports 5174/18765 only; operator 5173/8000,
-  local DB, original Pine and observation preserved. No real-session evidence.
-  FE-17-05 remains conditional: history deletion disabled without a deletion API.
-  Existing earlier metadata/filter/projection API changes still need a safe owner
-  restart if its process is older. No duplicate owners or observation interruption.
-  Prior pending migrations and managed/reference/G2/G3 are separate blockers.
-  Local HTTPS certificate trusted, expires 2027-10-29; loaded automatically from
-  ignored frontend/.local-tls. Start npm.cmd run dev or refresh existing frontend.
-  URL: https://127.0.0.1:5173/dashboard/; Settings: /dashboard/settings.
-  See docs/operations/local-paper-ui.md.
-- User priority is LOCAL UI PAPER TRADING, not a shell/API explorer. At every
-  active implementation turn run from backend:
-  .venv/Scripts/python.exe -m app.tools.local_ui_readiness
-  Report changed blockers. Keep docs/operations/local-paper-ui.md updated with
-  exact verified HTTPS URL/start/build/trading steps when that flow is ready.
-  No background monitoring or unattended notification is configured. No honest
-  activation date is known while real reference/managed/browser gates remain.
+- Product tasks: 280 total; 234 Completed / 46 Pending. Frontend remains
+  57 Completed / 0 Pending. Section 19: 9 Completed / 9 Pending. Completed:
+  OPS-19-01/02/04/05/06/07/18 and QA-19-09/12. Do not restart accepted work.
+  Evidence: docs/testing/OPS-19-followup.md (latest) and OPS-19-acceptance.md
+  (initial six-row batch). Initial full backend 785 remains historical.
+- NEXT TASK: OPS-19-03 Windows SCM start/stop/restart verification with the intended
+  Windows identity. Current identity is NOT elevated; actual
+  OpenSCManager(SC_MANAGER_CREATE_SERVICE) probe returned Windows error 5,
+  Access denied. No service installed/started/reconfigured. Wrapper, exclusive
+  lease/graceful-stop tests and scripts/service.ps1 ConfigureRecovery are prepared.
+  Verify identity/TLS/DPAPI before activation; preserve observation. Do not assume
+  LocalSystem can use the operator's credentials/certificate store.
+- D05 follow-up accepted OPS-19-04: isolated real owner steps poll a matching
+  synthetic runtime, wait for fresh quotes after cutoff, complete square-off,
+  reconcile/report and restore separately. No extra scheduler. Accepted OPS-19-05:
+  retain original ticks and sealed verified gzip indefinitely, rotate 90 daily
+  log archives, record optional exact/unknown P&L mark samples and prune ONLY
+  derivative samples strictly older than 90 days after backup. An automatically
+  rejected raw-deletion enhancement was NOT added; safe source preservation is
+  the selected policy. No deletion approval is needed for the delivered policy.
+  Defaults SESSION_MAINTENANCE_ENABLED / PNL_TICK_RECORDING_ENABLED /
+  RECORDING_COMPRESSION_ENABLED remain false; .env unchanged.
+- QA-19-12 accepted engineering drill: actual isolated child process exits
+  abruptly with OPEN paper exposure; a fresh process restores one position,
+  completes four fills total, preserves unique ledger keys and exact balance/net,
+  releases margin. Existing partial-leg/duplicate/rollback cases pass. This is
+  synthetic process-crash evidence, not formal G5 or a qualifying exchange day.
+- OPS-19-08 still Pending: authenticated observation-only inbox, durable rate/dedup,
+  source fencing, original Pine CO/DIV/OT family grouping, one-to-one two-brick
+  comparison and Live mismatch panel implemented. SHADOW_INGESTION_ENABLED=false.
+  Needs real reachable TLS-authenticated ingress (TradingView public HTTPS port
+  443), calibrated debug-copy event/index/trade identity and G2. No tunnel/public
+  service created. Original Pine unchanged. Guide: docs/operations/shadow-alerts.md.
+- QA-19-10/11/13/14/15/16/17 remain Pending. Missing actual eligible recorded-day,
+  formal integrated drill/reference evidence, representative warmed-load and
+  dispatch measurements, daily/weekly TradingView comparisons, twenty sessions
+  and G4/G5. Synthetic baseline 500 ticks/48 bricks: phase run brick-emitting p95
+  63.89 ms and max 75.23 ms; 50 ms target MISSED. Storage p95 23.49 ms;
+  indicator/readback p95 41.69 ms. Separate percentiles must not be summed.
+  No dispatch latency measurement. Retained JSONs under docs/testing/OPS-19-*.
+- Latest backend broad invocation: 797 pass / 1 outdated migration-test failure
+  of 798. The older test now targets 0011 rather than head; corrected affected
+  integration suites 69 pass. Latest scheduled retention/compression suite 8 pass.
+  Failed full-run and corrected-case JSON evidence both retained, not overwritten.
+  Latest changed shadow/owner/retention checks also passed a 14-case invocation.
+  Do not describe these as a later green full-suite run. Ruff/format, strict mypy,
+  OpenAPI/TypeScript contract checks, frontend production build/TypeScript/ESLint
+  and 35 frontend tests pass. New shadow flows and three repeated cursor checks
+  pass. Final built FastAPI HTTPS browser run: 38/38 pass; see docs/testing/OPS-19-followup.md.
+  Initial 37/38 runs had a history test resync race; helper now waits for Connected
+  before paging; Settings/Wallet helpers also await Connected. Stale-cursor
+  rejection persists. Windows Proactor abort/reset
+  callbacks remain noted. Frontend audit clean; backend 12 advisory records remain.
+- New schema 0012_operations (shadow receipts / derivative P&L ticks) was tested
+  only on isolated DBs. Operator migrations 0007 through 0012 remain pending;
+  never migrate during an observation. No operator .env, data, service or Pine
+  mutation. Existing frontend HTTPS certificate expires 2027-10-29; development
+  5173/8000 remains supported. Dashboard password previously configured=true;
+  use hidden local password tool only if missing, never request it in chat.
+- Built release: FE npm.cmd run build; BE python -m app.tools.serve from backend;
+  https://127.0.0.1:8443/dashboard/. No FE server needed. Live includes the disabled
+  shadow comparison panel. Safe startup/recovery/backup/drill instructions:
+  docs/operations/paper-release.md. Never run alongside an observing owner; safely
+  stop/restart the prior BE owner when no observation/exposure remains. Reuse Vite
+  for the development flow above. Backend code changed, so a safe restart is needed.
+- At each active implementation turn run backend python -m app.tools.local_ui_readiness
+  and report changed blockers. Current reference/gate blockers remain BE-08-14,
+  QA-09-19/20 and QA-11-15/16. Normal startup stays detached PAPER/unarmed.
+  Formal qualifying sessions remain ZERO. No honest activation date is known;
+  no background monitoring or unattended user notifications are configured.
 
 ## Accepted backend and remaining real acceptance
 
@@ -159,7 +179,7 @@ never request the password/hash in chat. Explain remaining paper readiness gates
   remain explicit. Restore snapshot plus paged signals/history/alerts on resync.
   Client handles exact INR, CSRF/session/logout/401, cancellation, keys, CSV,
   WSS cursors and duplicate/gapped/run-changed batches. React now uses this client;
-  Settings, Live, History and Wallet are accepted; next OPS-19-01.
+  Settings, Live, History and Wallet are accepted; next OPS-19-03.
 - Wallet amounts are exact paise up to INR 999,999,999,999.99. capital() is actual
   free cash; auto-top-up planning_capital() is an explicit simulated funding
   ceiling, never account/project cash. Risk uses actual session capital. Reset
@@ -173,7 +193,7 @@ never request the password/hash in chat. Explain remaining paper readiness gates
 ## Preserve local state and acceptance
 
 - Local DB is unchanged. Pending migrations 0007_indicator / 0008_strategy /
-  0009_paper_execution / 0010_wallet / 0011_domain_api were tested only on isolated
+  0009_paper_execution / 0010_wallet / 0011_domain_api / 0012_operations were tested only on isolated
   DBs. Apply under owner/backup procedure, never while observing a baseline.
   0011 retains decisions, settings versions and command recovery provenance and
   backfills existing preview/admission/reject records. Accepted old feed snapshots
@@ -199,7 +219,7 @@ never request the password/hash in chat. Explain remaining paper readiness gates
   D04. D33 remains Pending: FE-15-11 through 15 are done; OPS-19-08 requires actual
   shadow evidence. D34/D35 FE-16 code rows also completed early D04.
   D36/D37 FE-17 code rows also completed early D04 (conditional deletion
-  unavailable). D38-D40 FE-18 rows completed early D04. Next OPS-19-01. No actual observation or managed activation
+  unavailable). D38-D40 FE-18 rows completed early D04. Next OPS-19-03. No actual observation or managed activation
   is inferred from browser acceptance.
 - Zero qualifying formal paper sessions evidenced. Manual Pine practice, synthetic
   replay tests, automated trials and formal burn-in remain distinct. G1/G2/G3,
@@ -222,4 +242,4 @@ never request the password/hash in chat. Explain remaining paper readiness gates
 - Read this, current daily row and targeted README/task/code on the next turn.
   Preserve existing edits. Update README counts/evidence/next pointer, daily row
   and this handoff together; receipts only when supplied. README.v1 is immutable;
-  documentation rows never count as product completions. Next: OPS-19-01.
+  documentation rows never count as product completions. Next: OPS-19-03.

@@ -30,6 +30,23 @@ from app.strategy.planner import build_plan
 D = Decimal
 
 
+def test_nightly_snapshot_refuses_open_paper_exposure(env, tmp_path):
+    from app.config import BACKEND_DIR
+    from app.market.exchange_calendar import ExchangeCalendar
+    from app.market.maintenance import nightly
+
+    opened(env)
+    destination = tmp_path / "backups"
+    with pytest.raises(ValueError, match="exposure remains"):
+        nightly(
+            env.engine,
+            ExchangeCalendar(BACKEND_DIR / "app" / "market" / "calendars"),
+            destination,
+            NOW.replace(hour=16, minute=0),
+        )
+    assert not destination.exists()
+
+
 def ready(at=NOW, **kw):
     return Readiness(
         **(

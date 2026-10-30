@@ -1,7 +1,7 @@
 """Write JSON logs to the terminal and a rotating local file."""
 
 import logging
-from logging.handlers import RotatingFileHandler
+from logging.handlers import TimedRotatingFileHandler
 
 import structlog
 
@@ -11,11 +11,12 @@ from app.config import BACKEND_DIR
 def configure_logging(level: str) -> None:
     log_directory = BACKEND_DIR / "logs"
     log_directory.mkdir(exist_ok=True)
-    file_handler = RotatingFileHandler(
+    file_handler = TimedRotatingFileHandler(
         log_directory / "aurevon.log",
-        maxBytes=5_000_000,
-        backupCount=5,
+        when="midnight",
+        backupCount=90,
         encoding="utf-8",
+        utc=True,
     )
     logger = logging.getLogger("aurevon")
     # Recreating the app in tests must not duplicate handlers or hold files open.

@@ -157,6 +157,24 @@ class IndicatorEvent(Base):
     payload: Mapped[str] = mapped_column(Text)
 
 
+class ShadowReceipt(Base):
+    __tablename__ = "shadow_receipts"
+    id: Mapped[str] = mapped_column(String(64), primary_key=True)
+    stream: Mapped[str] = mapped_column(String(160), index=True)
+    source_id: Mapped[str] = mapped_column(String(64))
+    index: Mapped[int] = mapped_column(Integer, index=True)
+    at: Mapped[str] = mapped_column(String(40))
+    received_at: Mapped[str] = mapped_column(String(40))
+    payload: Mapped[str] = mapped_column(Text)
+
+
+class PnlTick(Base):
+    __tablename__ = "pnl_ticks"
+    account_id: Mapped[str] = mapped_column(String(40), primary_key=True)
+    at: Mapped[str] = mapped_column(String(40), primary_key=True)
+    payload: Mapped[str] = mapped_column(Text)
+
+
 class StrategyDecision(Base):
     __tablename__ = "strategy_decisions"
     id: Mapped[str] = mapped_column(String(32), primary_key=True)

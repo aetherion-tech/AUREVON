@@ -1,0 +1,353 @@
+{
+  "evidence": "ISOLATED_SYNTHETIC_REGRESSIONS",
+  "cases": [
+    {
+      "name": "test_owned_square_off_retries_quotes_then_reconciles_reports_and_restores",
+      "module": "tests.test_domain_api",
+      "status": "PASS"
+    },
+    {
+      "name": "test_live_display_plan_risk_and_final_close_projections",
+      "module": "tests.test_domain_api",
+      "status": "PASS"
+    },
+    {
+      "name": "test_live_loss_projection_preserves_unknown_open_marks",
+      "module": "tests.test_domain_api",
+      "status": "PASS"
+    },
+    {
+      "name": "test_history_http_integer_filters_and_export_keep_internal_validation",
+      "module": "tests.test_domain_api",
+      "status": "PASS"
+    },
+    {
+      "name": "test_history_period_extremes_and_trade_lineage_are_readonly",
+      "module": "tests.test_domain_api",
+      "status": "PASS"
+    },
+    {
+      "name": "test_empty_period_extremes_remain_unavailable",
+      "module": "tests.test_domain_api",
+      "status": "PASS"
+    },
+    {
+      "name": "test_domain_reads_require_dashboard_auth[/api/wallet]",
+      "module": "tests.test_domain_api",
+      "status": "PASS"
+    },
+    {
+      "name": "test_domain_reads_require_dashboard_auth[/api/wallet/ledger]",
+      "module": "tests.test_domain_api",
+      "status": "PASS"
+    },
+    {
+      "name": "test_domain_reads_require_dashboard_auth[/api/positions/open]",
+      "module": "tests.test_domain_api",
+      "status": "PASS"
+    },
+    {
+      "name": "test_domain_reads_require_dashboard_auth[/api/trades]",
+      "module": "tests.test_domain_api",
+      "status": "PASS"
+    },
+    {
+      "name": "test_domain_reads_require_dashboard_auth[/api/pnl/summary]",
+      "module": "tests.test_domain_api",
+      "status": "PASS"
+    },
+    {
+      "name": "test_domain_reads_require_dashboard_auth[/api/pnl/daily]",
+      "module": "tests.test_domain_api",
+      "status": "PASS"
+    },
+    {
+      "name": "test_domain_reads_require_dashboard_auth[/api/pnl/periods]",
+      "module": "tests.test_domain_api",
+      "status": "PASS"
+    },
+    {
+      "name": "test_domain_reads_require_dashboard_auth[/api/pnl/by-family]",
+      "module": "tests.test_domain_api",
+      "status": "PASS"
+    },
+    {
+      "name": "test_domain_reads_require_dashboard_auth[/api/settings]",
+      "module": "tests.test_domain_api",
+      "status": "PASS"
+    },
+    {
+      "name": "test_domain_reads_require_dashboard_auth[/api/settings/defaults]",
+      "module": "tests.test_domain_api",
+      "status": "PASS"
+    },
+    {
+      "name": "test_domain_reads_require_dashboard_auth[/api/settings/export]",
+      "module": "tests.test_domain_api",
+      "status": "PASS"
+    },
+    {
+      "name": "test_domain_reads_require_dashboard_auth[/api/decisions]",
+      "module": "tests.test_domain_api",
+      "status": "PASS"
+    },
+    {
+      "name": "test_domain_reads_require_dashboard_auth[/api/signals?stream=api-test]",
+      "module": "tests.test_domain_api",
+      "status": "PASS"
+    },
+    {
+      "name": "test_signals_and_persisted_preview_admission_decisions_have_real_explanations",
+      "module": "tests.test_domain_api",
+      "status": "PASS"
+    },
+    {
+      "name": "test_wallet_exact_mutations_csrf_idempotency_conflicts_and_reset",
+      "module": "tests.test_domain_api",
+      "status": "PASS"
+    },
+    {
+      "name": "test_bad_money_never_changes_wallet[0]",
+      "module": "tests.test_domain_api",
+      "status": "PASS"
+    },
+    {
+      "name": "test_bad_money_never_changes_wallet[-1]",
+      "module": "tests.test_domain_api",
+      "status": "PASS"
+    },
+    {
+      "name": "test_bad_money_never_changes_wallet[0.001]",
+      "module": "tests.test_domain_api",
+      "status": "PASS"
+    },
+    {
+      "name": "test_bad_money_never_changes_wallet[NaN]",
+      "module": "tests.test_domain_api",
+      "status": "PASS"
+    },
+    {
+      "name": "test_bad_money_never_changes_wallet[1000000000000.00]",
+      "module": "tests.test_domain_api",
+      "status": "PASS"
+    },
+    {
+      "name": "test_bad_money_never_changes_wallet[1.1]",
+      "module": "tests.test_domain_api",
+      "status": "PASS"
+    },
+    {
+      "name": "test_prepare_confirm_fill_close_history_pnl_and_ledger_agree",
+      "module": "tests.test_domain_api",
+      "status": "PASS"
+    },
+    {
+      "name": "test_confirmation_rechecks_readiness_and_persists_reject_alert",
+      "module": "tests.test_domain_api",
+      "status": "PASS"
+    },
+    {
+      "name": "test_confirmation_fails_closed_on_missing_or_changed_server_evidence[not_authorized]",
+      "module": "tests.test_domain_api",
+      "status": "PASS"
+    },
+    {
+      "name": "test_confirmation_fails_closed_on_missing_or_changed_server_evidence[stale_source]",
+      "module": "tests.test_domain_api",
+      "status": "PASS"
+    },
+    {
+      "name": "test_confirmation_fails_closed_on_missing_or_changed_server_evidence[missing_signal]",
+      "module": "tests.test_domain_api",
+      "status": "PASS"
+    },
+    {
+      "name": "test_confirmation_fails_closed_on_missing_or_changed_server_evidence[changed_settings]",
+      "module": "tests.test_domain_api",
+      "status": "PASS"
+    },
+    {
+      "name": "test_confirmation_fails_closed_on_missing_or_changed_server_evidence[stale_clock]",
+      "module": "tests.test_domain_api",
+      "status": "PASS"
+    },
+    {
+      "name": "test_settings_version_roundtrip_rebuild_requirement_and_active_exposure_block",
+      "module": "tests.test_domain_api",
+      "status": "PASS"
+    },
+    {
+      "name": "test_risk_settings_owner_rebind_preserves_cash_history_and_locks",
+      "module": "tests.test_domain_api",
+      "status": "PASS"
+    },
+    {
+      "name": "test_settings_update_does_not_mutate_an_open_observation",
+      "module": "tests.test_domain_api",
+      "status": "PASS"
+    },
+    {
+      "name": "test_settings_import_rejects_unknown_or_secret_fields[extra0]",
+      "module": "tests.test_domain_api",
+      "status": "PASS"
+    },
+    {
+      "name": "test_settings_import_rejects_unknown_or_secret_fields[extra1]",
+      "module": "tests.test_domain_api",
+      "status": "PASS"
+    },
+    {
+      "name": "test_settings_import_rejects_unknown_or_secret_fields[extra2]",
+      "module": "tests.test_domain_api",
+      "status": "PASS"
+    },
+    {
+      "name": "test_snapshot_and_socket_project_actual_wallet_positions_alerts_and_restart_cursor",
+      "module": "tests.test_domain_api",
+      "status": "PASS"
+    },
+    {
+      "name": "test_default_unattached_domain_is_unavailable_not_a_fake_wallet",
+      "module": "tests.test_domain_api",
+      "status": "PASS"
+    },
+    {
+      "name": "test_readonly_preview_has_no_domain_or_market_mutation",
+      "module": "tests.test_domain_api",
+      "status": "PASS"
+    },
+    {
+      "name": "test_command_crash_after_wallet_commit_recovers_without_second_deposit",
+      "module": "tests.test_domain_api",
+      "status": "PASS"
+    },
+    {
+      "name": "test_domain_migration_is_additive_and_preserves_previous_rows",
+      "module": "tests.test_domain_api",
+      "status": "PASS"
+    },
+    {
+      "name": "test_real_frontend_client_auth_actions_and_resync",
+      "module": "tests.test_domain_api",
+      "status": "PASS"
+    },
+    {
+      "name": "test_settings_command_recovers_commit_without_an_extra_version",
+      "module": "tests.test_domain_api",
+      "status": "PASS"
+    },
+    {
+      "name": "test_prepare_and_confirm_recover_without_new_decision_or_trade",
+      "module": "tests.test_domain_api",
+      "status": "PASS"
+    },
+    {
+      "name": "test_prepared_or_confirmed_requests_cannot_import_quotes_readiness_or_live_flags",
+      "module": "tests.test_domain_api",
+      "status": "PASS"
+    },
+    {
+      "name": "test_canonical_preview_can_succeed_without_subscribing_or_saving_a_decision",
+      "module": "tests.test_domain_api",
+      "status": "PASS"
+    },
+    {
+      "name": "test_new_domain_producers_do_not_break_feed_snapshot_before_domain_migrations",
+      "module": "tests.test_domain_api",
+      "status": "PASS"
+    },
+    {
+      "name": "test_settings_save_and_stale_rejection_have_correlated_audit_outcomes",
+      "module": "tests.test_domain_api",
+      "status": "PASS"
+    },
+    {
+      "name": "test_settings_schema_import_defaults_and_pine_rebuild_validation",
+      "module": "tests.test_domain_api",
+      "status": "PASS"
+    },
+    {
+      "name": "test_owner_rebind_accepts_verified_rebuilt_grid_without_overwriting_old_stream",
+      "module": "tests.test_domain_api",
+      "status": "PASS"
+    },
+    {
+      "name": "test_operations_upgrade_and_downgrade_preserve_ledger",
+      "module": "tests.test_operations_migration",
+      "status": "PASS"
+    },
+    {
+      "name": "test_built_dashboard_routes_and_missing_assets",
+      "module": "tests.test_ops_release",
+      "status": "PASS"
+    },
+    {
+      "name": "test_backup_restores_committed_wal_and_refuses_overwrite_or_tamper",
+      "module": "tests.test_ops_release",
+      "status": "PASS"
+    },
+    {
+      "name": "test_retention_requires_seal_validates_hash_and_preserves_original",
+      "module": "tests.test_ops_release",
+      "status": "PASS"
+    },
+    {
+      "name": "test_nightly_waits_until_close_and_restores_to_separate_database[False]",
+      "module": "tests.test_ops_release",
+      "status": "PASS"
+    },
+    {
+      "name": "test_nightly_waits_until_close_and_restores_to_separate_database[True]",
+      "module": "tests.test_ops_release",
+      "status": "PASS"
+    },
+    {
+      "name": "test_release_owner_lease_rejects_duplicate_and_releases_on_stop",
+      "module": "tests.test_ops_release",
+      "status": "PASS"
+    },
+    {
+      "name": "test_scm_stop_requests_graceful_uvicorn_shutdown",
+      "module": "tests.test_ops_release",
+      "status": "PASS"
+    },
+    {
+      "name": "test_https_runner_checks_build_tls_and_rejects_foreign_host",
+      "module": "tests.test_ops_release",
+      "status": "PASS"
+    },
+    {
+      "name": "test_ingress_auth_audit_validation_dedup_and_no_financial_side_effects",
+      "module": "tests.test_shadow_operations",
+      "status": "PASS"
+    },
+    {
+      "name": "test_comparison_is_authenticated_two_sided_and_waits_for_window",
+      "module": "tests.test_shadow_operations",
+      "status": "PASS"
+    },
+    {
+      "name": "test_one_receipt_cannot_satisfy_two_events_and_source_change_is_fenced",
+      "module": "tests.test_shadow_operations",
+      "status": "PASS"
+    },
+    {
+      "name": "test_durable_rate_limit_and_retries_do_not_consume_allowance",
+      "module": "tests.test_shadow_operations",
+      "status": "PASS"
+    },
+    {
+      "name": "test_samples_are_exact_idempotent_and_pruning_preserves_financial_evidence",
+      "module": "tests.test_pnl_tick_retention",
+      "status": "PASS"
+    },
+    {
+      "name": "test_process_crash_mid_position_restores_without_duplicate_fills_or_ledger",
+      "module": "tests.test_operations_process",
+      "status": "PASS"
+    }
+  ],
+  "formal_sessions": 0,
+  "all_passed": true,
+  "note": "Rerun after pinning the 0011 migration test; prior full-run failure retained separately."
+}

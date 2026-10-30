@@ -52,6 +52,7 @@ def include_websocket_contract(app: FastAPI) -> None:
                 "in": "header",
                 "name": "X-CSRF-Token",
             }
+            schemes["ShadowIngress"] = {"type": "http", "scheme": "bearer"}
             for path, methods in document["paths"].items():
                 for method, operation in methods.items():
                     if method not in ("get", "post", "put", "delete", "patch"):
@@ -61,6 +62,9 @@ def include_websocket_contract(app: FastAPI) -> None:
                         "/api/auth/dashboard/login",
                         "/api/auth/dashboard/status",
                     ):
+                        continue
+                    if path == "/api/shadow/tv-alert":
+                        operation["security"] = [{"ShadowIngress": []}]
                         continue
                     if method != "get":
                         operation["security"] = [
@@ -76,6 +80,7 @@ def include_websocket_contract(app: FastAPI) -> None:
                                 "/api/alerts",
                                 "/api/dev/",
                                 "/api/mode",
+                                "/api/shadow/",
                             )
                         )
                         or path == "/api/auth/kite/login"

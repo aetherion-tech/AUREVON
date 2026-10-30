@@ -8,6 +8,7 @@ async function openSettings(page: Page, ready = true) {
   await page.goto("/dashboard/");
   await page.getByLabel("Dashboard password").fill("browser-fixture-only");
   await page.getByRole("button", { name: "Sign in", exact: true }).click();
+  await expect(page.getByText("Connected", { exact: true })).toBeVisible();
   await page.getByRole("link", { name: "Settings", exact: true }).click();
   if (ready)
     await expect(

@@ -19,6 +19,9 @@ async function login(page: Page) {
   await expect(
     page.getByRole("heading", { name: "History and P&L" }),
   ).toBeVisible();
+  // The initial socket handshake refetches active queries. Wait for that
+  // completion before interacting with pagination that is disabled while fetching.
+  await expect(page.getByText("Connected", { exact: true })).toBeVisible();
 }
 const today = todayIST(),
   previous = shiftDay(today, -1);
@@ -99,7 +102,7 @@ async function fixture(
   page: Page,
   options: { empty?: boolean; conflict?: boolean; exportError?: boolean } = {},
 ) {
-  let conflict = options.conflict ?? false;
+  const conflict = options.conflict ?? false;
   const source = options.empty ? [] : records;
   const exports: URLSearchParams[] = [];
   function filtered(params: URLSearchParams) {
@@ -153,7 +156,8 @@ async function fixture(
   await page.route("**/api/trades?*", async (route) => {
     const params = new URL(route.request().url()).searchParams;
     if (params.get("cursor") && conflict) {
-      conflict = false;
+      // A stale cursor stays invalid until the client reloads page one. A
+      // canceled/background request must not consume a one-shot rejection.
       await route.fulfill({
         status: 409,
         json: {

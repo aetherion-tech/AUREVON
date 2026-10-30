@@ -48,6 +48,62 @@ from app.wallet.service import WalletService
 D = Decimal
 
 
+@pytest.mark.asyncio
+async def test_owned_square_off_retries_quotes_then_reconciles_reports_and_restores(
+    domain, tmp_path
+):
+    from app.market.maintenance import nightly
+    from app.tools.backup import inspect_database, restore
+
+    _, identity = admitted(domain)
+    market = domain["app"].state.market_service
+    market.settings.session_maintenance_enabled = True
+    market.settings.pnl_tick_recording_enabled = True
+    market.settings.session_backup_dir = tmp_path / "scheduled-backups"
+    market.settings.market_lock_file = tmp_path / "unused-settings.lock"
+    # Replace the already-constructed fixture lease, never use the operator lock.
+    from app.market.lifecycle_state import ProcessLease
+
+    market.lease = ProcessLease(tmp_path / "owner.lock")
+    market.desired = True
+    domain["wall"][0] = domain["wall"][0].replace(hour=16, minute=0)
+    original = domain["runtime"].prices
+    domain["runtime"].prices = lambda: {}
+    try:
+        await market.step()
+        assert (
+            domain["wallet"].snapshot().positions[identity].status
+            == PositionStatus.CLOSING
+        )
+        assert not market.settings.session_backup_dir.exists()
+        assert market.reason == "market_start_or_recovery_failed"
+        domain["runtime"].prices = original
+        for _ in range(8):
+            domain["wall"][0] += timedelta(seconds=1)
+            await market.step()
+        final = domain["wallet"].snapshot()
+        assert final.positions[identity].status == PositionStatus.CLOSED
+        assert final.positions[identity].exit_reason == "square_off"
+        assert final.reserved == 0
+        day = market.settings.session_backup_dir / domain["wall"][0].date().isoformat()
+        report = json.loads((day / "report.json").read_text())
+        assert report["exposure"] == "FLAT"
+        copied = tmp_path / "restore-verified.db"
+        assert (
+            restore(day / "paper.db", copied)["rows"]
+            == inspect_database(day / "paper.db")["rows"]
+        )
+        assert not nightly(
+            market.engine,
+            market.calendar,
+            market.settings.session_backup_dir,
+            domain["wall"][0],
+        )
+    finally:
+        domain["runtime"].prices = original
+        await market.close()
+
+
 @pytest.fixture
 def domain(tmp_path):
     app = create_app(
@@ -754,7 +810,7 @@ def test_domain_migration_is_additive_and_preserves_previous_rows(
             "('old','signal','2026-10-28T10:00:00+05:30','{}','{}','[]',?)",
             (json.dumps(dict(accepted=False, reason="quote_unavailable")),),
         )
-    command.upgrade(config, "head")
+    command.upgrade(config, "0011_domain_api")
     assert set(inspect(engine).get_table_names()) - before == {
         "domain_commands",
         "domain_decisions",

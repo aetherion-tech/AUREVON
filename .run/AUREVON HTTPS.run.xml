@@ -1,0 +1,12 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="AUREVON HTTPS" type="PythonConfigurationType" factoryName="Python">
+    <module name="AUREVON" />
+    <option name="INTERPRETER_OPTIONS" value="" />
+    <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/backend" />
+    <option name="SDK_HOME" value="$PROJECT_DIR$/backend/.venv/Scripts/python.exe" />
+    <option name="SCRIPT_NAME" value="app.tools.serve" />
+    <option name="MODULE_MODE" value="true" />
+    <option name="PARAMETERS" value="" />
+    <method v="2" />
+  </configuration>
+</component>

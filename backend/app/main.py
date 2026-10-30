@@ -11,7 +11,6 @@ from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, RedirectResponse
-from fastapi.staticfiles import StaticFiles
 from sqlalchemy.exc import SQLAlchemyError
 from starlette.exceptions import HTTPException
 from starlette.middleware.base import RequestResponseEndpoint
@@ -22,6 +21,7 @@ from app.api.domain_routes import domain_router
 from app.api.domain_service import DomainService
 from app.api.event_hub import EventHub
 from app.api.execution_routes import execution_router
+from app.api.frontend import DashboardFiles
 from app.api.instrument_routes import instrument_router
 from app.api.kite_routes import kite_router
 from app.api.live_routes import live_router
@@ -37,6 +37,7 @@ from app.api.schemas import (
     HealthResponse,
 )
 from app.api.security import DashboardSecurity
+from app.api.shadow import ShadowService, shadow_router
 from app.api.strategy_routes import strategy_router
 from app.broker.instruments import InstrumentError, Instruments
 from app.broker.kite_auth import AuthError, KiteAuth
@@ -147,6 +148,9 @@ def create_app(
     application.include_router(strategy_router(market, domain.settings))
     application.include_router(execution_router(domain))
     application.include_router(domain_router(domain, security))
+    shadow = ShadowService(engine, settings)
+    application.state.shadow_service = shadow
+    application.include_router(shadow_router(shadow, security))
 
     def error_response(
         request: Request,
@@ -280,11 +284,15 @@ def create_app(
         response.headers["X-Request-ID"] = request_id
         response.headers["Cache-Control"] = "no-store"
         response.headers["Referrer-Policy"] = "no-referrer"
+        response.headers["X-Content-Type-Options"] = "nosniff"
+        response.headers["X-Frame-Options"] = "DENY"
         return response
 
     @application.get("/", include_in_schema=False)
     def home() -> RedirectResponse:
-        return RedirectResponse("/docs")
+        return RedirectResponse(
+            "/dashboard/" if settings.dashboard_frontend_dir is not None else "/docs"
+        )
 
     @application.get("/api/health", response_model=HealthResponse)
     def health() -> HealthResponse:
@@ -294,9 +302,7 @@ def create_app(
         root = settings.dashboard_frontend_dir.resolve(strict=True)
         if not (root / "index.html").is_file():
             raise ValueError("Dashboard build must contain index.html")
-        application.mount(
-            "/dashboard", StaticFiles(directory=root, html=True), name="dashboard"
-        )
+        application.mount("/dashboard", DashboardFiles(root), name="dashboard")
 
     application.add_middleware(
         CORSMiddleware,

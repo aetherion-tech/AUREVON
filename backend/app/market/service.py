@@ -18,6 +18,7 @@ from app.config import Settings
 from app.db.models import Instrument
 from app.market.exchange_calendar import ExchangeCalendar
 from app.market.lifecycle_state import LifecycleStore, MarketEvents, ProcessLease
+from app.market.maintenance import nightly
 from app.market.persistence import MarketPersistence, PersistenceError
 from app.market.recovery_progress import RecoveryProgress
 from app.market.session_context import session_context
@@ -198,6 +199,18 @@ class MarketService:
                 if self.settings.wallet_reconciliation_enabled:
                     await blocking(lambda: self.wallet_reconciler.poll(self.clock()))
                 await self._step()
+                if self.settings.session_maintenance_enabled:
+                    await blocking(
+                        lambda: nightly(
+                            self.engine,
+                            self.calendar,
+                            self.settings.session_backup_dir,
+                            self.clock(),
+                            recordings=self.settings.market_record_dir
+                            if self.settings.recording_compression_enabled
+                            else None,
+                        )
+                    )
             except asyncio.CancelledError:
                 await self._stop_worker()
                 raise

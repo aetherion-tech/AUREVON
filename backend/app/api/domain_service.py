@@ -547,6 +547,10 @@ class DomainService:
         runtime = self.runtime_provider()
         if runtime is not None:
             runtime.poll(at)
+            if self.market.settings.pnl_tick_recording_enabled:
+                from app.wallet.pnl_ticks import sample
+
+                sample(self.engine, at)
 
     def rebind_wallet(self, stream: str | None = None) -> WalletService:
         """Owner-only configuration application after stopping and rebuilding.

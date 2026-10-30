@@ -16,6 +16,7 @@ from cryptography.x509.oid import NameOID
 
 frontend = Path(__file__).resolve().parents[1]
 backend = frontend.parent / "backend"
+built = "--built" in sys.argv
 sys.path.insert(0, str(backend))
 
 with tempfile.TemporaryDirectory(prefix="aurevon-browser-") as folder:
@@ -58,6 +59,7 @@ with tempfile.TemporaryDirectory(prefix="aurevon-browser-") as folder:
         dashboard_origins=["https://127.0.0.1:5174"],
         market_stream="browser-live",
         renko_anchor=23900,
+        dashboard_frontend_dir=frontend / "dist" if built else None,
     )
     app = create_app(settings)
     Base.metadata.create_all(app.state.database_engine)
@@ -73,7 +75,8 @@ with tempfile.TemporaryDirectory(prefix="aurevon-browser-") as folder:
         uvicorn.Config(app, host="127.0.0.1", port=18765, log_level="warning")
     )
     thread = threading.Thread(target=server.run, daemon=True)
-    thread.start()
+    if not built:
+        thread.start()
     key = rsa.generate_private_key(public_exponent=65537, key_size=2048)
     name = x509.Name([x509.NameAttribute(NameOID.COMMON_NAME, "localhost")])
     cert = (
@@ -112,7 +115,23 @@ with tempfile.TemporaryDirectory(prefix="aurevon-browser-") as folder:
         LOCAL_UI_PORT="5174",
     )
     try:
-        subprocess.run(["npm.cmd", "run", "dev"], cwd=frontend, env=env, check=True)
+        if built:
+            server = uvicorn.Server(
+                uvicorn.Config(
+                    app,
+                    host="127.0.0.1",
+                    port=5174,
+                    log_level="warning",
+                    ssl_keyfile=str(key_path),
+                    ssl_certfile=str(cert_path),
+                    access_log=False,
+                    proxy_headers=False,
+                )
+            )
+            server.run()
+        else:
+            subprocess.run(["npm.cmd", "run", "dev"], cwd=frontend, env=env, check=True)
     finally:
         server.should_exit = True
-        thread.join(timeout=10)
+        if thread.is_alive():
+            thread.join(timeout=10)

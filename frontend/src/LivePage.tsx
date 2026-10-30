@@ -13,6 +13,7 @@ import {
 import { ist, money } from "./format";
 import { Card, Dialog, ErrorMessage } from "./ui";
 import { readIntent, saveIntent, type Intent } from "./intents";
+import { ShadowPanel } from "./ShadowPanel";
 
 function Datum({ name, children }: { name: string; children: ReactNode }) {
   return (
@@ -69,6 +70,7 @@ function Readiness({ connection }: { connection: string }) {
     <section aria-label="Live readiness" className="readiness">
       <h1>Live paper desk</h1>
       <AlertStrip />
+      <ShadowPanel />
       <p>
         Server state: {d?.state ?? "Unavailable"} · Entries{" "}
         {d?.entries ? "enabled by owner" : "blocked"}

@@ -1,6 +1,6 @@
 # Local paper-trading UI: readiness and usage
 
-Updated 2026-10-29, D04. **Not ready for paper trading from the browser.**
+Updated 2026-10-30, D05. **Not ready for paper trading from the browser.**
 BE-12 accounting, all 20 BE-13 API/client tasks, all 15 FE-14 foundation tasks and
 all 15 FE-15 Live tasks, all 8 FE-16 History tasks, all 8 FE-17 Wallet tasks and
 all 11 FE-18 Settings tasks are code accepted. React provides sign-in/navigation,
@@ -10,7 +10,9 @@ History includes summaries/charts/period tables, URL filters, server-sorted page
 trade details/timeline/chart and matching CSV. Wallet provides exact balances, shared financial dialogs, ledger and top-up status.
 Settings provides Pine/strategy/risk/fill/data forms, guarded versioned saves,
 JSON import/export, display preferences and read-only strike preview.
-See docs/testing/FE-18-acceptance.md.
+See docs/testing/FE-18-acceptance.md and docs/testing/OPS-19-followup.md.
+Live also has an observation-only TradingView shadow comparison panel; it remains
+disabled until verified ingress/source configuration. This adds no trading action.
 Normal startup does not attach
 an executor or enable entries. `/docs` is an API explorer, not the trading UI.
 Starting the backend does not start taking paper trades.
@@ -42,7 +44,7 @@ exports, G2/G3 and runtime integration remain outstanding.
 | --- | --- |
 | Backend accounting | BE-12-01 through 12 and BE-13-09/10/11 are complete with exact accounting/API integration. Actual runtime/observation acceptance remains separate. |
 | Public execution path | All BE-13 APIs and typed-client integration are complete. Explicit owner runtime/providers and clock/poll hooks are tested; normal startup remains detached. Actual managed indicator/strategy generation, reference/operational readiness and browser workflow still need acceptance. Unattached actions return 409. |
-| Local UI | FE-14/15/16/17/18 complete with isolated HTTPS browser evidence. Built frontend hosting (OPS-19-01) and integrated operational acceptance remain. No real-session or managed trial acceptance is implied. |
+| Local UI | FE-14/15/16/17/18 complete with isolated HTTPS browser evidence. Built frontend hosting (OPS-19-01) is accepted; integrated operational acceptance remains. No real-session or managed trial acceptance is implied. |
 | Data and paper gates | Actual chart settings/exports, BE-08-14, QA-09-19/20, QA-11-15/16, recorded end-to-end reconciliation and manual strike checks. Replay tests are not those actual exports. |
 | Operator verification | An actual local HTTPS run; login; PAPER/unarmed; valid calendar/clock/session; fresh catalog/feed/recovery; known risk/cost configuration; reconciled wallet; browser close/kill/error/reconnect tests. |
 
@@ -50,10 +52,22 @@ Optional history deletion, sounds and other polish need not delay an explicitly
 accepted first paper UI slice. The report currently tracks a conservative full
 UI milestone. Any smaller first slice must retain working controls, error states,
 accounting and browser evidence before being described as usable for paper trades.
-Next task: OPS-19-01 built frontend hosting through FastAPI.
+Next task: OPS-19-03 isolated Windows SCM verification. Built hosting is accepted;
+see [release operations](paper-release.md) for the HTTPS single-origin runner,
+backup/restore, staged service and remaining gates.
 The foundation does not enable trading. A first paper UI slice
 may be accepted before optional polish only with all required controls/gates. A shell or screenshot alone will not be reported
 as paper-trading ready.
+
+## Built release option
+
+After building frontend, safely stop the previous backend owner only when not
+observing and after verifying exposure/settlement. From backend run
+`.\.venv\Scripts\python.exe -m app.tools.serve` and open
+**https://127.0.0.1:8443/dashboard/**. This serves SPA/API/WSS on one origin;
+no separate FE server is required. Never start it beside an observing owner.
+Normal startup remains detached/unarmed. See [paper release operations](paper-release.md).
+The development commands below remain supported.
 
 ## Verified foundation start/build workflow
 
