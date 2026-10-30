@@ -23,7 +23,7 @@ cd D:\WorkSpace\AUREVON\frontend
 npm.cmd run dev
 ```
 
-Open https://127.0.0.1:5173/dashboard/ (History: /dashboard/history).
+Open https://localhost:5173/dashboard/ (History: /dashboard/history).
 Keep both terminals open. Reuse an already-running frontend and refresh the page;
 port 5173 already in use usually means that Vite is running. If backend Python
 code changed, explain that its existing owner must be stopped safely with Ctrl+C
@@ -35,12 +35,48 @@ never request the password/hash in chat. Explain remaining paper readiness gates
 
 ## Current work and evidence
 
+- PRIORITY local UI fix APPLIED, D05: see docs/testing/local-ui-recovery.md.
+  The actual local DB was 0006, feed stopped, account unattached and last Kite
+  callback 400. Guarded setup paused the existing --reload owner gracefully,
+  verified an immutable backup, applied 0007 through 0012, saved an explicit
+  zero-funded simulated account and resumed that SAME backend. Old table counts
+  and audit history retained; separate temporary backup restore verified.
+  Receipt: backend/data/backups/local-ui-20261030T044455-b2a6ef6d.setup.json
+  (ignored). No active observation/exposure existed; no force-kill/duplicate owner.
+- Only LOCAL_UI_ENABLED=true was added to .env, preserving credentials/settings/
+  Windows permissions. MARKET_SERVICE_ENABLED remains false. Startup attaches
+  the existing flat wallet plus entries-disabled display runtime; never auto-
+  seeds funds or enables strategy entries. Actual account/P&L projection and
+  running HTTP health verified; one zero-amount INITIAL row, zero positions, zero balance.
+  A zero balance is simulated capital, not broker funds or project cash.
+- Kite callback grants now retain their initiating UI origin and relay a backend/
+  other-loopback callback BACK to it before cookie proof/token exchange. Existing
+  cookie/state/expiry/replay/logout protections remain. Unit cross-origin roundtrip
+  passes. Fresh login must be completed by the operator; do not reuse old callbacks
+  or claim actual broker authentication based on tests. Use consistently
+  https://localhost:5173/dashboard/, sign in, Log in to Kite, then Start market data.
+  A user verification question is pending; no password/token requested in chat.
+- Live now has explicit data Start/Stop controls; no trading activation. Actual
+  RENKO_ANCHOR is absent, so opt-in local UI supports genuine quote-only streaming/
+  recording with explicit chart blocker and permanently unvalidated entry gate.
+  Do not invent a reference anchor. Renko/indicator/strategy activation still needs
+  real configuration/reference acceptance. The local setup command is an explicit
+  maintenance operation, not a prerequisite to rerun every login. Existing startup
+  terminals already updated through reload; reuse/refresh, do not spawn duplicates.
+- Recovery checks: 121 auth/domain/wallet/startup cases and 17 owner/startup cases
+  pass (overlap), including interrupted zero initialization. 35 frontend tests and
+  production build/TypeScript/ESLint/Ruff/mypy/OpenAPI checks pass. Final complete
+  built HTTPS browser run 40/40 passes; outcomes in docs/testing/local-ui-recovery.md. This fix adds no product
+  completions; counts below stay 234/46, formal sessions ZERO. No real quotes,
+  automatic entries or formal burn-in claimed from synthetic browser fixtures.
+
 - Product tasks: 280 total; 234 Completed / 46 Pending. Frontend remains
   57 Completed / 0 Pending. Section 19: 9 Completed / 9 Pending. Completed:
   OPS-19-01/02/04/05/06/07/18 and QA-19-09/12. Do not restart accepted work.
   Evidence: docs/testing/OPS-19-followup.md (latest) and OPS-19-acceptance.md
   (initial six-row batch). Initial full backend 785 remains historical.
-- NEXT TASK: OPS-19-03 Windows SCM start/stop/restart verification with the intended
+- NEXT TASK: verify the repaired UI with fresh operator Kite login and Start market
+  data first; next product task remains OPS-19-03 Windows SCM verification with the intended
   Windows identity. Current identity is NOT elevated; actual
   OpenSCManager(SC_MANAGER_CREATE_SERVICE) probe returned Windows error 5,
   Access denied. No service installed/started/reconfigured. Wrapper, exclusive
@@ -88,10 +124,10 @@ never request the password/hash in chat. Explain remaining paper readiness gates
   before paging; Settings/Wallet helpers also await Connected. Stale-cursor
   rejection persists. Windows Proactor abort/reset
   callbacks remain noted. Frontend audit clean; backend 12 advisory records remain.
-- New schema 0012_operations (shadow receipts / derivative P&L ticks) was tested
-  only on isolated DBs. Operator migrations 0007 through 0012 remain pending;
-  never migrate during an observation. No operator .env, data, service or Pine
-  mutation. Existing frontend HTTPS certificate expires 2027-10-29; development
+- Operations schema 0012 was originally tested in isolation; the subsequent local
+  recovery above APPLIED 0007 through 0012 under paused-owner/backup procedure.
+  LOCAL_UI_ENABLED is the only new .env opt-in; original Pine remains unchanged.
+  Existing frontend HTTPS certificate expires 2027-10-29; development
   5173/8000 remains supported. Dashboard password previously configured=true;
   use hidden local password tool only if missing, never request it in chat.
 - Built release: FE npm.cmd run build; BE python -m app.tools.serve from backend;
@@ -102,7 +138,7 @@ never request the password/hash in chat. Explain remaining paper readiness gates
   for the development flow above. Backend code changed, so a safe restart is needed.
 - At each active implementation turn run backend python -m app.tools.local_ui_readiness
   and report changed blockers. Current reference/gate blockers remain BE-08-14,
-  QA-09-19/20 and QA-11-15/16. Normal startup stays detached PAPER/unarmed.
+  QA-09-19/20 and QA-11-15/16. Default startup stays detached; explicit local UI account remains PAPER/unarmed with entries blocked.
   Formal qualifying sessions remain ZERO. No honest activation date is known;
   no background monitoring or unattended user notifications are configured.
 
@@ -134,9 +170,9 @@ never request the password/hash in chat. Explain remaining paper readiness gates
 
 ## Domain operation boundaries
 
-- Normal startup stays PAPER/unarmed with MARKET_SERVICE_ENABLED=false; .env is
-  unchanged. It never attaches a wallet/executor/runtime, seeds capital or starts
-  paper trades. Missing wallet/actions return 409, not fabricated zero balances.
+- Default startup stays PAPER/unarmed with MARKET_SERVICE_ENABLED=false. Explicit
+  LOCAL_UI_ENABLED=true now attaches the setup-created flat wallet/display runtime
+  with entries_allowed=false; startup never seeds capital or starts paper trades. Missing wallet/actions return 409, not fabricated zero balances.
   LIVE/arming and real-order sending remain unavailable. Current entry capability
   reflects only a matching explicitly attached owner/runtime and readiness.
 - DomainService uses app.state.paper_execution and optional app.state.paper_runtime.
@@ -192,9 +228,11 @@ never request the password/hash in chat. Explain remaining paper readiness gates
 
 ## Preserve local state and acceptance
 
-- Local DB is unchanged. Pending migrations 0007_indicator / 0008_strategy /
-  0009_paper_execution / 0010_wallet / 0011_domain_api / 0012_operations were tested only on isolated
-  DBs. Apply under owner/backup procedure, never while observing a baseline.
+- Local recovery APPLIED migrations 0007_indicator through 0012_operations from
+  0006 under acknowledged owner pause + market lease + verified backup. Original
+  table counts/audit retained; separate restore verified. See local-ui-recovery.md
+  for the actual receipt and explicit zero-account initialization. Never migrate
+  during an observation or replace a real baseline with replay state.
   0011 retains decisions, settings versions and command recovery provenance and
   backfills existing preview/admission/reject records. Accepted old feed snapshots
   remain usable before domain migration; new domain paths need their schema.

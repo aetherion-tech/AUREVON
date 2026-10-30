@@ -26,6 +26,7 @@ from app.api.instrument_routes import instrument_router
 from app.api.kite_routes import kite_router
 from app.api.live_routes import live_router
 from app.api.live_service import LiveService
+from app.api.local_owner import attach_local_account, wait_for_maintenance
 from app.api.mode_routes import mode_router
 from app.api.openapi import include_websocket_contract
 from app.api.replay_routes import ReplayService, replay_router
@@ -75,6 +76,7 @@ def create_app(
 
     @asynccontextmanager
     async def lifespan(application: FastAPI) -> AsyncIterator[None]:
+        await wait_for_maintenance(settings)
         configure_logging(settings.log_level)
         log.info(
             "application_started",
@@ -82,6 +84,7 @@ def create_app(
             mode="PAPER",
             kite_configured=settings.kite_configured,
         )
+        attach_local_account(application, domain, settings)
         await market.open()
         publisher = asyncio.create_task(publish_market())
         try:
@@ -215,6 +218,14 @@ def create_app(
             message = HTTPStatus(error.status_code).phrase
         except ValueError:
             message = "HTTP request failed."
+        if error.detail == "paper_account_unavailable":
+            return error_response(
+                request,
+                "paper_account_unavailable",
+                "Paper account is not attached. Complete local UI setup and restart "
+                "the backend; Kite login alone does not initialize a wallet.",
+                error.status_code,
+            )
         return error_response(
             request, "http_error", message, error.status_code, headers=error.headers
         )

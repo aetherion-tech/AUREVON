@@ -22,7 +22,8 @@ calculations, and live orders are not implemented in the web application. A
 standalone live price monitor is available as described below.
 The original project specification is saved in [docs/SPEC.md](docs/SPEC.md).
 
-Local browser paper trading is **not ready**. Track the remaining work and the
+Local data/account display is repaired; **paper entries remain blocked** pending
+reference and safety acceptance. Track the remaining work and the
 verified startup/use instructions in [local paper UI readiness](docs/operations/local-paper-ui.md).
 
 ## Start here - delivery plan v2 (45-day target, 60-day review)
@@ -37,13 +38,13 @@ The original master checklist, stable IDs and all unfinished scope remain below.
 | Short next-session handoff | [NEXT_SESSION.md](docs/plans/NEXT_SESSION.md) |
 | Immutable Version 1 backup | [README.v1.md](docs/plans/README.v1.md), [SHA-256](docs/plans/README.v1.sha256) |
 | Plan preparation | Completed on 2026-10-26; documentation only, outside the 280 product tasks |
-| Current implementation slot | Section 19: 9 Completed / 9 Pending. OPS-19-04/05 and QA-19-12 additionally accepted: owner close/report/restore, conservative tick retention plus 90-day P&L samples, isolated process-crash recovery. Shadow inbox/comparison/UI implemented but OPS-19-08 awaits reachable ingress/G2. Next OPS-19-03 (Windows SCM access denied, error 5). Latency and actual reference/drill/burn-in gates remain Pending. docs/testing/OPS-19-followup.md. |
+| Current implementation slot | Local UI recovery applied D05: operator DB safely upgraded 0006 to 0012 with verified backup; explicit zero simulated wallet + display-only runtime attached; callback-origin relay and UI Start/Stop market data added. Without an anchor, explicit quotes-only mode keeps chart/entries blocked. Operator fresh Kite login/live quote verification remains. Counts unchanged; next product OPS-19-03 after UI verification. docs/testing/local-ui-recovery.md. |
 | Kickoff / elapsed day | 2026-10-26 IST / current D05 (2026-10-30); task carry-over and early batches are recorded without renumbering elapsed days |
 | Existing plan, all-in price, renewal and usage-reset times | Unverified; obtain actual account readings, never assume a reset/renewal date |
 | Cash already spent / reserved / remaining | Unverified; reconcile receipts before proposing any purchase |
 | Paper status | Manual Pine practice remains separate. Isolated execution/accounting code is ready; managed automated paper and the local trading UI remain inactive. Readiness: python -m app.tools.local_ui_readiness; docs/operations/local-paper-ui.md. |
 | Qualified formal paper sessions | 0 evidenced; dates, release/config identity, shadow checks and reconciliation required |
-| Latest application verification | D05 follow-up: broad backend 797/798 passed; older migration test pinned to 0011 and corrected affected suites 69/69 pass; latest retention 8/8. 35 frontend tests; final 38/38 built HTTPS browser flows pass after explicit initial-resync waits. Build/type/lint/contracts pass. docs/testing/OPS-19-followup.md. Timing p95 63.89 ms misses target; backend audit findings remain. |
+| Latest application verification | Local UI repair: 121 auth/domain/wallet/startup cases + 17 owner/startup cases pass (overlap); 35 frontend tests and final 40/40 built HTTPS browser flows; build/TypeScript/ESLint/Ruff/mypy/OpenAPI checks pass. Actual operator account/P&L attachment and separate backup restore verified, entries false. Browser outcomes in docs/testing/local-ui-recovery.md; prior full results retained. |
 
 ### Delivery scope, day numbering and realistic targets
 
@@ -370,7 +371,7 @@ Status rules:
    before selecting work. Never restart a Completed task merely because chat history
    is unavailable. Keep the original Pine reference intact.
 2. Select the next Pending task whose prerequisites are satisfied. Report its ID.
-   Default next product task: **OPS-19-03**; BE-08-14 and QA-09-19/20 await actual reference exports/G1/G2 acceptance; QA-11-15/16 await real replay/manual examples and G3. Use the v2 daily batch and
+   First verify the repaired local UI login/data flow; default next product task: **OPS-19-03**; BE-08-14 and QA-09-19/20 await actual reference exports/G1/G2 acceptance; QA-11-15/16 await real replay/manual examples and G3. Use the v2 daily batch and
    `docs/plans/NEXT_SESSION.md` for dependency-ready batching and usage checks.
 3. Implement the scoped behavior and its meaningful acceptance checks. If only
    part is finished, split the row into stable sub-IDs and leave unfinished parts
@@ -858,6 +859,22 @@ claimed before requirements are agreed.
 | FUT-21-05 | Pending | Design backtesting UI or mobile client only if requested; retain CLI replay as the current testing scope. | Explicit future requirements |
 
 ### Task update history
+
+- **2026-10-30 (D05, local UI recovery):** Fixed the reported unavailable wallet/
+  history/P&L startup, added retained-origin Kite callback relay and feed controls.
+  Actual paused reload owner, market lease and verified backup protected upgrade
+  from 0006 to 0012; old table counts/audit history preserved; separate restore
+  verified. Explicit LOCAL_UI_ENABLED=true attaches a zero-funded simulated account
+  and entries-disabled display owner. No synthetic quotes or grid were inserted;
+  missing anchor permits labelled quote-only data, never strategy entries.
+  Actual account/P&L projection, zero positions, one zero INITIAL row and HTTP
+  health verified. Actual broker login requires the operator; old callback cannot
+  be reused. 121 focused auth/domain/wallet/startup and 17 owner/startup cases,
+  35 frontend tests, final 40/40 HTTPS browser flows and build/type/lint/contracts pass. Browser outcomes in
+  docs/testing/local-ui-recovery.md. No new product IDs/completions; counts remain
+  234 Completed / 46 Pending. Formal sessions 0; spend/usage/renewal Unknown;
+  extra paid usage INR 0. Next action: verify fresh UI/Kite login and Start market
+  data; then resume OPS-19-03. Original Pine and immutable README unchanged.
 
 - **2026-10-30 (D05, OPS-19 follow-up):** Additionally accepted OPS-19-04/05
   and QA-19-12. Owner square-off/quote-retry/reconciliation/report/isolated restore;

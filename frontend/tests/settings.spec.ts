@@ -5,7 +5,9 @@ test.beforeEach(async ({ baseURL }) => {
   expect(baseURL).toBe("https://127.0.0.1:5174");
 });
 async function openSettings(page: Page, ready = true) {
-  await page.goto("/dashboard/");
+  // Start on the page under test instead of loading 655 unrelated Live fixture
+  // bricks before the initial resync; keep the same Connected readiness check.
+  await page.goto("/dashboard/settings");
   await page.getByLabel("Dashboard password").fill("browser-fixture-only");
   await page.getByRole("button", { name: "Sign in", exact: true }).click();
   await expect(page.getByText("Connected", { exact: true })).toBeVisible();
@@ -149,6 +151,9 @@ test("SPA navigation, browser back and reload guard unsaved edits", async ({
   page,
 }) => {
   await openSettings(page);
+  // Establish a real in-app previous history entry before testing browser back.
+  await page.getByRole("link", { name: "Live", exact: true }).click();
+  await page.getByRole("link", { name: "Settings", exact: true }).click();
   await page.getByLabel("ATR Length", { exact: true }).fill("19");
   await page.getByRole("link", { name: "Wallet", exact: true }).click();
   const dialog = page.getByRole("dialog");

@@ -32,6 +32,8 @@ class Settings(BaseSettings):
     )
     readiness_entry_delay_seconds: int = Field(default=60, ge=60, le=3600)
     market_service_enabled: bool = False
+    local_ui_enabled: bool = False
+    local_ui_maintenance_file: Path = BACKEND_DIR / "data" / "local-ui-maintenance.json"
     wallet_reconciliation_enabled: bool = False
     session_maintenance_enabled: bool = False
     pnl_tick_recording_enabled: bool = False

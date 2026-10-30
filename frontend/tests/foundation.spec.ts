@@ -48,15 +48,22 @@ test("real HTTPS proxy, secure cookie, guarded routes, exact deposit, pending ki
   await expect(
     page.getByRole("heading", { name: "History and P&L" }),
   ).toBeVisible();
+  await expect(page.getByText("Connected", { exact: true })).toBeVisible();
   await page
     .getByRole("button", { name: "Add paper funds", exact: true })
     .click();
   const dialog = page.getByRole("dialog");
   await expect(dialog.getByLabel("Amount in INR")).toBeFocused();
   await dialog.getByLabel("Amount in INR").fill("0.01");
+  const depositResponse = page.waitForResponse(
+    (response) =>
+      response.url().endsWith("/api/wallet/deposit") &&
+      response.request().method() === "POST",
+  );
   await dialog
     .getByRole("button", { name: "Add paper funds", exact: true })
     .click();
+  expect((await depositResponse).status()).toBe(200);
   await expect(dialog.getByRole("status")).toHaveText(
     "Paper deposit recorded.",
   );

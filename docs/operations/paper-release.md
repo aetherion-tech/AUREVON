@@ -66,12 +66,15 @@ Uvicorn does not add the runner's Host-header guard.
 
 1. Check the actual calendar/session, OS clock, dashboard login, Kite login and
    token expiry. Verify PAPER/unarmed and the intended data/configuration identity.
-2. Confirm local migrations under the documented owner/backup procedure. Pending
-   0007 through 0012 must not be applied during an observation. No script here
-   applies migrations or enables MARKET_SERVICE_ENABLED.
+2. Confirm local migrations under the documented owner/backup procedure. The
+   D05 local recovery already applied 0007 through 0012 with verified backup and
+   owner pause. The explicit local_ui_setup command is separate from ordinary
+   dependency Setup; it never enables MARKET_SERVICE_ENABLED. Do not rerun
+   migrations during an observation or merely to log in.
 3. Verify reference gates, explicit matching wallet/runtime/providers, fresh
    catalog/contracts/quotes, recovery completion, risk settings, capital and ledger.
-   Normal startup has no attached executor and cannot admit paper entries.
+   Default startup has no attached executor. The explicit local UI opt-in attaches
+   the already initialized flat display account; entries remain disabled.
 4. On disconnect, overflow or token expiry, keep entries blocked until recovery
    and clock checks pass. Preserve recordings/checkpoints and the original Pine.
    Re-login uses the existing owner; never start a competing socket/worker.
@@ -247,3 +250,19 @@ target. Market persistence p95 was 23.49 ms; indicator/readback p95 was 41.69 ms
 These independently computed phase percentiles must not be summed. There is no
 brick-to-order dispatch measurement or representative option fanout/warmed history;
 QA-19-14 remains Pending. See retained JSON reports under docs/testing.
+
+## Current recovered local installation
+
+The reported missing wallet/history/P&L and callback-origin issue has a dedicated
+[recovery record](../testing/local-ui-recovery.md). Operator DB revision is 0012;
+original table counts/audit retained, separate backup restore verified, explicit
+simulated initial capital zero. LOCAL_UI_ENABLED is now true locally; default
+settings remain false. The existing reload owner paused/resumed gracefully.
+
+Reuse the running backend/Vite and https://localhost:5173/dashboard/. Sign in,
+complete fresh Kite login, then Start market data. Without a verified anchor,
+local mode supplies genuine quotes only and clearly blocks chart/strategy entry
+activation. No actual broker login or live quote result is inferred from tests.
+The setup command need not be rerun on login. For future stopped/acknowledged
+reload-owner recovery only, it is `python -m app.tools.local_ui_setup --apply`;
+it refuses a market lease/exposure and retains a verified backup and receipt.

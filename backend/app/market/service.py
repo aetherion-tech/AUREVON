@@ -251,6 +251,8 @@ class MarketService:
             self.retry_at = None
             self.auth_checked = None
         if session is None or now >= session.closing:
+            if self.context.get("quote_only"):
+                self.context["session_state"] = "closed"
             if self.worker is not None and self.worker._history_ready.is_set():
                 await self.worker.drain()
                 self.worker.advance_candles(now)
@@ -343,6 +345,10 @@ class MarketService:
         if now < session.opening:
             self.reason = "prepared_waiting_for_open"
             return
+        quotes_only = self.settings.local_ui_enabled and (
+            self.settings.renko_anchor is None
+            or self.settings.renko_mode != "minute_close"
+        )
         if self.worker is not None:
             status = self.worker.status()
             self.events.publish(
@@ -385,7 +391,11 @@ class MarketService:
                             now,
                         )
                     )
-                self.reason = "running_entries_blocked"
+                self.reason = (
+                    "running_quotes_only_anchor_required"
+                    if quotes_only
+                    else "running_entries_blocked"
+                )
                 return
         if self.failures >= self.settings.recovery_max_attempts or (
             self.retry_at is not None and now < self.retry_at
@@ -408,6 +418,16 @@ class MarketService:
             recovery_progress=self.progress,
         )
         self.worker = worker
+        if quotes_only:
+            self.context = {
+                "quote_only": True,
+                "session_state": "open",
+                "chart_blocker": "Verified minute-close Renko anchor required",
+            }
+            await worker.start(buffer_only=False)
+            await worker.drain()
+            self.reason = "running_quotes_only_anchor_required"
+            return
         await worker.start(buffer_only=True)
         for attempt in range(self.settings.recovery_max_attempts):
             cutoff = self.clock().astimezone(IST)

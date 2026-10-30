@@ -250,7 +250,7 @@ class DomainService:
     def execution(self) -> PaperExecution:
         service = self.execution_provider()
         if not isinstance(service, PaperExecution):
-            raise HTTPException(409)
+            raise HTTPException(409, detail="paper_account_unavailable")
         if service.user_id != "local":
             raise HTTPException(403)
         return service

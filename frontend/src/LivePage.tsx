@@ -14,6 +14,7 @@ import { ist, money } from "./format";
 import { Card, Dialog, ErrorMessage } from "./ui";
 import { readIntent, saveIntent, type Intent } from "./intents";
 import { ShadowPanel } from "./ShadowPanel";
+import { FeedControls } from "./FeedControls";
 
 function Datum({ name, children }: { name: string; children: ReactNode }) {
   return (
@@ -70,6 +71,7 @@ function Readiness({ connection }: { connection: string }) {
     <section aria-label="Live readiness" className="readiness">
       <h1>Live paper desk</h1>
       <AlertStrip />
+      <FeedControls />
       <ShadowPanel />
       <p>
         Server state: {d?.state ?? "Unavailable"} · Entries{" "}

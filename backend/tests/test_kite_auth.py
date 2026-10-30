@@ -44,6 +44,60 @@ def login_state(client: TestClient) -> str:
     return parse_qs(query["redirect_params"][0])["state"][0]
 
 
+def test_callback_from_backend_relays_to_original_https_cookie_origin(tmp_path):
+    settings = make_settings(tmp_path)
+    requests = []
+
+    def broker(request):
+        requests.append(request.url.path)
+        if request.url.path == "/session/token":
+            return httpx.Response(
+                200,
+                json={
+                    "status": "success",
+                    "data": {"access_token": "synthetic-token", "user_id": "TEST"},
+                },
+            )
+        return httpx.Response(
+            200, json={"status": "success", "data": {"user_id": "TEST"}}
+        )
+
+    auth = make_auth(settings, broker)
+    app = create_app(settings, auth)
+    with TestClient(app, base_url="https://localhost:5173") as browser:
+        from app.db.models import Base
+
+        Base.metadata.create_all(app.state.database_engine)
+        assert (
+            browser.post(
+                "/api/auth/dashboard/login", json={"password": "fixture-password-only"}
+            ).status_code
+            == 200
+        )
+        start = browser.get("/api/auth/kite/login", follow_redirects=False)
+        params = parse_qs(urlparse(start.headers["location"]).query)
+        state = parse_qs(params["redirect_params"][0])["state"][0]
+        query = {
+            "state": state,
+            "status": "success",
+            "request_token": "synthetic-one-time",
+        }
+        backend = TestClient(app, base_url="http://127.0.0.1:8000")
+        relay = backend.get(
+            "/api/auth/kite/callback", params=query, follow_redirects=False
+        )
+        assert relay.status_code == 303
+        assert relay.headers["location"].startswith(
+            "https://localhost:5173/api/auth/kite/callback?"
+        )
+        assert requests == []  # No exchange without original cookie proof.
+        completed = browser.get(relay.headers["location"], follow_redirects=False)
+        assert completed.status_code == 303
+        assert completed.headers["location"] == "/dashboard/?kite=verified"
+        assert browser.get("/api/auth/kite/status").json()["authenticated"] is True
+        assert browser.get("/api/auth/kite/callback", params=query).status_code == 400
+
+
 def test_callback_delegation_revoked_by_dashboard_logout(tmp_path):
     settings = make_settings(tmp_path)
 

@@ -156,6 +156,31 @@ async def test_owned_cold_start_duplicate_start_stop_and_scheduler(managed):
 
 
 @pytest.mark.asyncio
+async def test_explicit_local_ui_without_anchor_streams_quotes_without_fake_chart(
+    managed,
+):
+    service, wall, auth, workers, reactor = managed
+    service.settings.local_ui_enabled = True
+    service.settings.renko_anchor = None
+    service.pipeline = Mock(
+        side_effect=AssertionError("Quote-only mode cannot invent a grid")
+    )
+    try:
+        result = await service.start()
+        assert result["state"] == "running_quotes_only_anchor_required"
+        assert service.worker.accepted == 2
+        assert service.worker.persistence is None
+        assert service.worker.resume_gate.started is None
+        assert service.context["quote_only"] is True
+        assert result["entries_enabled"] is False
+        await service.step()
+        assert len(workers) == 1
+        service.pipeline.assert_not_called()
+    finally:
+        await service.close()
+
+
+@pytest.mark.asyncio
 async def test_expiry_relogin_and_real_recovery_before_resuming(managed):
     service, wall, auth, workers, _ = managed
     try:

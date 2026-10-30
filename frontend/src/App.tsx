@@ -110,6 +110,12 @@ function Kite() {
           : "Unavailable"}
       </span>
       {data?.message && <small>{data.message}</small>}
+      {new URLSearchParams(window.location.search).get("kite") === "verified" &&
+        data?.authenticated && (
+          <small>
+            Kite login completed. Open Live and choose Start market data.
+          </small>
+        )}
       {data?.configured && (
         <a className="button" href="/api/auth/kite/login">
           Log in to Kite

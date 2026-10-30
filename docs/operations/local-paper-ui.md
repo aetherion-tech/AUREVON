@@ -1,6 +1,24 @@
 # Local paper-trading UI: readiness and usage
 
-Updated 2026-10-30, D05. **Not ready for paper trading from the browser.**
+Updated 2026-10-30, D05. **Local account/display startup repaired; automatic
+paper entries remain blocked.**
+
+The actual local database is now at 0012 with a verified pre-upgrade backup.
+LOCAL_UI_ENABLED=true attaches the explicit zero-funded simulated account and an
+entries-disabled display runtime. Existing data/audit history were preserved.
+This recovery has already been applied; do not rerun migrations merely to log in.
+See [recovery evidence](../testing/local-ui-recovery.md).
+
+Reuse the existing terminals and refresh **https://localhost:5173/dashboard/**.
+Sign in again, use **Log in to Kite**, then **Start market data** once Kite says
+Verified. The callback returns to the originating dashboard even if the broker
+first returns to backend :8000/the other loopback hostname. Do not reuse an old
+failed callback URL. Operator credentials/2FA are entered only in the browser.
+Wallet ?0 and empty history are correct: no simulated funding/trades were invented.
+Use explicit Add paper funds for simulated capital if desired. Raw NIFTY quotes
+can display without a Renko anchor in labelled quotes-only mode; chart/indicator
+and entry activation still require verified reference inputs. Actual fresh Kite
+login/live price verification must be completed by the operator.
 BE-12 accounting, all 20 BE-13 API/client tasks, all 15 FE-14 foundation tasks and
 all 15 FE-15 Live tasks, all 8 FE-16 History tasks, all 8 FE-17 Wallet tasks and
 all 11 FE-18 Settings tasks are code accepted. React provides sign-in/navigation,
@@ -13,8 +31,8 @@ JSON import/export, display preferences and read-only strike preview.
 See docs/testing/FE-18-acceptance.md and docs/testing/OPS-19-followup.md.
 Live also has an observation-only TradingView shadow comparison panel; it remains
 disabled until verified ingress/source configuration. This adds no trading action.
-Normal startup does not attach
-an executor or enable entries. `/docs` is an API explorer, not the trading UI.
+Default startup does not attach an executor or enable entries. The explicit
+local UI opt-in attaches only the setup-created flat account/display runtime. `/docs` is an API explorer, not the trading UI.
 Starting the backend does not start taking paper trades.
 
 ## Check progress locally
@@ -43,7 +61,7 @@ exports, G2/G3 and runtime integration remain outstanding.
 | Area | Remaining acceptance |
 | --- | --- |
 | Backend accounting | BE-12-01 through 12 and BE-13-09/10/11 are complete with exact accounting/API integration. Actual runtime/observation acceptance remains separate. |
-| Public execution path | All BE-13 APIs and typed-client integration are complete. Explicit owner runtime/providers and clock/poll hooks are tested; normal startup remains detached. Actual managed indicator/strategy generation, reference/operational readiness and browser workflow still need acceptance. Unattached actions return 409. |
+| Public execution path | All BE-13 APIs and typed-client integration are complete. Explicit owner runtime/providers and clock/poll hooks are tested; default startup remains detached; the explicit local opt-in supplies a zero-funded display account with entries disabled. Actual managed indicator/strategy generation, reference/operational readiness and browser workflow still need acceptance. Unattached actions return 409. |
 | Local UI | FE-14/15/16/17/18 complete with isolated HTTPS browser evidence. Built frontend hosting (OPS-19-01) is accepted; integrated operational acceptance remains. No real-session or managed trial acceptance is implied. |
 | Data and paper gates | Actual chart settings/exports, BE-08-14, QA-09-19/20, QA-11-15/16, recorded end-to-end reconciliation and manual strike checks. Replay tests are not those actual exports. |
 | Operator verification | An actual local HTTPS run; login; PAPER/unarmed; valid calendar/clock/session; fresh catalog/feed/recovery; known risk/cost configuration; reconciled wallet; browser close/kill/error/reconnect tests. |
@@ -66,7 +84,7 @@ observing and after verifying exposure/settlement. From backend run
 `.\.venv\Scripts\python.exe -m app.tools.serve` and open
 **https://127.0.0.1:8443/dashboard/**. This serves SPA/API/WSS on one origin;
 no separate FE server is required. Never start it beside an observing owner.
-Normal startup remains detached/unarmed. See [paper release operations](paper-release.md).
+Default startup remains detached/unarmed; the explicit local UI opt-in attaches the existing display account with entries disabled. See [paper release operations](paper-release.md).
 The development commands below remain supported.
 
 ## Verified foundation start/build workflow
