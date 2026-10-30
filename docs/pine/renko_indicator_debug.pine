@@ -1,0 +1,1141 @@
+//@version=6
+indicator("Renko Buy Sell Signals PRO - Entry, Exit & Trend", shorttitle="RenkoEntrySignal", overlay=true, max_lines_count=300, max_labels_count=500)
+
+// =====================================================================
+//  RENKO BUY SELL SIGNALS PRO  (Entry, Exit & Trend)
+//  Direction + Entry arrows + Exit arrows + Trade plan, all explained on HOVER.
+//
+//  WHAT YOU SEE ON THE CHART
+//    ▲ CO-BUY-ENTRY / ▼ DIV-SELL-ENTRY ... = ENTRY (CO = Core, DIV = Divergence, OT = Other)
+//    ✖ CO-BUY-EXIT ...  = EXIT on the first CLOSED opposite-colour brick (or Target 2)
+//    T1 = Target 1 (2.5%) reached | Target 2 = 4%
+//    Dashed lines     = entry / stop / target 1 / target 2 of the active trade
+//    Light tint       = green bullish, red bearish background
+//    Dashboard        = Direction, Trade status, Latest signal, Guide
+//
+//  USE ON A RENKO CHART. Set "Renko box size" below to the SAME box size.
+//  Guide only - not financial advice.
+// =====================================================================
+
+// =====================================================================
+//  INPUTS
+// =====================================================================
+// --- Supertrend
+atrLen   = input.int(10, "ATR Length", minval=1, group="Supertrend", display=display.none)
+factor   = input.float(2.5, "Factor", minval=0.1, step=0.1, group="Supertrend", display=display.none)
+upCol    = input.color(color.new(color.green, 0), "Up colour", group="Supertrend", display=display.none)
+dnCol    = input.color(color.new(color.red, 0), "Down colour", group="Supertrend", display=display.none)
+showFill = input.bool(false, "Shade between price and line", group="Supertrend", display=display.none)
+joinST   = input.bool(true, "Join Supertrend flips with a line", group="Supertrend", tooltip="ON = one continuous line. OFF = separate pieces with a gap at every flip.", display=display.none)
+
+// --- Direction & signals
+G1 = "Direction & Signals"
+boxSize     = input.float(50, "Renko box size (points)", minval=0.1, group=G1, tooltip="Must match the box size of your Renko chart. The Full dashboard warns you if it does not.", display=display.none)
+coreWindow  = input.int(3, "CORE: first aligned brick within N bricks after a flip", minval=1, maxval=10, group=G1, display=display.none)
+sigCooldown = input.int(3, "Min bricks between two same-direction signals", minval=0, group=G1, tooltip="CORE and DIV ignore this. It stops repeat signals piling up inside one run.", display=display.none)
+minGrade    = input.string("Moderate and above", "Show signals of strength", options=["Weak and above (all)", "Moderate and above", "Strong only"], group=G1, tooltip="Choose Moderate or Strong to see fewer, better signals.", display=display.none)
+evalBricks  = input.int(8, "Track record: judge every signal N bricks later", minval=2, group=G1, display=display.none)
+divFresh    = input.int(8, "A divergence stays in the direction score for N bricks", minval=2, group=G1, display=display.none)
+extMins     = input.int(15, "Late-entry check: look-back minutes", minval=1, group=G1, display=display.none)
+extBricks   = input.int(3, "Late-entry check: more than N same-colour bricks", minval=1, group=G1, display=display.none)
+
+// --- Trade plan (entry / exit)
+GT = "Trade Plan (Entry / Exit)"
+tgt1Pct    = input.float(2.5, "Target 1 (% from entry)", minval=0.1, step=0.1, group=GT, tooltip="Suggested first profit target, in % of the entry price." , display=display.none)
+tgt2Pct    = input.float(4.0, "Target 2 (% from entry)", minval=0.2, step=0.1, group=GT, tooltip="Suggested second profit target, in % of the entry price." , display=display.none)
+exitOppN   = input.int(1, "EXIT after N closed bricks of the opposite colour", minval=1, maxval=5, group=GT, tooltip="1 = the very next brick that closes in the opposite colour (RED after a BUY, GREEN after a SELL) gives the EXIT. The brick must be CLOSED." , display=display.none)
+exitAtT2   = input.bool(true, "Also EXIT when Target 2 is reached", group=GT, display=display.none)
+exitOnStop = input.bool(false, "Also EXIT if the safety level is broken (optional)", group=GT, tooltip="OFF (default) = the only exits are the opposite-colour brick and Target 2.\nON = also exit when a brick closes beyond the level where the idea fails (capped by the distance below)." , display=display.none)
+stopCapBx  = input.float(6.0, "Safety level: max distance (boxes)", minval=1.0, step=0.5, group=GT, tooltip="Only used when the optional safety exit is ON." , display=display.none)
+showAdds   = input.bool(false, "Show small '+' marks for same-direction signals while in a trade", group=GT, display=display.none)
+showPlan   = input.bool(true, "Draw entry / stop / target lines for the active trade", group=GT, display=display.none)
+
+// --- Divergence
+G2 = "Divergence"
+rsiLen      = input.int(14, "RSI Length", minval=1, group=G2, display=display.none)
+topType     = input.string("Equal or higher", "Price structure", options=["Equal only", "Equal or higher"], group=G2, tooltip="Equal only = double top / bottom at the same level.\nEqual or higher = also accepts a higher high / lower low.", display=display.none)
+minRsiGap   = input.float(0.5, "Min RSI difference between the 2 swings", minval=0.0, step=0.1, group=G2, display=display.none)
+maxGap      = input.int(60, "Max bricks between the 2 swings", minval=3, group=G2, display=display.none)
+rsiHi       = input.int(50, "Bearish DIV: RSI of 1st top must be >=", group=G2, display=display.none)
+rsiLo       = input.int(50, "Bullish DIV: RSI of 1st bottom must be <=", group=G2, display=display.none)
+hdivOn      = input.bool(true, "HDIV: also use hidden divergence (trend continuation)", group=G2, display=display.none)
+showDivLn   = input.bool(false, "Draw divergence line on price", group=G2, display=display.none)
+divCrossDay = input.bool(true, "Allow divergence between yesterday and today", group=G2, display=display.none)
+
+// --- Extra signals
+G3 = "Extra Signals"
+pbOn         = input.bool(true, "PB - Pullback resume", group=G3, display=display.none)
+pbMinAge     = input.int(3, "PB: trend must be at least N bricks old", minval=2, group=G3, display=display.none)
+brkOn        = input.bool(true, "BRK - Swing breakout", group=G3, display=display.none)
+brkAge       = input.int(40, "BRK: swing must be at most N bricks old", minval=5, group=G3, display=display.none)
+trapOn       = input.bool(true, "TRAP - Failed breakout reversal", group=G3, display=display.none)
+trapBars     = input.int(6, "TRAP: breakout must fail within N bricks", minval=2, group=G3, display=display.none)
+orbOn        = input.bool(true, "ORB - Opening range breakout (NSE hours, IST)", group=G3, display=display.none)
+orbUntil     = input.int(1130, "ORB: take breakouts until (HHMM)", minval=930, maxval=1500, group=G3, display=display.none)
+orbMinBx     = input.int(2, "ORB: min opening range (boxes)", minval=1, group=G3, display=display.none)
+srgOn        = input.bool(true, "SRG - Flow surge (needs futures data)", group=G3, display=display.none)
+srgMin       = input.int(4, "SRG: flow score needed (2-5)", minval=2, maxval=5, group=G3, display=display.none)
+srgNeedVol   = input.bool(true, "SRG: needs a volume spike too", group=G3, display=display.none)
+
+// --- Flow engine
+G4 = "Flow Engine"
+flowOn    = input.bool(true, "Enable flow engine (volume / OI / VWAP)", group=G4, display=display.none)
+futSym    = input.symbol("NSE:NIFTY1!", "Futures symbol (BankNifty: NSE:BANKNIFTY1!)", group=G4, display=display.none)
+useOI     = input.bool(true, "Use futures OI (turn OFF if you get 'symbol not found')", group=G4, display=display.none)
+flowTf    = input.timeframe("5", "Flow timeframe", group=G4, display=display.none)
+flowBars  = input.int(3, "Build-up window (flow bars)", minval=1, group=G4, display=display.none)
+oiMinPct  = input.float(0.10, "Min OI change % that counts", minval=0.0, step=0.05, group=G4, display=display.none)
+pxMinPct  = input.float(0.05, "Min price change % that counts", minval=0.0, step=0.05, group=G4, display=display.none)
+volMult   = input.float(1.5, "Volume spike = x times 20-bar average", minval=1.0, step=0.1, group=G4, display=display.none)
+
+// --- Outlook
+G5 = "Outlook"
+outSamples = input.int(20, "Min history samples before showing brick odds", minval=5, group=G5, display=display.none)
+stretchBx  = input.int(6, "Stretched: price this many boxes from Supertrend", minval=2, group=G5, display=display.none)
+manRes     = input.float(0, "Manual ceiling (any level you watch, 0 = none)", group=G5, display=display.none)
+manSup     = input.float(0, "Manual floor (any level you watch, 0 = none)", group=G5, display=display.none)
+
+// --- Display
+G6 = "Display"
+dashMode   = input.string("Compact", "Dashboard", options=["Hidden", "Compact", "Full"], group=G6, tooltip="Hidden = nothing.\nCompact = direction + trade status + latest signal + guide.\nFull = also Track record and Advanced details.\nHover any cell for the full explanation.", display=display.none)
+dashPos    = input.string("Top Right", "Dashboard position", options=["Top Right","Middle Right","Bottom Right","Top Left","Middle Left","Bottom Left"], group=G6, display=display.none)
+dashSize   = input.string("Normal", "Dashboard text size", options=["Small","Normal","Large"], group=G6, display=display.none)
+labelMode  = input.string("Code + arrow", "Entry / Exit markers", options=["Code + arrow", "Arrow only", "Off"], group=G6, tooltip="Code + arrow = ▲ CO-BUY-ENTRY / ✖ CO-BUY-EXIT.\nArrow only = ▲ ▼ ✖ (narrowest).\nCO = Core, DIV = Divergence, OT = Other signals. All details are on HOVER.", display=display.none)
+labelGap   = input.int(1, "Marker distance from the brick (boxes)", minval=0, maxval=4, group=G6, display=display.none)
+lblSz      = input.string("Small", "Marker text size", options=["Tiny","Small","Normal"], group=G6, display=display.none)
+colBull    = input.color(color.new(color.green, 0), "Entry colour - BUY", group=G6, display=display.none)
+colBear    = input.color(color.new(color.red, 0), "Entry colour - SELL", group=G6, display=display.none)
+showBg     = input.bool(true, "Light direction tint on background", group=G6, display=display.none)
+showLevels = input.bool(false, "Draw ceiling / floor lines", group=G6, display=display.none)
+showNext   = input.bool(false, "Draw next-brick trigger lines", group=G6, display=display.none)
+useClock   = input.bool(true, "Use real IST clock for the latest brick", group=G6, tooltip="Renko bricks carry unreliable timestamps. Keep ON for live use; turn OFF only in Bar Replay.", display=display.none)
+
+// =====================================================================
+//  HELPERS
+// =====================================================================
+f_pts(float x) =>
+    (x >= 0 ? "+" : "") + str.tostring(math.round(x))
+
+f_dots(int n) =>
+    n >= 5 ? "●●●●●" : n == 4 ? "●●●●○" : n == 3 ? "●●●○○" : n == 2 ? "●●○○○" : n == 1 ? "●○○○○" : "○○○○○"
+
+f_tIdx(string s) =>
+    s == "CORE" ? 0 : s == "DIV" ? 1 : s == "HDIV" ? 2 : s == "PB" ? 3 : s == "BRK" ? 4 : s == "TRAP" ? 5 : s == "ORB" ? 6 : 7
+
+f_build(float px, float oi) =>
+    na(px) or na(oi) ? 0 : (math.abs(px) < pxMinPct or math.abs(oi) < oiMinPct) ? 0 : (px > 0 and oi > 0) ? 2 : (px > 0 and oi < 0) ? 1 : (px < 0 and oi > 0) ? -2 : -1
+
+f_buildTxt(int c) =>
+    c == 2 ? "LONG BUILDUP (bullish)" : c == 1 ? "SHORT COVERING (bullish, weak)" : c == -2 ? "SHORT BUILDUP (bearish)" : c == -1 ? "LONG UNWINDING (bearish, weak)" : "no clear signal"
+
+f_nearest(bool above, float ref, float a, float b, float c, float d, float e) =>
+    float r = na
+    r := (not na(a) and (above ? a >= ref : a <= ref)) ? a : r
+    r := (not na(b) and (above ? b >= ref : b <= ref) and (na(r) or (above ? b < r : b > r))) ? b : r
+    r := (not na(c) and (above ? c >= ref : c <= ref) and (na(r) or (above ? c < r : c > r))) ? c : r
+    r := (not na(d) and (above ? d >= ref : d <= ref) and (na(r) or (above ? d < r : d > r))) ? d : r
+    r := (not na(e) and (above ? e >= ref : e <= ref) and (na(r) or (above ? e < r : e > r))) ? e : r
+    r
+
+f_ag(int v, int sg, string txt) =>
+    (v * sg > 0 and txt != "") ? "✔ " + txt + "\n" : ""
+
+f_ng(int v, int sg, string txt) =>
+    (v * sg < 0 and txt != "") ? "✖ " + txt + "\n" : ""
+
+f_hl(line old, float y, color c) =>
+    line.delete(old)
+    line r = na
+    if not na(y)
+        r := line.new(bar_index, y, bar_index + 1, y, extend=extend.right, color=c, style=line.style_dashed, width=1)
+    r
+
+f_hb(label old, float y, string txt, color c) =>
+    label.delete(old)
+    label r = na
+    if not na(y)
+        r := label.new(bar_index + 2, y, txt, style=label.style_label_left, color=color.new(c, 65), textcolor=color.white, size=size.tiny)
+    r
+
+// =====================================================================
+//  CORE CALCULATIONS
+// =====================================================================
+[st, dir] = ta.supertrend(factor, atrLen)
+isUp    = dir < 0
+flipped = dir != dir[1] and not na(dir[1])
+rsi     = ta.rsi(close, rsiLen)
+
+greenBrick = close > open
+redBrick   = close < open
+brickDir   = greenBrick ? 1 : redBrick ? -1 : 0
+int bsf      = nz(ta.barssince(flipped), 99)
+int trendAge = bsf + 1
+bool rsiRising  = rsi > nz(rsi[1])
+bool rsiFalling = rsi < nz(rsi[1])
+half = boxSize * 0.5
+
+// --- Day / time (real IST clock on the latest brick, brick time on history)
+tz       = "Asia/Kolkata"
+int tMs  = (useClock and barstate.islast) ? timenow : time
+int tMin = hour(tMs, tz) * 60 + minute(tMs, tz)
+int dayId = year(tMs, tz) * 10000 + month(tMs, tz) * 100 + dayofmonth(tMs, tz)
+bool newDay = dayId != nz(dayId[1])
+string todayStr = str.format_time(tMs, "dd-MMM-yyyy", tz)
+
+// --- Market context (2 requests instead of 3)
+std = ticker.standard(syminfo.tickerid)
+[prevClose, dayOpen, pdH, pdL] = request.security(std, "D", [close[1], open, high[1], low[1]], lookahead=barmerge.lookahead_on)
+[tdH, tdL] = request.security(std, "D", [high, low])
+
+var float lastBrickSz = na
+if math.abs(close - open) > 0
+    lastBrickSz := math.abs(close - open)
+
+// =====================================================================
+//  STATE
+// =====================================================================
+var float lastTopP = na
+var float lastTopR = na
+var int   lastTopI = na
+var float prevTopP = na
+var float lastBotP = na
+var float lastBotR = na
+var int   lastBotI = na
+var float prevBotP = na
+var int   lastDivDir = 0
+var int   lastDivBar = na
+var int   lastHidDir = 0
+var int   lastHidBar = na
+
+var float orH = na
+var float orL = na
+var bool  orbUpSeen = false
+var bool  orbDnSeen = false
+var float trapUpLvl = na
+var int   trapUpBar = na
+var float trapDnLvl = na
+var int   trapDnBar = na
+var int   srgArmL = na
+var int   srgArmS = na
+var bool  coreDone = false
+
+var int    lastSigL = -999
+var int    lastSigS = -999
+var int    lastSigDirV = 0
+var string lastSigType = ""
+var int    lastSigGradeV = 0
+var int    lastSigBarV = na
+var float  lastSigPxV = na
+var int    sigToday = 0
+var string lastSigTip = ""
+var string lastSigRisk = ""
+
+// active trade
+var int    posDir = 0
+var float  posEntry = na
+var float  posStop = na
+var float  posT1 = na
+var float  posT2 = na
+var int    posBar = na
+var bool   posT1Hit = false
+var string posType = ""
+var int    posGrade = 0
+var string posTip = ""
+var int    trN = 0
+var int    trW = 0
+var float  trP = 0.0
+var int    oppRun = 0
+var int    tradeSeq = 0
+var int    idSalt = 0
+var string posId = ""
+var array<int>   cN  = array.new<int>(6, 0)
+var array<int>   cW  = array.new<int>(6, 0)
+var array<int>   cT1 = array.new<int>(6, 0)
+var array<int>   cT2 = array.new<int>(6, 0)
+var array<int>   cB  = array.new<int>(6, 0)
+var array<float> cP  = array.new<float>(6, 0.0)
+
+// signal track record storage
+var tNames = array.from("CORE", "DIV", "HDIV", "PB", "BRK", "TRAP", "ORB", "SRG")
+var tLay = array.from("Trend Start", "Reversal (top / bottom)", "Trend Continues", "Pullback Entry", "Breakout / Breakdown", "Fake Breakout / Breakdown", "Opening Breakout", "Big-Money Surge")
+var array<int>   tN = array.new<int>(8, 0)
+var array<int>   tW = array.new<int>(8, 0)
+var array<float> tP = array.new<float>(8, 0.0)
+var array<int>   gN = array.new<int>(3, 0)
+var array<int>   gW = array.new<int>(3, 0)
+var array<float> gP = array.new<float>(3, 0.0)
+var array<int>   pBar = array.new<int>()
+var array<float> pPx  = array.new<float>()
+var array<int>   pDir = array.new<int>()
+var array<int>   pTyp = array.new<int>()
+var array<int>   pGr  = array.new<int>()
+var int firstTime = na
+
+f_rec(int ti, int g, float pts) =>
+    array.set(tN, ti, array.get(tN, ti) + 1)
+    array.set(tP, ti, array.get(tP, ti) + pts)
+    array.set(gN, g - 1, array.get(gN, g - 1) + 1)
+    array.set(gP, g - 1, array.get(gP, g - 1) + pts)
+    if pts > 0
+        array.set(tW, ti, array.get(tW, ti) + 1)
+        array.set(gW, g - 1, array.get(gW, g - 1) + 1)
+    ti
+
+if na(firstTime)
+    firstTime := time
+    idSalt := int(time / 1000) % 102400000
+
+if newDay
+    sigToday := 0
+    orH := na
+    orL := na
+    orbUpSeen := false
+    orbDnSeen := false
+    trapUpBar := na
+    trapDnBar := na
+    srgArmL := na
+    srgArmS := na
+    if not divCrossDay
+        lastTopP := na
+        lastTopR := na
+        lastTopI := na
+        prevTopP := na
+        lastBotP := na
+        lastBotR := na
+        lastBotI := na
+        prevBotP := na
+
+// =====================================================================
+//  LATE-ENTRY CHECK
+// =====================================================================
+int upCnt = 0
+int dnCnt = 0
+if bar_index > 12
+    for i = 0 to 11
+        if time[i] >= time - extMins * 60000
+            if close[i] > open[i]
+                upCnt += 1
+            if close[i] < open[i]
+                dnCnt += 1
+bool lateL = upCnt > extBricks
+bool lateS = dnCnt > extBricks
+
+// =====================================================================
+//  FLOW ENGINE
+// =====================================================================
+string oiSym = ticker.standard(futSym) + "_OI"
+string oiUse = useOI ? oiSym : futSym
+
+[fCl, fVwap, fVolR, fPxPct] = request.security(futSym, flowTf, [close, ta.vwap(hlc3), volume[1] / ta.sma(volume, 20)[1], (close - close[flowBars]) / close[flowBars] * 100])
+[oiNowR, oiPctR] = request.security(oiUse, flowTf, [close, (close - close[flowBars]) / close[flowBars] * 100])
+fPrevCl = request.security(futSym, "D", close[1], lookahead=barmerge.lookahead_on)
+oiPrevR = request.security(oiUse, "D", close[1], lookahead=barmerge.lookahead_on)
+
+float oiPct    = useOI ? oiPctR : na
+float oiDayPct = (useOI and oiPrevR > 0) ? (oiNowR - oiPrevR) / oiPrevR * 100 : na
+float dayPxPct = fPrevCl > 0 ? (fCl - fPrevCl) / fPrevCl * 100 : na
+
+bool flowOk = flowOn and not na(fCl)
+int  bW     = flowOk ? f_build(fPxPct, oiPct) : 0
+int  bD     = flowOk ? f_build(dayPxPct, oiDayPct) : 0
+int  vwapS  = (flowOk and not na(fVwap)) ? (fCl > fVwap ? 1 : fCl < fVwap ? -1 : 0) : 0
+int  volS   = (flowOk and not na(fVolR) and fVolR >= volMult) ? (fPxPct > 0 ? 1 : fPxPct < 0 ? -1 : 0) : 0
+int  dayS   = (flowOk and not na(dayPxPct)) ? (dayPxPct > 0.1 ? 1 : dayPxPct < -0.1 ? -1 : 0) : 0
+int  flowScore = flowOk ? bW + vwapS + volS + dayS : 0
+
+int  flipCnt = int(math.sum(flipped ? 1 : 0, 30))
+bool choppy  = flipCnt >= 4
+
+// =====================================================================
+//  DIVERGENCE ENGINE
+// =====================================================================
+topForm = brickDir[1] == 1 and brickDir == -1
+botForm = brickDir[1] == -1 and brickDir == 1
+
+bool bearDiv  = false
+bool bullDiv  = false
+bool hBearDiv = false
+bool hBullDiv = false
+string divTxt = ""
+
+if topForm
+    topPx = close[1]
+    topRsi = rsi[1]
+    ti = bar_index - 1
+    if not na(lastTopP) and (ti - lastTopI) <= maxGap
+        sameLvl = math.abs(topPx - lastTopP) < half
+        higher  = topPx >= lastTopP + half
+        lower   = topPx <= lastTopP - half
+        priceOk = topType == "Equal only" ? sameLvl : (sameLvl or higher)
+        if priceOk and topRsi <= lastTopR - minRsiGap and lastTopR >= rsiHi
+            bearDiv := true
+            divTxt := "price made " + (sameLvl ? "an equal high" : "a higher high") + " but RSI fell from " + str.tostring(lastTopR, "#.#") + " to " + str.tostring(topRsi, "#.#") + " - buyers are weakening."
+            if showDivLn
+                line.new(lastTopI, lastTopP, ti, topPx, color=color.new(color.purple, 0), width=2, style=line.style_dashed)
+        else if hdivOn and lower and topRsi >= lastTopR + minRsiGap and not isUp
+            hBearDiv := true
+            divTxt := "price made a LOWER high but RSI rose from " + str.tostring(lastTopR, "#.#") + " to " + str.tostring(topRsi, "#.#") + " in a downtrend - the fall is likely to continue."
+            if showDivLn
+                line.new(lastTopI, lastTopP, ti, topPx, color=color.new(color.orange, 0), width=1, style=line.style_dotted)
+    prevTopP := lastTopP
+    lastTopP := topPx
+    lastTopR := topRsi
+    lastTopI := ti
+
+if botForm
+    botPx = close[1]
+    botRsi = rsi[1]
+    bi = bar_index - 1
+    if not na(lastBotP) and (bi - lastBotI) <= maxGap
+        sameLvl = math.abs(botPx - lastBotP) < half
+        lower   = botPx <= lastBotP - half
+        higher  = botPx >= lastBotP + half
+        priceOk = topType == "Equal only" ? sameLvl : (sameLvl or lower)
+        if priceOk and botRsi >= lastBotR + minRsiGap and lastBotR <= rsiLo
+            bullDiv := true
+            divTxt := "price made " + (sameLvl ? "an equal low" : "a lower low") + " but RSI rose from " + str.tostring(lastBotR, "#.#") + " to " + str.tostring(botRsi, "#.#") + " - sellers are weakening."
+            if showDivLn
+                line.new(lastBotI, lastBotP, bi, botPx, color=color.new(color.purple, 0), width=2, style=line.style_dashed)
+        else if hdivOn and higher and botRsi <= lastBotR - minRsiGap and isUp
+            hBullDiv := true
+            divTxt := "price made a HIGHER low but RSI fell from " + str.tostring(lastBotR, "#.#") + " to " + str.tostring(botRsi, "#.#") + " in an uptrend - the rise is likely to continue."
+            if showDivLn
+                line.new(lastBotI, lastBotP, bi, botPx, color=color.new(color.orange, 0), width=1, style=line.style_dotted)
+    prevBotP := lastBotP
+    lastBotP := botPx
+    lastBotR := botRsi
+    lastBotI := bi
+
+if bearDiv
+    lastDivDir := -1
+    lastDivBar := bar_index
+if bullDiv
+    lastDivDir := 1
+    lastDivBar := bar_index
+if hBearDiv
+    lastHidDir := -1
+    lastHidBar := bar_index
+if hBullDiv
+    lastHidDir := 1
+    lastHidBar := bar_index
+
+bool topArmed = not na(lastTopP) and lastTopR >= rsiHi and (bar_index - nz(lastTopI)) <= maxGap
+bool botArmed = not na(lastBotP) and lastBotR <= rsiLo and (bar_index - nz(lastBotI)) <= maxGap
+bool bearForming = topArmed and greenBrick and rsi <= nz(lastTopR) - minRsiGap and (math.abs(close - nz(lastTopP)) < half or (topType == "Equal or higher" and close >= nz(lastTopP) + half))
+bool bullForming = botArmed and redBrick and rsi >= nz(lastBotR) + minRsiGap and (math.abs(close - nz(lastBotP)) < half or (topType == "Equal or higher" and close <= nz(lastBotP) - half))
+
+// =====================================================================
+//  OUTLOOK ENGINE
+// =====================================================================
+var int runLen = 1
+runLen := (brickDir != 0 and brickDir == brickDir[1]) ? runLen + 1 : 1
+bool aligned = (brickDir == 1 and isUp) or (brickDir == -1 and not isUp)
+int  bk = (math.min(runLen, 6) - 1) + (aligned ? 0 : 6)
+
+var array<int> nTot  = array.new<int>(12, 0)
+var array<int> nCont = array.new<int>(12, 0)
+var float sumRunUp = 0.0
+var int   cntRunUp = 0
+var float sumRunDn = 0.0
+var int   cntRunDn = 0
+
+if barstate.isconfirmed and bar_index > 1 and brickDir[1] != 0
+    int pbk = nz(bk[1], 0)
+    array.set(nTot, pbk, array.get(nTot, pbk) + 1)
+    if brickDir == brickDir[1]
+        array.set(nCont, pbk, array.get(nCont, pbk) + 1)
+    else
+        if brickDir[1] == 1
+            sumRunUp += runLen[1]
+            cntRunUp += 1
+        else
+            sumRunDn += runLen[1]
+            cntRunDn += 1
+
+int   curTot  = array.get(nTot, bk)
+int   curCont = array.get(nCont, bk)
+float pCont   = curTot >= outSamples ? curCont * 100.0 / curTot : na
+float pUp     = na(pCont) ? na : (brickDir == 1 ? pCont : 100 - pCont)
+float avgRunUp = cntRunUp > 0 ? sumRunUp / cntRunUp : na
+float avgRunDn = cntRunDn > 0 ? sumRunDn / cntRunDn : na
+float avgRun   = brickDir == 1 ? avgRunUp : avgRunDn
+float remBricks = na(avgRun) ? na : math.max(avgRun - runLen, 0.0)
+
+float upTrig = greenBrick ? close + boxSize : open + boxSize
+float dnTrig = redBrick   ? close - boxSize : open - boxSize
+float stDist = math.abs(close - st) / boxSize
+bool  stretched = stDist >= stretchBx
+
+float oRes = f_nearest(true,  close, lastTopP, pdH, tdH, manRes > 0 ? manRes : na, isUp ? na : st)
+float oSup = f_nearest(false, close, lastBotP, pdL, tdL, manSup > 0 ? manSup : na, isUp ? st : na)
+
+// =====================================================================
+//  DIRECTION ENGINE (10 factors -> score -> bias)
+// =====================================================================
+bool hhF = lastTopP >= prevTopP + half
+bool lhF = lastTopP <= prevTopP - half
+bool hlF = lastBotP >= prevBotP + half
+bool llF = lastBotP <= prevBotP - half
+
+int fST     = isUp ? 2 : -2
+int fRun    = runLen >= 2 ? brickDir : 0
+int fRsi    = rsi >= 55 ? 1 : rsi <= 45 ? -1 : 0
+int fFlow   = flowOk ? (flowScore >= 3 ? 2 : flowScore >= 1 ? 1 : flowScore <= -3 ? -2 : flowScore <= -1 ? -1 : 0) : 0
+int fStruct = (hhF ? 1 : lhF ? -1 : 0) + (hlF ? 1 : llF ? -1 : 0)
+bool divIsFresh = not na(lastDivBar) and (bar_index - nz(lastDivBar, -999)) <= divFresh
+bool hidIsFresh = not na(lastHidBar) and (bar_index - nz(lastHidBar, -999)) <= divFresh
+int fDiv    = divIsFresh ? lastDivDir * 2 : (bullForming ? 1 : bearForming ? -1 : 0)
+int fHid    = hidIsFresh ? lastHidDir : 0
+int fSw     = (not na(lastTopP) and close > lastTopP) ? 1 : (not na(lastBotP) and close < lastBotP) ? -1 : 0
+int fProb   = na(pCont) ? 0 : (brickDir == 1 ? (pCont >= 58 ? 1 : pCont <= 42 ? -1 : 0) : (pCont >= 58 ? -1 : pCont <= 42 ? 1 : 0))
+int fDay    = (close > dayOpen and close > prevClose) ? 1 : (close < dayOpen and close < prevClose) ? -1 : 0
+int biasScore = fST + fRun + fRsi + fFlow + fStruct + fDiv + fHid + fSw + fProb + fDay
+
+var int biasDir = 0
+var int biasSince = 0
+int prevBias = biasDir
+if biasScore >= 4
+    biasDir := 1
+else if biasScore <= -4
+    biasDir := -1
+else if biasDir == 1 and biasScore <= 1
+    biasDir := 0
+else if biasDir == -1 and biasScore >= -1
+    biasDir := 0
+if biasDir != prevBias
+    biasSince := bar_index
+bool biasStrong = math.abs(biasScore) >= 8
+bool revWatch = (biasDir == 1 and (bearForming or fDiv < 0)) or (biasDir == -1 and (bullForming or fDiv > 0))
+
+// =====================================================================
+//  SIGNAL ENGINE (bullish = GREEN brick, bearish = RED brick)
+// =====================================================================
+f_grade(string typ, int sd) =>
+    int g = 1
+    if typ == "DIV" or typ == "TRAP"
+        int ev = 0
+        ev += (flowOk and flowScore * sd >= 1) ? 1 : 0
+        ev += (flowOk and vwapS * sd > 0) ? 1 : 0
+        ev += (sd == 1 ? (not isUp and stretched) : (isUp and stretched)) ? 1 : 0
+        ev += (sd == 1 ? (not na(oSup) and close - oSup <= 2 * boxSize) : (not na(oRes) and oRes - close <= 2 * boxSize)) ? 1 : 0
+        ev += (sd == 1 ? rsiRising : rsiFalling) ? 1 : 0
+        g := ev >= 3 ? 3 : ev == 2 ? 2 : 1
+    else
+        int al = sd * biasScore - ((sd == 1 ? lateL : lateS) ? 2 : 0)
+        g := al >= 5 ? 3 : al >= 2 ? 2 : 1
+    g
+
+f_qual(int g) =>
+    g >= 3 ? "Strong" : g == 2 ? "Moderate" : "Weak"
+
+f_family(string typ) =>
+    typ == "CORE" ? "CORE" : typ == "DIV" ? "DIVERGENCE" : typ == "HDIV" ? "HIDDEN DIVERGENCE" : "OTHER"
+
+f_dots3(int g) =>
+    g >= 3 ? "●●●" : g == 2 ? "●●○" : "●○○"
+
+f_name(string typ, int sd) =>
+    typ == "CORE" ? "Trend Start" : typ == "DIV" ? (sd == 1 ? "Bottom Reversal" : "Top Reversal") : typ == "HDIV" ? "Trend Continues" : typ == "PB" ? "Pullback Entry" : typ == "BRK" ? (sd == 1 ? "Breakout" : "Breakdown") : typ == "TRAP" ? (sd == 1 ? "Fake Breakdown" : "Fake Breakout") : typ == "ORB" ? (sd == 1 ? "Opening Breakout" : "Opening Breakdown") : "Big-Money Surge"
+
+f_meaning(string typ, int sd) =>
+    typ == "CORE" ? "The main trend has just turned " + (sd == 1 ? "UP" : "DOWN") + ". Fresh trends often give the cleanest moves." : typ == "DIV" ? (sd == 1 ? "Price kept falling but selling pressure is fading. A bounce may be starting." : "Price kept rising but buying pressure is fading. A drop may be starting.") : typ == "HDIV" ? "A small " + (sd == 1 ? "dip" : "bounce") + " inside the trend while momentum stays healthy. The trend is likely to continue." : typ == "PB" ? "Price paused against the trend for a brick, then moved with it again. A common place to join the move." : typ == "BRK" ? "Price pushed through a recent " + (sd == 1 ? "high" : "low") + ". This often starts a stronger move." : typ == "TRAP" ? "A " + (sd == 1 ? "breakdown" : "breakout") + " failed. Traders who chased it are trapped, which can fuel a quick move the other way." : typ == "ORB" ? "Price left the first 15-minute range. This often sets the tone for the day." : "Futures volume and open interest jumped together with price. Big players look active."
+
+f_reason(string typ, int sd) =>
+    typ == "CORE" ? "Supertrend turned " + (sd == 1 ? "UP" : "DOWN") + " " + str.tostring(bsf) + " brick(s) ago and this " + (sd == 1 ? "green" : "red") + " brick confirms it." : typ == "DIV" ? "RSI divergence: " + divTxt : typ == "HDIV" ? "Hidden divergence: " + divTxt : typ == "PB" ? "A pullback ended inside a " + (sd == 1 ? "UPTREND" : "DOWNTREND") + " (" + str.tostring(trendAge) + " bricks old) and the trend resumes." : typ == "BRK" ? "Price closed " + (sd == 1 ? "above the last swing high " : "below the last swing low ") + str.tostring(sd == 1 ? lastTopP : lastBotP, "#") + " while the trend agrees." : typ == "TRAP" ? (sd == 1 ? "A breakdown below " + str.tostring(trapDnLvl, "#") + " failed - price is back above it." : "A breakout above " + str.tostring(trapUpLvl, "#") + " failed - price is back below it.") : typ == "ORB" ? "Price broke the opening range (" + str.tostring(orL, "#") + " - " + str.tostring(orH, "#") + ")." : "Futures volume spike, OI build-up, VWAP and day direction all point the same way."
+
+f_inv(string typ, int sd) =>
+    float r = na
+    if typ == "DIV"
+        r := sd == 1 ? lastBotP : lastTopP
+    else if typ == "BRK"
+        r := sd == 1 ? lastTopP : lastBotP
+    else if typ == "TRAP"
+        r := sd == 1 ? trapDnLvl : trapUpLvl
+    else if typ == "ORB"
+        r := sd == 1 ? orH : orL
+    else
+        r := sd == 1 ? (isUp ? st : lastBotP) : (not isUp ? st : lastTopP)
+    nz(r, st)
+
+f_riskN(string typ, int sd) =>
+    bool rev = typ == "DIV" or typ == "TRAP"
+    int n = 0
+    n += (not rev and (sd == 1 ? lateL : lateS)) ? 1 : 0
+    n += (not rev and stretched and ((sd == 1 and isUp) or (sd == -1 and not isUp))) ? 1 : 0
+    n += choppy ? 1 : 0
+    n += (flowOk and flowScore * sd <= -2) ? 1 : 0
+    n += (rev or (biasDir != 0 and biasDir != sd)) ? 1 : 0
+    n += (sd == 1 ? (not na(oRes) and oRes - close <= 2 * boxSize) : (not na(oSup) and close - oSup <= 2 * boxSize)) ? 1 : 0
+    n
+
+f_riskTxt(string typ, int sd) =>
+    bool rev = typ == "DIV" or typ == "TRAP"
+    string r = ""
+    r += (not rev and (sd == 1 ? lateL : lateS)) ? "a big run already happened (late); " : ""
+    r += (not rev and stretched and ((sd == 1 and isUp) or (sd == -1 and not isUp))) ? "price is far from its trend line; " : ""
+    r += choppy ? "market is zig-zagging; " : ""
+    r += (flowOk and flowScore * sd <= -2) ? "big-player flow disagrees; " : ""
+    r += (rev or (biasDir != 0 and biasDir != sd)) ? "goes against the current direction reading; " : ""
+    r += (sd == 1 ? (not na(oRes) and oRes - close <= 2 * boxSize) : (not na(oSup) and close - oSup <= 2 * boxSize)) ? (sd == 1 ? "ceiling is very close; " : "floor is very close; ") : ""
+    r == "" ? "nothing unusual." : r
+
+f_riskLbl(string typ, int sd) =>
+    int n = f_riskN(typ, sd)
+    n <= 1 ? "Low" : n == 2 ? "Medium" : "High"
+
+f_sigTip(string typ, int sd, int g) =>
+    (sd == 1 ? "▲ BULLISH  -  " : "▼ BEARISH  -  ") + f_family(typ) + ": " + f_name(typ, sd) + "\n" + f_qual(g) + " entry  " + f_dots3(g) + "   |   Risk: " + f_riskLbl(typ, sd) + "\n\nWhat it means: " + f_meaning(typ, sd) + "\n\nWhy now: " + f_reason(typ, sd) + "\n\nBe careful: " + f_riskTxt(typ, sd) + "\n\nDirection score " + f_pts(biasScore) + "  |  RSI " + str.tostring(rsi, "#") + (flowOk ? "  |  flow " + f_pts(flowScore) : "")
+
+f_pc(float x) =>
+    (x >= 0 ? "+" : "") + str.tostring(x, "#.##") + "%"
+
+f_id(int seq) =>
+    string cs = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789#@$%&*+!"
+    int v = (seq * 63283001 + idSalt) % 102400000
+    string r = ""
+    for i = 0 to 4
+        int d = v % 40
+        r := str.substring(cs, d, d + 1) + r
+        v := int(v / 40)
+    "[" + r + "]"
+
+f_fam2(string typ) =>
+    typ == "CORE" ? "CO" : (typ == "DIV" or typ == "HDIV") ? "DIV" : "OT"
+
+f_code(string typ, int sd, string kind) =>
+    f_fam2(typ) + "-" + (sd == 1 ? "BUY" : "SELL") + "-" + kind
+
+f_cidx(string typ, int sd) =>
+    (typ == "CORE" ? 0 : (typ == "DIV" or typ == "HDIV") ? 1 : 2) * 2 + (sd == 1 ? 0 : 1)
+
+f_famName(int i) =>
+    (i < 2 ? "CO" : i < 4 ? "DIV" : "OT") + "-" + (i % 2 == 0 ? "BUY" : "SELL")
+
+f_statTxt(int i) =>
+    int n = array.get(cN, i)
+    n == 0 ? "no closed trades yet" : str.tostring(n) + " trades | " + str.tostring(array.get(cW, i) * 100.0 / n, "#") + "% ended in profit | avg " + f_pc(array.get(cP, i) / n) + " | T1 reached " + str.tostring(array.get(cT1, i) * 100.0 / n, "#") + "% | T2 reached " + str.tostring(array.get(cT2, i) * 100.0 / n, "#") + "% | avg hold " + str.tostring(array.get(cB, i) * 1.0 / n, "#.#") + " bricks"
+
+f_allStats() =>
+    string r = ""
+    for i = 0 to 5
+        r += f_famName(i) + ": " + f_statTxt(i) + "\n"
+    r
+
+f_planTip(string typ, int sd, float ent, float t1, float t2, float stp) =>
+    "TRADE PLAN (" + f_code(typ, sd, "ENTRY") + ")\nEntry:     " + str.tostring(ent, "#") + "  (close of this brick)\nTarget 1:  " + str.tostring(t1, "#") + "  (" + (sd == 1 ? "+" : "-") + str.tostring(tgt1Pct, "#.#") + "%  =  " + str.tostring(math.round(math.abs(t1 - ent))) + " pts  =  about " + str.tostring(math.abs(t1 - ent) / boxSize, "#.#") + " bricks)\nTarget 2:  " + str.tostring(t2, "#") + "  (" + (sd == 1 ? "+" : "-") + str.tostring(tgt2Pct, "#.#") + "%  =  " + str.tostring(math.round(math.abs(t2 - ent))) + " pts  =  about " + str.tostring(math.abs(t2 - ent) / boxSize, "#.#") + " bricks)\n\nHOW THE EXIT WORKS\n" + f_code(typ, sd, "EXIT") + " appears when " + (exitOppN == 1 ? "the NEXT brick closes" : str.tostring(exitOppN) + " bricks close in a row") + " in the opposite colour (" + (sd == 1 ? "RED" : "GREEN") + ")" + (exitAtT2 ? ", or when Target 2 is reached." : ".") + (exitOnStop ? "\nSafety exit: a brick closes " + (sd == 1 ? "below " : "above ") + str.tostring(stp, "#") + "." : "") + "\nTargets are suggestions. Most exits come from the opposite-colour brick, so many trades end before Target 1.\n\nHISTORY OF " + f_famName(f_cidx(typ, sd)) + " ON THIS CHART\n" + f_statTxt(f_cidx(typ, sd))
+
+f_exitTip(string typ, int d, string why, float ent, float ex, float pct, float pts, int held, bool t1, bool t2, string tid) =>
+    "✖ " + f_code(typ, d, "EXIT") + " " + tid + "\n\nTRADE ID " + tid + " = the same ID that was shown on the entry arrow.\n\nReason: " + why + "\n\nEntry " + str.tostring(ent, "#") + "  ->  Exit " + str.tostring(ex, "#") + "\nResult: " + f_pc(pct) + "  (" + f_pts(pts) + " pts) after " + str.tostring(held) + " bricks\nTarget 1 (" + str.tostring(tgt1Pct, "#.#") + "%) reached: " + (t1 ? "yes" : "no") + "\nTarget 2 (" + str.tostring(tgt2Pct, "#.#") + "%) reached: " + (t2 ? "yes" : "no") + "\n\nWhat next: wait for the next signal. Do not re-enter only because price is moving.\nGuide only - not advice."
+
+// ---- raw conditions
+if flipped
+    coreDone := false
+bool coreRawL = isUp and greenBrick and bsf < coreWindow and not coreDone
+bool coreRawS = not isUp and redBrick and bsf < coreWindow and not coreDone
+
+bool pbRawL = pbOn and isUp and greenBrick and redBrick[1] and trendAge >= pbMinAge
+bool pbRawS = pbOn and not isUp and redBrick and greenBrick[1] and trendAge >= pbMinAge
+
+// ORB: first brick outside the 9:15 - 9:30 range (IST)
+if tMin >= 555 and tMin < 570
+    orH := na(orH) ? high : math.max(orH, high)
+    orL := na(orL) ? low : math.min(orL, low)
+int  orbEnd   = int(math.floor(orbUntil / 100) * 60 + orbUntil % 100)
+bool orbValid = not na(orH) and not na(orL) and (orH - orL) >= orbMinBx * boxSize and tMin >= 570 and tMin < orbEnd
+bool orbUpEvt = orbValid and close > orH and not orbUpSeen
+bool orbDnEvt = orbValid and close < orL and not orbDnSeen
+if orbValid and close > orH
+    orbUpSeen := true
+if orbValid and close < orL
+    orbDnSeen := true
+bool orbRawL = orbOn and orbUpEvt and greenBrick and isUp
+bool orbRawS = orbOn and orbDnEvt and redBrick and not isUp
+
+// BRK
+bool xUp = ta.crossover(close, lastTopP)
+bool xDn = ta.crossunder(close, lastBotP)
+bool brkUp = not na(lastTopP) and xUp
+bool brkDn = not na(lastBotP) and xDn
+bool brkRawL = brkOn and brkUp and greenBrick and isUp and (bar_index - nz(lastTopI)) <= brkAge
+bool brkRawS = brkOn and brkDn and redBrick and not isUp and (bar_index - nz(lastBotI)) <= brkAge
+
+// TRAP
+if brkUp
+    trapUpLvl := lastTopP
+    trapUpBar := bar_index
+if brkDn
+    trapDnLvl := lastBotP
+    trapDnBar := bar_index
+bool trapRawS = false
+bool trapRawL = false
+if not na(trapUpBar) and bar_index > trapUpBar
+    if bar_index - trapUpBar > trapBars
+        trapUpBar := na
+    else if redBrick and close < trapUpLvl
+        trapRawS := trapOn
+        trapUpBar := na
+if not na(trapDnBar) and bar_index > trapDnBar
+    if bar_index - trapDnBar > trapBars
+        trapDnBar := na
+    else if greenBrick and close > trapDnLvl
+        trapRawL := trapOn
+        trapDnBar := na
+
+// SRG
+bool srgStL = srgOn and flowOk and flowScore >= srgMin and (not srgNeedVol or volS > 0)
+bool srgStS = srgOn and flowOk and flowScore <= -srgMin and (not srgNeedVol or volS < 0)
+if srgStL and not srgStL[1]
+    srgArmL := bar_index
+if srgStS and not srgStS[1]
+    srgArmS := bar_index
+bool srgRawL = srgStL and not na(srgArmL) and (bar_index - srgArmL) <= 2 and greenBrick and isUp
+bool srgRawS = srgStS and not na(srgArmS) and (bar_index - srgArmS) <= 2 and redBrick and not isUp
+
+// ---- pick one signal per bar and direction (priority order), apply cooldown + grade
+bool cdL = bar_index - lastSigL >= sigCooldown
+bool cdS = bar_index - lastSigS >= sigCooldown
+string typL = bullDiv ? "DIV" : coreRawL ? "CORE" : (orbRawL and cdL) ? "ORB" : (brkRawL and cdL) ? "BRK" : (trapRawL and cdL) ? "TRAP" : (hBullDiv and cdL) ? "HDIV" : (srgRawL and cdL) ? "SRG" : (pbRawL and cdL) ? "PB" : ""
+string typS = bearDiv ? "DIV" : coreRawS ? "CORE" : (orbRawS and cdS) ? "ORB" : (brkRawS and cdS) ? "BRK" : (trapRawS and cdS) ? "TRAP" : (hBearDiv and cdS) ? "HDIV" : (srgRawS and cdS) ? "SRG" : (pbRawS and cdS) ? "PB" : ""
+int gL = typL != "" ? f_grade(typL, 1) : 0
+int gS = typS != "" ? f_grade(typS, -1) : 0
+int minG = minGrade == "Strong only" ? 3 : minGrade == "Moderate and above" ? 2 : 1
+bool sigL = typL != "" and gL >= minG
+bool sigS = typS != "" and gS >= minG
+
+string tipL = sigL ? f_sigTip(typL, 1, gL) : ""
+string tipS = sigS ? f_sigTip(typS, -1, gS) : ""
+if sigL
+    lastSigL := bar_index
+    lastSigRisk := f_riskLbl(typL, 1)
+    lastSigDirV := 1
+    lastSigType := typL
+    lastSigGradeV := gL
+    lastSigBarV := bar_index
+    lastSigPxV := close
+    sigToday += 1
+    if typL == "CORE"
+        coreDone := true
+    if typL == "ORB"
+        orbUpSeen := true
+    if typL == "SRG"
+        srgArmL := na
+if sigS
+    lastSigS := bar_index
+    lastSigRisk := f_riskLbl(typS, -1)
+    lastSigDirV := -1
+    lastSigType := typS
+    lastSigGradeV := gS
+    lastSigBarV := bar_index
+    lastSigPxV := close
+    sigToday += 1
+    if typS == "CORE"
+        coreDone := true
+    if typS == "ORB"
+        orbDnSeen := true
+    if typS == "SRG"
+        srgArmS := na
+
+// =====================================================================
+//  TRADE ENGINE  (ENTRY on a signal, EXIT on stop / target / reversal)
+// =====================================================================
+bool   exitNow  = false
+bool   t1Now    = false
+bool   exitT2   = false
+string exitWhy  = ""
+string exitTyp  = ""
+int    exitDir  = 0
+float  exitPts  = 0.0
+float  exitPct  = 0.0
+string exitTip  = ""
+string exitId   = ""
+
+// EXIT is checked only on a CLOSED brick that comes AFTER the entry brick
+if posDir != 0 and bar_index > posBar and barstate.isconfirmed
+    bool oppBrick = (posDir == 1 and redBrick) or (posDir == -1 and greenBrick)
+    oppRun := oppBrick ? oppRun + 1 : 0
+    if not posT1Hit and posDir * (close - posT1) >= 0
+        posT1Hit := true
+        t1Now := true
+        if exitOnStop
+            posStop := posEntry
+    if exitAtT2 and posDir * (close - posT2) >= 0
+        exitWhy := "Target 2 (" + str.tostring(tgt2Pct, "#.#") + "%) reached - the plan is complete."
+        exitT2 := true
+    else if exitOnStop and posDir * (close - posStop) <= 0
+        exitWhy := "A brick closed beyond the safety level."
+    else if oppRun >= exitOppN
+        exitWhy := (exitOppN == 1 ? "The next brick closed in the opposite colour (" : str.tostring(exitOppN) + " bricks closed in the opposite colour (") + (posDir == 1 ? "RED" : "GREEN") + ") - momentum has turned."
+    exitNow := exitWhy != ""
+    if exitNow
+        t1Now := false
+
+if exitNow
+    exitDir := posDir
+    exitTyp := posType
+    exitId  := posId
+    exitPts := posDir * (close - posEntry)
+    exitPct := exitPts / posEntry * 100
+    int held = bar_index - posBar
+    exitTip := f_exitTip(posType, posDir, exitWhy, posEntry, close, exitPct, exitPts, held, posT1Hit or exitT2, exitT2, posId)
+    int ci = f_cidx(posType, posDir)
+    array.set(cN, ci, array.get(cN, ci) + 1)
+    array.set(cP, ci, array.get(cP, ci) + exitPct)
+    array.set(cB, ci, array.get(cB, ci) + held)
+    if exitPct > 0
+        array.set(cW, ci, array.get(cW, ci) + 1)
+    if posT1Hit or exitT2
+        array.set(cT1, ci, array.get(cT1, ci) + 1)
+    if exitT2
+        array.set(cT2, ci, array.get(cT2, ci) + 1)
+    trN += 1
+    trP += exitPct
+    if exitPct > 0
+        trW += 1
+    posDir := 0
+    oppRun := 0
+
+bool entL = sigL and posDir != 1
+bool entS = sigS and posDir != -1
+string entTip = ""
+if entL or entS
+    int   esd = entL ? 1 : -1
+    string ety = entL ? typL : typS
+    int   egr = entL ? gL : gS
+    float raw = f_inv(ety, esd)
+    float stp = esd == 1 ? math.max(math.min(raw, close - boxSize), close - stopCapBx * boxSize) : math.min(math.max(raw, close + boxSize), close + stopCapBx * boxSize)
+    float rk  = math.abs(close - stp)
+    posDir   := esd
+    posEntry := close
+    posStop  := stp
+    posT1    := close * (1 + esd * tgt1Pct / 100)
+    posT2    := close * (1 + esd * tgt2Pct / 100)
+    oppRun   := 0
+    tradeSeq += 1
+    posId    := f_id(tradeSeq)
+    posBar   := bar_index
+    posT1Hit := false
+    posType  := ety
+    posGrade := egr
+    entTip   := (esd == 1 ? "▲ " : "▼ ") + f_code(ety, esd, "ENTRY") + " " + posId + "\n\nTRADE ID " + posId + " - the matching EXIT will show this same ID.\n\n" + f_sigTip(ety, esd, egr) + "\n\n" + f_planTip(ety, esd, close, posT1, posT2, stp) + "\n\nGuide only - not advice."
+    posTip   := entTip
+
+if sigL or sigS
+    lastSigTip := (entL or entS) ? entTip : (sigL ? tipL : tipS) + "\n\nA trade in this direction is already active - no new entry.\nGuide only - not advice."
+
+// ---- chart markers (code names; full details on HOVER)
+lSz = switch lblSz
+    "Tiny"   => size.tiny
+    "Normal" => size.normal
+    => size.small
+float lblOff = labelGap * boxSize
+bool  entHere = entL or entS
+bool  codeOn = labelMode == "Code + arrow"
+if labelMode != "Off" and barstate.isconfirmed
+    if exitNow
+        float xo = lblOff + (entHere ? 3 * boxSize : 0)
+        string xt = codeOn ? "✖ " + f_code(exitTyp, exitDir, "EXIT") + " " + exitId : "✖"
+        color xc = exitPct > 0 ? color.new(color.lime, 0) : color.new(color.orange, 0)
+        if exitDir == 1
+            label.new(bar_index, high + xo, xt, yloc=yloc.price, style=label.style_label_down, color=color.new(color.black, 10), textcolor=xc, size=lSz, tooltip=exitTip)
+        else
+            label.new(bar_index, low - xo, xt, yloc=yloc.price, style=label.style_label_up, color=color.new(color.black, 10), textcolor=xc, size=lSz, tooltip=exitTip)
+    if entL
+        string lt = codeOn ? "▲ " + f_code(typL, 1, "ENTRY") + " " + posId : "▲"
+        label.new(bar_index, low - lblOff, lt, yloc=yloc.price, style=label.style_label_up, color=color.new(colBull, gL >= 3 ? 0 : gL == 2 ? 20 : 40), textcolor=color.white, size=lSz, tooltip=entTip)
+    else if showAdds and sigL
+        label.new(bar_index, low - lblOff, "+", yloc=yloc.price, style=label.style_label_up, color=color.new(colBull, 60), textcolor=color.white, size=size.tiny, tooltip=lastSigTip)
+    if entS
+        string stx = codeOn ? "▼ " + f_code(typS, -1, "ENTRY") + " " + posId : "▼"
+        label.new(bar_index, high + lblOff, stx, yloc=yloc.price, style=label.style_label_down, color=color.new(colBear, gS >= 3 ? 0 : gS == 2 ? 20 : 40), textcolor=color.white, size=lSz, tooltip=entTip)
+    else if showAdds and sigS
+        label.new(bar_index, high + lblOff, "+", yloc=yloc.price, style=label.style_label_down, color=color.new(colBear, 60), textcolor=color.white, size=size.tiny, tooltip=lastSigTip)
+    if t1Now
+        label.new(bar_index, posDir == 1 ? high + lblOff : low - lblOff, "T1 " + posId, yloc=yloc.price, style=posDir == 1 ? label.style_label_down : label.style_label_up, color=color.new(color.blue, 30), textcolor=color.white, size=size.tiny, tooltip="Trade " + posId + ": Target 1 (" + str.tostring(tgt1Pct, "#.#") + "%) reached at " + str.tostring(close, "#") + ".\nTarget 2 (" + str.tostring(tgt2Pct, "#.#") + "%): " + str.tostring(posT2, "#") + "\nThe EXIT still comes from the opposite-colour brick (or Target 2).")
+
+// ---- signal track record bookkeeping (completed bricks only)
+if barstate.isconfirmed
+    if sigL
+        array.push(pBar, bar_index)
+        array.push(pPx, close)
+        array.push(pDir, 1)
+        array.push(pTyp, f_tIdx(typL))
+        array.push(pGr, gL)
+    if sigS
+        array.push(pBar, bar_index)
+        array.push(pPx, close)
+        array.push(pDir, -1)
+        array.push(pTyp, f_tIdx(typS))
+        array.push(pGr, gS)
+    int pn = array.size(pBar)
+    if pn > 0
+        for j = pn - 1 to 0
+            if bar_index - array.get(pBar, j) >= evalBricks
+                float jp = array.get(pDir, j) * (close - array.get(pPx, j))
+                f_rec(array.get(pTyp, j), array.get(pGr, j), jp)
+                array.remove(pBar, j)
+                array.remove(pPx, j)
+                array.remove(pDir, j)
+                array.remove(pTyp, j)
+                array.remove(pGr, j)
+
+// =====================================================================
+//  PLOTS
+// =====================================================================
+upLine = isUp ? st : na
+dnLine = isUp ? na : st
+pUpL = plot(upLine, "Up Trend",   color=upCol, linewidth=2, style=plot.style_linebr, display=joinST ? display.none : display.all)
+pDnL = plot(dnLine, "Down Trend", color=dnCol, linewidth=2, style=plot.style_linebr, display=joinST ? display.none : display.all)
+plot(joinST ? st : na, "Supertrend (joined)", color=isUp ? upCol : dnCol, linewidth=2, style=plot.style_line)
+pMid = plot(ohlc4, "Body", display=display.none, editable=false)
+fill(pMid, pUpL, color=showFill ? color.new(upCol, 88) : na)
+fill(pMid, pDnL, color=showFill ? color.new(dnCol, 88) : na)
+
+bgcolor(showBg ? (biasDir == 1 ? color.new(color.green, biasStrong ? 88 : 95) : biasDir == -1 ? color.new(color.red, biasStrong ? 88 : 95) : na) : na)
+
+// ---- helper lines (active trade plan + optional levels)
+var line lnE = na
+var line lnSt = na
+var line lnT1 = na
+var line lnT2 = na
+var label lbE = na
+var label lbSt = na
+var label lbT1 = na
+var label lbT2 = na
+var line lnUp = na
+var line lnDn = na
+var line lnR  = na
+var line lnS  = na
+var label lbUp = na
+var label lbDn = na
+var label lbR  = na
+var label lbS  = na
+if barstate.islast
+    bool pl = showPlan and posDir != 0
+    lnE  := f_hl(lnE,  pl ? posEntry : na, color.new(color.gray, 20))
+    lnSt := f_hl(lnSt, (pl and exitOnStop) ? posStop : na, color.new(color.red, 10))
+    lnT1 := f_hl(lnT1, pl ? posT1 : na, color.new(color.green, 30))
+    lnT2 := f_hl(lnT2, pl ? posT2 : na, color.new(color.green, 0))
+    lbE  := f_hb(lbE,  pl ? posEntry : na, "Entry " + posId + " " + str.tostring(posEntry, "#"), color.gray)
+    lbSt := f_hb(lbSt, (pl and exitOnStop) ? posStop : na, "Safety " + str.tostring(posStop, "#"), color.red)
+    lbT1 := f_hb(lbT1, (pl and not posT1Hit) ? posT1 : na, "T1 " + (posDir == 1 ? "+" : "-") + str.tostring(tgt1Pct, "#.#") + "%  " + str.tostring(posT1, "#"), color.green)
+    lbT2 := f_hb(lbT2, pl ? posT2 : na, "T2 " + (posDir == 1 ? "+" : "-") + str.tostring(tgt2Pct, "#.#") + "%  " + str.tostring(posT2, "#"), color.green)
+    lnUp := f_hl(lnUp, showNext ? upTrig : na, color.new(color.aqua, 30))
+    lnDn := f_hl(lnDn, showNext ? dnTrig : na, color.new(color.orange, 30))
+    lnR  := f_hl(lnR,  showLevels ? oRes : na, color.new(color.red, 20))
+    lnS  := f_hl(lnS,  showLevels ? oSup : na, color.new(color.green, 20))
+    lbUp := f_hb(lbUp, showNext ? upTrig : na, "next GREEN " + str.tostring(upTrig, "#"), color.aqua)
+    lbDn := f_hb(lbDn, showNext ? dnTrig : na, "next RED " + str.tostring(dnTrig, "#"), color.orange)
+    lbR  := f_hb(lbR,  showLevels ? oRes : na, "ceiling " + str.tostring(oRes, "#"), color.red)
+    lbS  := f_hb(lbS,  showLevels ? oSup : na, "floor " + str.tostring(oSup, "#"), color.green)
+
+// =====================================================================
+//  DASHBOARD  (small on purpose - the full story is on HOVER)
+// =====================================================================
+string dirWord = biasDir == 1 ? "BULLISH" : biasDir == -1 ? "BEARISH" : "SIDEWAYS"
+string arrow   = biasDir == 1 ? "▲ " : biasDir == -1 ? "▼ " : "◆ "
+
+dPos = switch dashPos
+    "Top Right"    => position.top_right
+    "Middle Right" => position.middle_right
+    "Top Left"     => position.top_left
+    "Middle Left"  => position.middle_left
+    "Bottom Left"  => position.bottom_left
+    => position.bottom_right
+
+dTxt = switch dashSize
+    "Small" => size.small
+    "Large" => size.large
+    => size.normal
+
+var table dash = table.new(dPos, 1, dashMode == "Full" ? 6 : 4, bgcolor=color.new(color.black, 20), frame_color=color.new(color.gray, 60), frame_width=1, border_color=color.new(color.gray, 70), border_width=1)
+
+if dashMode != "Hidden" and barstate.islast
+    color cNeu  = color.new(color.gray, 45)
+    color cGood = color.new(color.green, 35)
+    color cBad  = color.new(color.red, 35)
+    int sg = biasDir != 0 ? biasDir : (biasScore >= 0 ? 1 : -1)
+    bool sigNow = sigL or sigS
+
+    string tST   = isUp ? "Supertrend is UP (" + str.tostring(trendAge) + " bricks old)" : "Supertrend is DOWN (" + str.tostring(trendAge) + " bricks old)"
+    string tRun  = brickDir == 1 ? str.tostring(runLen) + " green bricks in a row - buyers are pushing" : str.tostring(runLen) + " red bricks in a row - sellers are pushing"
+    string tRsi  = rsi >= 55 ? "RSI is " + str.tostring(rsi, "#") + " - buyers are stronger" : "RSI is " + str.tostring(rsi, "#") + " - sellers are stronger"
+    string tFlow = not flowOk ? "" : bW == 2 ? "Fresh BUYING in futures (price and open interest both rising)" : bW == -2 ? "Fresh SELLING in futures (price falling while open interest rises)" : flowScore > 0 ? "Futures volume / VWAP lean bullish" : "Futures volume / VWAP lean bearish"
+    string tStr  = fStruct > 0 ? (fStruct == 2 ? "Higher highs and higher lows (bullish structure)" : "Market structure is leaning bullish") : (fStruct == -2 ? "Lower highs and lower lows (bearish structure)" : "Market structure is leaning bearish")
+    string tDiv  = fDiv > 0 ? (divIsFresh ? "Bullish RSI divergence appeared recently (sellers weakening)" : "A bullish RSI divergence is forming") : (divIsFresh ? "Bearish RSI divergence appeared recently (buyers weakening)" : "A bearish RSI divergence is forming")
+    string tHid  = fHid > 0 ? "Hidden bullish divergence - the rise is likely to continue" : "Hidden bearish divergence - the fall is likely to continue"
+    string tSw   = fSw > 0 ? "Price is above the last swing high" : "Price is below the last swing low"
+    string tPr   = na(pCont) ? "" : fProb > 0 ? "On this chart, bricks like this were followed by a RISE " + str.tostring(pUp, "#") + "% of the time" : "On this chart, bricks like this were followed by a FALL " + str.tostring(100 - pUp, "#") + "% of the time"
+    string tDay  = fDay > 0 ? "Price is above yesterday's close and today's open" : "Price is below yesterday's close and today's open"
+    string agree   = f_ag(fST, sg, tST) + f_ag(fRun, sg, tRun) + f_ag(fRsi, sg, tRsi) + f_ag(fFlow, sg, tFlow) + f_ag(fStruct, sg, tStr) + f_ag(fDiv, sg, tDiv) + f_ag(fHid, sg, tHid) + f_ag(fSw, sg, tSw) + f_ag(fProb, sg, tPr) + f_ag(fDay, sg, tDay)
+    string against = f_ng(fST, sg, tST) + f_ng(fRun, sg, tRun) + f_ng(fRsi, sg, tRsi) + f_ng(fFlow, sg, tFlow) + f_ng(fStruct, sg, tStr) + f_ng(fDiv, sg, tDiv) + f_ng(fHid, sg, tHid) + f_ng(fSw, sg, tSw) + f_ng(fProb, sg, tPr) + f_ng(fDay, sg, tDay)
+    if agree == ""
+        agree := "Nothing clearly supports a side right now.\n"
+    if against == ""
+        against := "Nothing significant.\n"
+
+    string nxtA = biasDir == 1 ? "Bullish view: price is more likely to keep RISING than fall." : biasDir == -1 ? "Bearish view: price is more likely to keep FALLING than rise." : "No clear side - the market could go either way."
+    string nxtB = brickDir == sg ? (na(remBricks) ? "" : remBricks > 0.5 ? "\nTypical push left in this move: about " + str.tostring(math.round(remBricks * boxSize)) + " points." : "\nThis move is already longer than usual - it may pause.") : "\nA pullback is under way. The move resumes with a " + (sg == 1 ? "GREEN" : "RED") + " brick at " + str.tostring(sg == 1 ? upTrig : dnTrig, "#") + "."
+    string nxtC = na(pUp) ? "" : "\nHistory: next brick UP " + str.tostring(pUp, "#") + "% / DOWN " + str.tostring(100 - pUp, "#") + "%."
+    float inv = sg == 1 ? (isUp ? st : nz(lastBotP, nz(oSup, st))) : (not isUp ? st : nz(lastTopP, nz(oRes, st)))
+    string nxtD = "\nNext GREEN brick at " + str.tostring(upTrig, "#") + " | next RED brick at " + str.tostring(dnTrig, "#") + "."
+    string nxtE = "\nThis view is wrong if price closes " + (sg == 1 ? "below " : "above ") + str.tostring(inv, "#") + " (" + str.tostring(math.round(math.abs(close - inv))) + " pts away)."
+    string lvlS = "Ceiling: " + (na(oRes) ? "none above" : str.tostring(oRes, "#") + " (" + str.tostring(math.round(oRes - close)) + " pts away)") + "\nFloor: " + (na(oSup) ? "none below" : str.tostring(oSup, "#") + " (" + str.tostring(math.round(close - oSup)) + " pts away)")
+
+    string risks = ""
+    if revWatch
+        risks += "• Reversal watch: " + (biasDir == 1 ? "a bearish divergence is building against the up-move.\n" : "a bullish divergence is building against the down-move.\n")
+    if stretched
+        risks += "• Price is far from its trend line - a pullback is possible.\n"
+    if choppy
+        risks += "• Market is zig-zagging - signals are less reliable.\n"
+    if (sg == 1 and lateL) or (sg == -1 and lateS)
+        risks += "• A strong one-way run has already happened - late to chase.\n"
+    if flowOk and ((sg == 1 and flowScore <= -2) or (sg == -1 and flowScore >= 2))
+        risks += "• Big-player flow disagrees with this view.\n"
+    if sg == 1 and not na(oRes) and (oRes - close) <= 2 * boxSize
+        risks += "• Ceiling is very close (" + str.tostring(math.round(oRes - close)) + " pts).\n"
+    if sg == -1 and not na(oSup) and (close - oSup) <= 2 * boxSize
+        risks += "• Floor is very close (" + str.tostring(math.round(close - oSup)) + " pts).\n"
+    if not flowOk
+        risks += "• Volume / OI data missing - this view uses price only.\n"
+    if risks == ""
+        risks := "• Nothing unusual right now.\n"
+
+    int clar = math.min(5, math.round(math.abs(biasScore) / 2.5))
+    string pic = revWatch ? "Mixed" : clar >= 4 ? "Clear" : clar >= 2 ? "Fair" : "Unclear"
+    string strTxt = biasDir == 0 ? "No clear side" : biasStrong ? "Strong" : "Moderate"
+
+    // ---- cell 1: direction
+    string headTxt = arrow + dirWord + "  ·  " + strTxt + "  ⓘ"
+    string tipDir = arrow + dirWord + "  (" + strTxt + ", " + pic + " picture)   score " + f_pts(biasScore) + "\n\nWHY\n" + agree + "\nAGAINST IT\n" + against + "\nWHAT MAY HAPPEN NEXT\n" + nxtA + nxtB + nxtC + nxtD + nxtE + "\n\nKEY LEVELS\n" + lvlS + "\n\nBE CAREFUL\n" + risks + "\nPicture: " + f_dots(clar) + " " + pic + "\nA guide, not a promise. No signal is right every time."
+
+    // ---- cell 2: trade status (ENTER / HOLD / EXIT / WAIT)
+    string tradeTxt = ""
+    string tradeTip = ""
+    color  tradeCol = cNeu
+    string closedTxt = trN == 0 ? "No closed trades yet on the loaded history." : "Closed trades: " + str.tostring(trN) + " | winners: " + str.tostring(trW * 100.0 / trN, "#") + "% | total " + f_pts(trP) + " pts | avg " + f_pts(trP / trN) + " pts"
+    if posDir != 0
+        float openP = posDir * (close - posEntry)
+        tradeTxt := "● IN " + f_fam2(posType) + "-" + (posDir == 1 ? "BUY" : "SELL") + " " + posId + "  ·  " + (posT1Hit ? "T2 " + str.tostring(posT2, "#") : "T1 " + str.tostring(posT1, "#")) + "  ⓘ"
+        tradeCol := openP >= 0 ? cGood : cBad
+        tradeTip := "ACTIVE TRADE " + posId + ": " + f_code(posType, posDir, "ENTRY") + "  (" + f_name(posType, posDir) + ", " + f_qual(posGrade) + ")\n\nEntry: " + str.tostring(posEntry, "#") + "\nNow: " + str.tostring(close, "#") + "  (" + f_pc(openP / posEntry * 100) + ",  " + f_pts(openP) + " pts)\nTarget 1 (" + str.tostring(tgt1Pct, "#.#") + "%): " + str.tostring(posT1, "#") + (posT1Hit ? "  (reached)" : "") + "\nTarget 2 (" + str.tostring(tgt2Pct, "#.#") + "%): " + str.tostring(posT2, "#") + "\nBricks in trade: " + str.tostring(bar_index - posBar) + "\n\nWHAT TO DO\nHold until the chart shows ✖ " + f_code(posType, posDir, "EXIT") + " " + posId + ": that is the first CLOSED " + (posDir == 1 ? "RED" : "GREEN") + " brick" + (exitAtT2 ? " or Target 2." : ".") + "\n\nHISTORY OF " + f_famName(f_cidx(posType, posDir)) + "\n" + f_statTxt(f_cidx(posType, posDir)) + "\n\nALL CLOSED TRADES\n" + closedTxt + "\nGuide only - not advice."
+    else
+        string wait = choppy ? "choppy, be selective" : biasDir == 1 ? "look for BUY" : biasDir == -1 ? "look for SELL" : "stay out"
+        tradeTxt := (exitNow ? "✖ " + f_fam2(exitTyp) + "-" + (exitDir == 1 ? "BUY" : "SELL") + " EXIT " + exitId + "  ·  " : "○ No trade  ·  ") + wait + "  ⓘ"
+        tradeCol := exitNow ? (exitPct > 0 ? cGood : cBad) : cNeu
+        tradeTip := (exitNow ? exitTip + "\n\n" : "") + "NO ACTIVE TRADE\n\nThe indicator is flat. A ▲ ENTRY arrow (for example CO-BUY-ENTRY) is the entry. Its hover shows both targets and the exit rule.\n\nRight now: " + wait + ".\n\n" + closedTxt + "\nGuide only - not advice."
+
+    // ---- cell 3: latest signal
+    string r1 = lastSigDirV == 0 ? "No signal yet  ⓘ" : (sigNow ? "NEW  " : "Last  ") + (lastSigDirV == 1 ? "▲ " : "▼ ") + f_fam2(lastSigType) + "-" + (lastSigDirV == 1 ? "BUY" : "SELL") + "  ·  " + f_qual(lastSigGradeV) + "  ⓘ"
+    color r1Col = sigNow ? (sigL ? cGood : cBad) : color.new(color.gray, 60)
+
+    // ---- cell 4: guide
+    string guide = "HOW TO READ THIS\n\nDIRECTION (top row)\nBullish / Bearish / Sideways reading from 10 factors. Hover it for the reasons.\n\nTRADE STATUS (2nd row)\n○ NO TRADE = flat, wait.\n● IN BUY / SELL = a trade is active (stop and targets shown).\n✖ EXITED = the last trade just closed.\n\nCHART MARKERS\nCO = Core (trend start) | DIV = Divergence | OT = Other signals.\n▲ CO-BUY-ENTRY / ▼ DIV-SELL-ENTRY ... = ENTRY. Hover for why, strength, risk and targets.\n✖ CO-BUY-EXIT ... = EXIT of that same trade. It appears on the first CLOSED opposite-colour brick (RED after a BUY, GREEN after a SELL) or at Target 2.\nT1 = Target 1 reached.\n[XXXXX] = TRADE ID: a unique 5-character code (letters, numbers, symbols). The ENTRY and its EXIT carry the SAME ID, so you always know which trade is closing.\nDashed lines = entry, Target 1 (2.5%), Target 2 (4%).\n\nSTRENGTH\n●●● Strong  ●●○ Moderate  ●○○ Weak (stronger = more factors agree).\nRisk Low / Medium / High = number of warning signs.\n\nSIGNAL NAMES\nTrend Start, Bottom / Top Reversal, Trend Continues, Pullback Entry, Breakout / Breakdown, Fake Breakout / Breakdown, Opening Breakout, Big-Money Surge.\n\nDECISION TIP\nTargets are suggestions: many trades exit on the opposite brick before Target 1.\n\nBest set-ups: Direction agrees with the arrow, strength Moderate or Strong, Risk Low or Medium, and the stop is small.\n\nGuide only - not advice."
+
+    table.cell(dash, 0, 0, headTxt, text_color=color.white, bgcolor=biasDir == 1 ? cGood : biasDir == -1 ? cBad : cNeu, text_size=dTxt, text_halign=text.align_left, tooltip=tipDir)
+    table.cell(dash, 0, 1, tradeTxt, text_color=color.white, bgcolor=tradeCol, text_size=dTxt, text_halign=text.align_left, tooltip=tradeTip)
+    table.cell(dash, 0, 2, r1, text_color=color.white, bgcolor=r1Col, text_size=dTxt, text_halign=text.align_left, tooltip=lastSigDirV == 0 ? "No signal has appeared on the loaded history yet." : lastSigTip)
+    table.cell(dash, 0, 3, "ℹ  Guide", text_color=color.new(color.white, 25), bgcolor=color.new(color.gray, 75), text_size=size.small, text_halign=text.align_left, tooltip=guide)
+
+    if dashMode == "Full"
+        string trk = "TRACK RECORD\n\nCLOSED TRADES (entry to exit)\n" + closedTxt + "\n\nBY SIGNAL CODE\n" + f_allStats() + "\nSIGNALS - points moved in the signal's direction " + str.tostring(evalBricks) + " bricks later (since " + str.format_time(firstTime, "dd-MMM-yy", tz) + ")\n"
+        for i = 0 to 7
+            int n = array.get(tN, i)
+            trk += array.get(tLay, i) + ": " + (n == 0 ? "no signals" : str.tostring(n) + " signals, " + str.tostring(array.get(tW, i) * 100.0 / n, "#") + "% right, avg " + f_pts(array.get(tP, i) / n) + " pts") + "\n"
+        trk += "\nBY STRENGTH\n"
+        for g = 2 to 0
+            int n = array.get(gN, g)
+            trk += (g == 2 ? "Strong" : g == 1 ? "Moderate" : "Weak") + ": " + (n == 0 ? "no signals" : str.tostring(n) + " signals, " + str.tostring(array.get(gW, g) * 100.0 / n, "#") + "% right, avg " + f_pts(array.get(gP, g) / n) + " pts") + "\n"
+        trk += "\nIf Strong does not beat Weak, the grading is not helping on this chart.\nNeeds 30+ samples per type to mean anything. Past results do not guarantee future results."
+
+        string partsTxt = "Trend " + f_pts(fST) + " | Run " + f_pts(fRun) + " | RSI " + f_pts(fRsi) + " | Flow " + f_pts(fFlow) + " | Structure " + f_pts(fStruct) + " | Div " + f_pts(fDiv) + " | Hidden " + f_pts(fHid) + " | Swing " + f_pts(fSw) + " | Odds " + f_pts(fProb) + " | Day " + f_pts(fDay)
+        string rsiZone = rsi >= 70 ? "overbought" : rsi <= 30 ? "oversold" : rsi >= 55 ? "bullish zone" : rsi <= 45 ? "bearish zone" : "neutral"
+        string bearTxt = na(lastTopP) ? "no swing top yet" : "top " + str.tostring(lastTopP, "#") + ", RSI " + str.tostring(lastTopR, "#.#") + (bearForming ? " - FORMING" : topArmed ? " - armed" : " - not armed")
+        string bullTxt = na(lastBotP) ? "no swing bottom yet" : "bottom " + str.tostring(lastBotP, "#") + ", RSI " + str.tostring(lastBotR, "#.#") + (bullForming ? " - FORMING" : botArmed ? " - armed" : " - not armed")
+        bool boxBad = not na(lastBrickSz) and math.abs(lastBrickSz - boxSize) > 0.5
+        string boxTxt = not chart.is_renko ? "NOT A RENKO CHART - signals invalid" : boxBad ? "MISMATCH: chart " + str.tostring(lastBrickSz, "#") + " vs input " + str.tostring(boxSize, "#") : "OK (" + str.tostring(boxSize, "#") + ")"
+        string adv = "ADVANCED DETAILS\n\nScore parts: " + partsTxt + "\nTrend: " + (isUp ? "UP " : "DOWN ") + str.tostring(trendAge) + " bricks, Supertrend " + str.tostring(st, "#") + " (" + str.tostring(stDist, "#.#") + " boxes away)\nRSI: " + str.tostring(rsi, "#.#") + " " + (rsiRising ? "rising" : "falling") + ", " + rsiZone + "\nBearish divergence watch: " + bearTxt + "\nBullish divergence watch: " + bullTxt + "\nFlow score: " + (flowOk ? f_pts(flowScore) + " / 5" : "no data") + "\nBuild-up (window): " + (flowOk ? f_buildTxt(bW) : "n/a") + "\nBuild-up (day): " + (flowOk ? f_buildTxt(bD) : "n/a") + "\nLast " + str.tostring(extMins) + " min: " + str.tostring(upCnt) + " green / " + str.tostring(dnCnt) + " red\nSignals today: " + str.tostring(sigToday) + "\nRenko box: " + boxTxt + "\nClock: " + todayStr + " " + str.tostring(math.floor(tMin / 60), "00") + ":" + str.tostring(tMin % 60, "00")
+        table.cell(dash, 0, 4, "📊  Track record", text_color=color.new(color.white, 25), bgcolor=color.new(color.gray, 75), text_size=size.small, text_halign=text.align_left, tooltip=trk)
+        table.cell(dash, 0, 5, "⚙  Advanced details", text_color=color.new(color.white, 25), bgcolor=color.new(color.gray, 75), text_size=size.small, text_halign=text.align_left, tooltip=adv)
+
+// =====================================================================
+//  ALERTS  (set to "Once Per Bar Close")
+// =====================================================================
+alertcondition(entL and f_fam2(typL) == "CO", "CO-BUY-ENTRY", "{{ticker}} CO-BUY-ENTRY - hover the arrow for targets")
+alertcondition(exitNow and exitDir == 1 and f_fam2(exitTyp) == "CO", "CO-BUY-EXIT", "{{ticker}} CO-BUY-EXIT - opposite brick closed or target reached")
+alertcondition(entS and f_fam2(typS) == "CO", "CO-SELL-ENTRY", "{{ticker}} CO-SELL-ENTRY - hover the arrow for targets")
+alertcondition(exitNow and exitDir == -1 and f_fam2(exitTyp) == "CO", "CO-SELL-EXIT", "{{ticker}} CO-SELL-EXIT - opposite brick closed or target reached")
+alertcondition(entL and f_fam2(typL) == "DIV", "DIV-BUY-ENTRY", "{{ticker}} DIV-BUY-ENTRY - hover the arrow for targets")
+alertcondition(exitNow and exitDir == 1 and f_fam2(exitTyp) == "DIV", "DIV-BUY-EXIT", "{{ticker}} DIV-BUY-EXIT - opposite brick closed or target reached")
+alertcondition(entS and f_fam2(typS) == "DIV", "DIV-SELL-ENTRY", "{{ticker}} DIV-SELL-ENTRY - hover the arrow for targets")
+alertcondition(exitNow and exitDir == -1 and f_fam2(exitTyp) == "DIV", "DIV-SELL-EXIT", "{{ticker}} DIV-SELL-EXIT - opposite brick closed or target reached")
+alertcondition(entL and f_fam2(typL) == "OT", "OT-BUY-ENTRY", "{{ticker}} OT-BUY-ENTRY - hover the arrow for targets")
+alertcondition(exitNow and exitDir == 1 and f_fam2(exitTyp) == "OT", "OT-BUY-EXIT", "{{ticker}} OT-BUY-EXIT - opposite brick closed or target reached")
+alertcondition(entS and f_fam2(typS) == "OT", "OT-SELL-ENTRY", "{{ticker}} OT-SELL-ENTRY - hover the arrow for targets")
+alertcondition(exitNow and exitDir == -1 and f_fam2(exitTyp) == "OT", "OT-SELL-EXIT", "{{ticker}} OT-SELL-EXIT - opposite brick closed or target reached")
+alertcondition(entL, "ANY BUY ENTRY", "{{ticker}} BUY entry")
+alertcondition(entS, "ANY SELL ENTRY", "{{ticker}} SELL entry")
+alertcondition(exitNow, "ANY EXIT", "{{ticker}} EXIT - opposite brick closed or target reached")
+alertcondition(t1Now, "Target 1 reached", "{{ticker}} Target 1 reached")
+alertcondition(sigL, "BULLISH signal (any)", "{{ticker}} BULLISH signal")
+alertcondition(sigS, "BEARISH signal (any)", "{{ticker}} BEARISH signal")
+alertcondition(biasDir == 1 and biasDir[1] != 1, "Direction turns BULLISH", "{{ticker}} Direction turned BULLISH")
+alertcondition(biasDir == -1 and biasDir[1] != -1, "Direction turns BEARISH", "{{ticker}} Direction turned BEARISH")
+alertcondition(biasDir == 0 and biasDir[1] != 0, "Direction turns SIDEWAYS", "{{ticker}} Direction turned SIDEWAYS / undecided")
+alertcondition(revWatch and not revWatch[1], "Reversal watch", "{{ticker}} Reversal watch: divergence building against the current direction")
+
+// REF DEBUG: appended observations only; original bytes above are unchanged.
+// Type: 0 none, 1 CORE, 2 DIV, 3 HDIV, 4 PB, 5 BRK, 6 TRAP, 7 ORB, 8 SRG.
+// Numeric IDs reversibly encode the five characters inside the original [ID].
+ref_type_code(string typ) =>
+    switch typ
+        "CORE" => 1
+        "DIV" => 2
+        "HDIV" => 3
+        "PB" => 4
+        "BRK" => 5
+        "TRAP" => 6
+        "ORB" => 7
+        "SRG" => 8
+        => 0
+
+ref_id_number(string value) =>
+    int result = na
+    if str.length(value) == 7
+        string alphabet = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789#@$%&*+!"
+        result := 0
+        for i = 1 to 5
+            int digit = str.pos(alphabet, str.substring(value, i, i + 1))
+            result := result * 40 + digit
+    result
+
+plot(bar_index, "ref_index", display=display.data_window, precision=12)
+plot(barstate.isconfirmed ? 1 : 0, "ref_confirmed", display=display.data_window, precision=12)
+plot(rsi, "ref_rsi", display=display.data_window, precision=12)
+plot(st, "ref_supertrend", display=display.data_window, precision=12)
+plot(dir, "ref_direction", display=display.data_window, precision=12)
+plot(biasScore, "ref_bias_score", display=display.data_window, precision=12)
+plot(biasDir, "ref_bias_direction", display=display.data_window, precision=12)
+plot(flowScore, "ref_flow_score", display=display.data_window, precision=12)
+plot(flowOk ? 1 : 0, "ref_flow_ok", display=display.data_window, precision=12)
+plot(runLen, "ref_run_len", display=display.data_window, precision=12)
+plot(sigL ? 1 : 0, "ref_sig_long", display=display.data_window, precision=12)
+plot(sigS ? 1 : 0, "ref_sig_short", display=display.data_window, precision=12)
+plot(ref_type_code(typL), "ref_type_long", display=display.data_window, precision=12)
+plot(ref_type_code(typS), "ref_type_short", display=display.data_window, precision=12)
+plot(gL, "ref_grade_long", display=display.data_window, precision=12)
+plot(gS, "ref_grade_short", display=display.data_window, precision=12)
+plot(entL ? 1 : 0, "ref_entry_long", display=display.data_window, precision=12)
+plot(entS ? 1 : 0, "ref_entry_short", display=display.data_window, precision=12)
+plot(exitNow ? 1 : 0, "ref_exit_now", display=display.data_window, precision=12)
+plot(t1Now ? 1 : 0, "ref_t1_now", display=display.data_window, precision=12)
+plot(exitDir, "ref_exit_direction", display=display.data_window, precision=12)
+plot(ref_type_code(exitTyp), "ref_exit_type", display=display.data_window, precision=12)
+plot(posDir, "ref_position_direction", display=display.data_window, precision=12)
+plot(ref_type_code(posType), "ref_position_type", display=display.data_window, precision=12)
+plot(tradeSeq, "ref_trade_seq", display=display.data_window, precision=12)
+plot(ref_id_number(posId), "ref_active_id", display=display.data_window, precision=12)
+plot(exitNow ? ref_id_number(exitId) : na, "ref_exit_id", display=display.data_window, precision=12)
+plot(t1Now ? ref_id_number(posId[1]) : na, "ref_t1_id", display=display.data_window, precision=12)
+plot(t1Now ? ref_type_code(posType[1]) : 0, "ref_t1_type", display=display.data_window, precision=12)
+plot(t1Now ? posDir[1] : 0, "ref_t1_direction", display=display.data_window, precision=12)

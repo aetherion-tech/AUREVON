@@ -1,0 +1,20 @@
+{
+  "evidence": "NATIVE_HOST_LOADER_PROBE_ONLY",
+  "service_started": false,
+  "scm_path_changed": false,
+  "probe_environment": "System32 cwd; system-only PATH; no PYTHONHOME or PYTHONPATH",
+  "probes": {
+    "installed_host": {
+      "exit_code": 3221225781,
+      "missing_dependency": true,
+      "help_output_present": false
+    },
+    "staged_host": {
+      "exit_code": 2,
+      "missing_dependency": false,
+      "help_output_present": true
+    }
+  },
+  "focused_tests_passed": 26,
+  "note": "Staged files only inside workspace venv. Actual SCM startup/DPAPI/TLS/lifecycle remain unverified. Initial mock assertion corrected from unsigned to pywin32 signed SERVICE_NO_CHANGE; final 26 pass."
+}

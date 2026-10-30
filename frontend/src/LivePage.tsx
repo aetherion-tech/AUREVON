@@ -133,6 +133,7 @@ const DirectionCard = memo(function DirectionCard() {
   const { data: source } = useSnapshot((s) => ({
     stream: s.stream,
     config: s.configuration_id,
+    available: s.state !== "running_quotes_only_anchor_required",
   }));
   const q = useQuery<
     Schema["BrickHistory"],
@@ -142,9 +143,12 @@ const DirectionCard = memo(function DirectionCard() {
     queryKey: ["chart", source?.stream, source?.config],
     enabled: false,
     select: (h) =>
-      h.configuration_id === source?.config ? h.overlays?.at(-1) : undefined,
+      source?.available && h.configuration_id === source.config
+        ? h.overlays?.at(-1)
+        : undefined,
   });
-  const o = q.data;
+  const o =
+    q.error instanceof ApiError && q.error.status === 404 ? undefined : q.data;
   return (
     <Card title="Direction and strength">
       {o ? (
@@ -517,10 +521,14 @@ function Today() {
   );
 }
 function SignalFeed() {
-  const { data: stream } = useSnapshot((s) => s.stream);
+  const { data: source } = useSnapshot((s) => ({
+    stream: s.stream,
+    available: !(s.unavailable ?? []).includes("signals"),
+  }));
+  const stream = source?.stream;
   const q = useInfiniteQuery({
     queryKey: ["signals", stream],
-    enabled: !!stream,
+    enabled: !!stream && source?.available === true,
     initialPageParam: 0,
     queryFn: ({ pageParam, signal }) =>
       api.get(
@@ -538,6 +546,17 @@ function SignalFeed() {
     (a, b) =>
       b.index - a.index || b.ordinal - a.ordinal || a.id.localeCompare(b.id),
   );
+  if (source && !source.available) {
+    return (
+      <Card title="Signal feed">
+        <p role="status">
+          Signals are unavailable until Renko history and matching indicator
+          data are ready.
+        </p>
+        <p>Quotes can continue. Trading entries remain blocked.</p>
+      </Card>
+    );
+  }
   return (
     <Card title="Signal feed">
       <p className="muted">

@@ -1,0 +1,27 @@
+{
+  "evidence": "ISOLATED_BUILT_HTTPS_BROWSER_REGRESSION",
+  "passed": 4,
+  "failed": 0,
+  "elapsed_seconds": 54.4,
+  "formal_sessions": 0,
+  "command": "npm.cmd run test:browser -- --config playwright.release.config.ts --grep \"manual close|pending kill|alerts remain|today risk values\"",
+  "cases": [
+    {
+      "case": "real HTTPS proxy, secure cookie, guarded routes, exact deposit, pending kill and logout",
+      "mode": "TEMPORARY_BACKEND_WALLET_AUTH_API"
+    },
+    {
+      "case": "last closed results and today risk values use server projections",
+      "mode": "MOCKED_RESPONSE_UI_PROJECTION"
+    },
+    {
+      "case": "alerts remain until server acknowledgement and newest signals show reasons",
+      "mode": "MOCKED_RESPONSE_UI_PROJECTION"
+    },
+    {
+      "case": "manual close duplicate guard, pending state and final exit reason",
+      "mode": "MOCKED_RESPONSE_UI_PROJECTION"
+    }
+  ],
+  "note": "Separate integrated backend control drills provide actual temporary DB execution/accounting proof; browser mocks are not external or formal market evidence. No application production code changed."
+}

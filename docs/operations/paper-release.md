@@ -158,11 +158,27 @@ recordings, compressed evidence and backups have indefinite retention.
 
 ## Windows service staging
 
+D05 native-host fix: `-Action RepairHost` changes only the binary path of a
+stopped service to `.venv/Scripts/pythonservice.exe`, colocating the matching
+Python/pywintypes/VC DLLs without a global PATH or system-Python change. The
+service account/startup/recovery settings are preserved. The old root host was
+proven to fail with 0xC0000135 before Python initialized. Run RepairHost in an
+elevated terminal, then Start only after the previous owner is safely stopped.
+New Install stages this layout automatically. Mismatched existing DLLs are
+refused rather than overwritten. Stage/probe evidence does not accept SCM lifecycle.
+
 `scripts/service.ps1 -Action Inspect` is read-only. The optional pywin32 wrapper
-supports Install/Start/Stop/Restart/Remove/ConfigureRecovery, registers **manual** startup, uses the
+supports Preflight/Install/Start/Stop/Restart/Remove/ConfigureRecovery, registers **disabled** startup, uses the
 same HTTPS runner/lease, and requests graceful shutdown from SCM Stop. Example
 command format is `powershell.exe -NoProfile -ExecutionPolicy Bypass -File
 scripts/service.ps1 -Action Inspect`. Install/start have not been executed.
+
+Run `powershell.exe -NoProfile -ExecutionPolicy Bypass -File scripts/service.ps1
+-Action Preflight` for a read-only JSON inventory of SCM create access, service
+presence, configured account, startup type and state. This reads no broker
+credentials and changes no service. A successful inventory is not TLS/DPAPI,
+lifecycle or trading acceptance. Start/Restart/ConfigureRecovery refuse absent,
+unreadable or LocalSystem identities. Stop remains available for safe shutdown.
 
 Before installation, select an appropriate Windows identity. LocalSystem does
 not inherit the operator's DPAPI credentials or current-user certificate trust.
@@ -176,7 +192,7 @@ The 2026-10-30 access probe found this session is not elevated;
 `OpenSCManager(SC_MANAGER_CREATE_SERVICE)` returned Windows error 5, Access denied.
 Actual service installation remains blocked. In an elevated local PowerShell,
 from the repository root, use the Install action, configure the intended Windows
-identity privately in Services, then test Start/Stop/Restart against an isolated
+identity privately in Services and select manual startup, then test Start/Stop/Restart against an isolated
 release. After successful identity/TLS/DPAPI and graceful lifecycle checks,
 `-Action ConfigureRecovery` explicitly configures delayed automatic startup and
 10/30/60-second restart attempts with a daily failure reset. This action was

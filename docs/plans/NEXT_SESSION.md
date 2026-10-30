@@ -35,6 +35,111 @@ never request the password/hash in chat. Explain remaining paper readiness gates
 
 ## Current work and evidence
 
+- LATEST D05 user-reported Live 404 fix: local read-only config confirms no
+  Renko anchor. Explicit quote-only UI avoids chart requests; signals snapshot
+  marked unavailable avoids signal requests and stale cached signals. Chart 404
+  shows missing-history guidance; genuine 500 errors remain visible. Archived
+  history can exist with latest_brick=null; replay overlays remain valid while
+  managed indicators are unavailable. Preserve those distinct semantics.
+  Final 12/12 selected built HTTPS checks, 35 frontend tests, build/TypeScript/
+  ESLint PASS. Earlier 6/11 and 11/12 browser runs retained as separate receipts;
+  do not call them green. docs/testing/live-source-availability.md and
+  live-source-final-browser-checks.json. Frontend-only; no backend restart,
+  operator DB/.env/Pine/feed/service changes or fake data. Reuse Vite and hard-
+  refresh https://localhost:5173/dashboard/. Chart activation still requires
+  actual REF-00-03 anchor/settings and reference gates; do not claim it enabled.
+  Counts stay 237/43, formal sessions zero; next engineering QA-19-14.
+
+- LATEST D05 QA-19 batch: QA-19-11 Completed as isolated engineering recovery
+  drills. Four new scenarios: disconnect, bounded queue overflow, token expiry,
+  and failed historical recovery; actual temporary worker/recovery persistence
+  feeds explicit test-owner readiness into real API/wallet admission. Original
+  confirmation identity is retained, no positions/margin/balance/ledger changes;
+  reconnect/login alone or elapsed hold cannot bypass partial source quality.
+  47 selected backend PASS; two injected-fault built HTTPS browser checks PASS;
+  Ruff/format and strict mypy runner PASS. No production behavior or operator
+  state changes. docs/testing/QA-19-11-recovery-drills.md and retained JSONs.
+  Project 237 Completed / 43 Pending; section 19 11 Completed / 7 Pending.
+  QA-19-09/11/12/13 done; QA-19-10/14/15/16/17 Pending. Formal sessions ZERO;
+  G4/G5 unaccepted. NEXT engineering batch QA-19-14 measured-path profiling/
+  optimization; do not claim representative-load/dispatch targets from arbitrary
+  synthetic inputs. Reference and recorded-day/shadow evidence remain absent.
+
+- LATEST D05 local batch: QA-19-13 Completed as integrated engineering control
+  drills (manual close, kill, real synthetic-MTM loss lock, square-off quote
+  retry and clock warning/admission denial). Actual temporary API/wallet/ticker/
+  reconciliation paths; five new scenarios, 114 selected backend cases PASS.
+  Four built HTTPS browser checks PASS; three use mocked projection/interaction
+  responses, foundation kill/auth uses actual temporary backend API. Ruff/format
+  and strict mypy runner pass. No production behavior or operator-state change.
+  docs/testing/QA-19-13-control-drills.md and corresponding retained JSONs.
+  Project 236 Completed / 44 Pending; section 19 10 Completed / 8 Pending.
+  NEXT LOCAL BATCH: QA-19-11 integrated disconnect/overflow/token-expiry recovery
+  admission drills using isolated providers. REF-00-03/05/06/07 remain input-
+  blocked; do not re-request the entire same batch or rerun accepted work.
+  G5 unaccepted; formal sessions zero. Preserve 5173/8000 working owner.
+
+- D05 REF batch recheck: chart_reference.md still all Pending and no actual
+  reference CSVs found in workspace/backend data. Generator integrity check
+  passes; no implementation or operator-state changes, no new task completion.
+  REF-00-03/05/06/07 await operator settings and real export/source paths.
+  Counts stay 235/45. Next after REF: QA-07-01 through 07 for actual G1 evidence;
+  BE-08-14 maths can run alongside once inputs exist, then QA-09-19/20 after G1,
+  then QA-11-15/16 after G2. See reference_workflow.md batch table.
+
+- ACTIVE D05 REF batch: REF-00-04 Completed as separate debug source creation;
+  original Pine hash and exact prefix preserved. 30 Data Window plots include
+  maths/scores/flags/events and reversible IDs; TradingView compile/export NOT
+  verified. Intake preserves originals/hash manifest and prepares math/debug CSV
+  without synthesizing expected values. Latest focused 91 tests, Ruff/format,
+  strict mypy and generator drift check pass. See docs/pine/reference_workflow.md.
+  Receipt: docs/testing/REF-00-source-intake-checks.json (hashes and limitations).
+  REF counts 4 Completed / 4 Pending; project 235 Completed / 45 Pending.
+  REF-00-03/05/06/07 require actual settings, ten-session export, independent
+  spot/futures/OI/daily/contract context and sanitized reviewed provenance.
+  User chart settings/paths question sent; unanswered fields stay Unknown.
+  Continue on 5173/8000; unresolved service 8443/OPS-19-03 is separately Pending.
+  No operator state/Pine/feed/service/broker login changed; no purchase.
+
+- D05 service-start failure diagnosed from screenshot, actual stopped SCM state, no listener 8443 and SCM events 7000/7009. Old .venv/pythonservice.exe help exits 0xC0000135 (missing dependency), including System32 cwd/minimal PATH. Staged host and exact Python/pywintypes/VC runtime DLLs inside .venv/Scripts; new help exits expected 2 with usage in same environment. New RepairHost action changes ONLY a stopped service binary path; retains account/startup/recovery and never starts it. Future Install uses staged host. 26 focused tests pass; Ruff/format/mypy and PS parsing pass. Evidence: docs/testing/OPS-19-service-host-repair.json. Actual SCM repair/start remains operator-admin work; port 8000 owner still running, untouched. OPS-19-03 remains Pending; counts 234/46; formal sessions zero.
+  NEXT: after observation and flat-state/feed-stop check, Ctrl+C existing backend
+  and await shutdown. Elevated scripts/service.ps1 -Action RepairHost, then Start,
+  then Preflight. No reinstall or account/password reconfiguration required.
+  Verify https://localhost:8443/dashboard/ before claiming startup; no recovery
+  enablement until graceful stop/restart/duplicate-worker acceptance passes.
+
+- D05 identity evidence: operator preflight 11:30:09 UTC and agent read-only preflight 11:30:58 UTC confirm .\Sanny, configured_non_system_identity true, disabled (4), stopped (1). Agent observed backend port 8000 and Vite 5173 still listening; no owner stopped or service started. Added service-context TLS/DPAPI read-only access guard before app creation so failed decryption preserves the saved session. Latest focused service/access/preflight tests 21 pass; Ruff lint/format and strict mypy pass. Prior 813-pass full suite predates this guard. OPS-19-03 remains Pending for actual lifecycle/TLS/DPAPI and single-worker verification.
+  NEXT: after observation, Stop market data and verify flat/no pending exposure;
+  Ctrl+C the existing backend and wait for shutdown. Keep it stopped. In elevated
+  PowerShell set sc.exe config AUREVONPaper start= demand, then guarded Start and
+  Preflight. Open https://localhost:8443/dashboard/; service serves built FE.
+  Do not ConfigureRecovery until lifecycle/duplicate/restart checks pass.
+
+- D05 installed-service evidence: operator Install succeeded; elevated preflight 11:25:11 UTC reports service_query OK, LocalSystem, start_type 4 (disabled), current_state 1 (stopped). Agent independently read the same service state at 11:26:01 UTC. No service start or identity change claimed. Next configure the intended operator account privately in Services while keeping startup Disabled, then repeat Preflight; TLS/DPAPI and SCM lifecycle remain pending.
+
+- Operator-supplied elevated preflight at 2026-10-30T11:23:25.757431+00:00 reports create_service_access GRANTED for DESKTOP-0FJTT0S\Sanny, service NOT_INSTALLED (1060). This clears the elevated-terminal permission blocker only; coding-agent session elevation is not inferred. Identity/TLS/DPAPI/lifecycle remain unverified. OPS-19-03 stays Pending.
+  Installation subsequently completed; see latest installed-service evidence above.
+  Do not rerun Install. Configure intended account privately; do not Start or
+  ConfigureRecovery yet.
+
+- D05 11:18:26 UTC: read-only service preflight also run outside workspace sandbox; Windows still denies create-service access (error 5), service absent (1060). No service or feed changed. OPS-19-03/08 remain Pending; 234 Completed / 46 Pending. Prior 813-pass suite retained; no implementation changes or redundant rerun.
+
+- D05 operator update: user confirms fresh Kite login and Start market data are
+  done. This is operator-reported UI verification, not independently captured
+  quote/reference evidence or a qualifying formal paper session. Preserve the
+  running feed. Fresh read-only SCM preflight at 11:12:51 UTC still returns error
+  5 (create denied) and 1060 (service absent); OPS-19-03 remains Pending.
+
+- D05 all-OPS review: seven OPS-prefixed rows already Completed; 03/08 remain
+  Pending. Fresh SCM preflight: error 5/create denied, error 1060/service absent.
+  Service installation now stages disabled; Start/Restart/ConfigureRecovery refuse
+  missing/unreadable/LocalSystem identity. New read-only Preflight action; no
+  service or operator state changes. See docs/testing/OPS-19-current-blockers.md
+  and fresh full-suite OPS-19-session-completion-check.json: 813 passed, exit 0;
+  separate focused service/release/shadow checks 21 passed. Ruff/format and strict
+  mypy for the new tool pass. Counts stay 234/46;
+  formal sessions zero. External ingress/calibrated reference/G2 still required.
+
 - PRIORITY local UI fix APPLIED, D05: see docs/testing/local-ui-recovery.md.
   The actual local DB was 0006, feed stopped, account unattached and last Kite
   callback 400. Guarded setup paused the existing --reload owner gracefully,
@@ -52,10 +157,10 @@ never request the password/hash in chat. Explain remaining paper readiness gates
 - Kite callback grants now retain their initiating UI origin and relay a backend/
   other-loopback callback BACK to it before cookie proof/token exchange. Existing
   cookie/state/expiry/replay/logout protections remain. Unit cross-origin roundtrip
-  passes. Fresh login must be completed by the operator; do not reuse old callbacks
+  passes. Fresh login was reported completed by the operator on D05; do not reuse old callbacks
   or claim actual broker authentication based on tests. Use consistently
   https://localhost:5173/dashboard/, sign in, Log in to Kite, then Start market data.
-  A user verification question is pending; no password/token requested in chat.
+  Operator confirms login/Start market data done; no password/token requested in chat.
 - Live now has explicit data Start/Stop controls; no trading activation. Actual
   RENKO_ANCHOR is absent, so opt-in local UI supports genuine quote-only streaming/
   recording with explicit chart blocker and permanently unvalidated entry gate.
@@ -70,19 +175,16 @@ never request the password/hash in chat. Explain remaining paper readiness gates
   completions; counts below stay 234/46, formal sessions ZERO. No real quotes,
   automatic entries or formal burn-in claimed from synthetic browser fixtures.
 
-- Product tasks: 280 total; 234 Completed / 46 Pending. Frontend remains
-  57 Completed / 0 Pending. Section 19: 9 Completed / 9 Pending. Completed:
-  OPS-19-01/02/04/05/06/07/18 and QA-19-09/12. Do not restart accepted work.
+- Product tasks: 280 total; 237 Completed / 43 Pending. Frontend remains
+  57 Completed / 0 Pending. Section 19: 11 Completed / 7 Pending. Completed:
+  OPS-19-01/02/04/05/06/07/18 and QA-19-09/11/12/13. Do not restart accepted work.
   Evidence: docs/testing/OPS-19-followup.md (latest) and OPS-19-acceptance.md
   (initial six-row batch). Initial full backend 785 remains historical.
-- NEXT TASK: verify the repaired UI with fresh operator Kite login and Start market
-  data first; next product task remains OPS-19-03 Windows SCM verification with the intended
-  Windows identity. Current identity is NOT elevated; actual
-  OpenSCManager(SC_MANAGER_CREATE_SERVICE) probe returned Windows error 5,
-  Access denied. No service installed/started/reconfigured. Wrapper, exclusive
-  lease/graceful-stop tests and scripts/service.ps1 ConfigureRecovery are prepared.
-  Verify identity/TLS/DPAPI before activation; preserve observation. Do not assume
-  LocalSystem can use the operator's credentials/certificate store.
+- NEXT TASK: QA-19-14 bounded profiling/optimization of the measured storage/
+  indicator path, followed by representative-load and dispatch measurements.
+  Acceptance remains Pending until targets actually pass. REF-00-03/05/06/07,
+  G1/G2/G3, recorded-day and 20-session evidence remain external prerequisites.
+  OPS-19-03 is a separate unresolved service track; use development 5173/8000.
 - D05 follow-up accepted OPS-19-04: isolated real owner steps poll a matching
   synthetic runtime, wait for fresh quotes after cutoff, complete square-off,
   reconcile/report and restore separately. No extra scheduler. Accepted OPS-19-05:
@@ -104,19 +206,20 @@ never request the password/hash in chat. Explain remaining paper readiness gates
   Needs real reachable TLS-authenticated ingress (TradingView public HTTPS port
   443), calibrated debug-copy event/index/trade identity and G2. No tunnel/public
   service created. Original Pine unchanged. Guide: docs/operations/shadow-alerts.md.
-- QA-19-10/11/13/14/15/16/17 remain Pending. Missing actual eligible recorded-day,
+- QA-19-10/14/15/16/17 remain Pending. Missing actual eligible recorded-day,
   formal integrated drill/reference evidence, representative warmed-load and
   dispatch measurements, daily/weekly TradingView comparisons, twenty sessions
   and G4/G5. Synthetic baseline 500 ticks/48 bricks: phase run brick-emitting p95
   63.89 ms and max 75.23 ms; 50 ms target MISSED. Storage p95 23.49 ms;
   indicator/readback p95 41.69 ms. Separate percentiles must not be summed.
   No dispatch latency measurement. Retained JSONs under docs/testing/OPS-19-*.
-- Latest backend broad invocation: 797 pass / 1 outdated migration-test failure
+- Earlier backend broad invocation: 797 pass / 1 outdated migration-test failure
   of 798. The older test now targets 0011 rather than head; corrected affected
   integration suites 69 pass. Latest scheduled retention/compression suite 8 pass.
   Failed full-run and corrected-case JSON evidence both retained, not overwritten.
   Latest changed shadow/owner/retention checks also passed a 14-case invocation.
-  Do not describe these as a later green full-suite run. Ruff/format, strict mypy,
+  These historical runs were not green; the later 813-pass run above is separate
+  retained evidence. Ruff/format, strict mypy,
   OpenAPI/TypeScript contract checks, frontend production build/TypeScript/ESLint
   and 35 frontend tests pass. New shadow flows and three repeated cursor checks
   pass. Final built FastAPI HTTPS browser run: 38/38 pass; see docs/testing/OPS-19-followup.md.
@@ -248,7 +351,7 @@ never request the password/hash in chat. Explain remaining paper readiness gates
 - Calendar nse_2026 includes Budget/Muhurat overrides; unknown years (including
   prior-year warm-up) block. Application cutoff 15:30 differs from published F&O
   close. No actual feed/paper observation is inferred from calendar dates.
-- D01 Pending REF-00-03 chart settings; D02 Pending separate debug copy REF-00-04;
+- D01 Pending REF-00-03 chart settings; D02 source work completed D05 with separate debug copy REF-00-04;
   D06 lacks actual observation; D11 awaits BE-08-14; D15 awaits QA-09-19/20;
   D22 awaits QA-11-15/16. D23 API code complete. D24 API IDs are done but shadow
   slice/real comparison remains Pending. D26 API IDs are done but actual eligible
@@ -280,4 +383,31 @@ never request the password/hash in chat. Explain remaining paper readiness gates
 - Read this, current daily row and targeted README/task/code on the next turn.
   Preserve existing edits. Update README counts/evidence/next pointer, daily row
   and this handoff together; receipts only when supplied. README.v1 is immutable;
-  documentation rows never count as product completions. Next: OPS-19-03.
+  documentation rows never count as product completions. Next engineering: QA-19-14.
+
+## Remaining execution order after operator login verification
+
+Current reference priority: REF-00-03 then actual REF-00-05/06/07; REF-00-04
+source created D05. The service path below remains a separate pending track
+while dashboard development continues on 5173.
+
+1. OPS-19-03: elevated intended Windows account; private service identity setup,
+   isolated TLS/DPAPI/start/stop/restart/recovery and single-owner verification.
+   Operator elevated session now has create access (11:23:25 UTC); coding-agent
+   session previously lacked it. Service now installed disabled/stopped as
+   .\Sanny; account configuration confirmed, actual lifecycle still pending. Do not interrupt the feed
+   or install/start another owner over an observation. In a separate elevated
+   PowerShell from D:\WorkSpace\AUREVON, first run the read-only preflight:
+   `powershell.exe -NoProfile -ExecutionPolicy Bypass -File scripts/service.ps1 -Action Preflight`.
+   A granted probe alone does not complete the task. Service identity remains
+   to be confirmed; passwords stay local.
+2. Resolve actual chart/debug-reference prerequisites REF-00-03/04 and BE-08-14,
+   then QA-09-19/20 (G1/G2) and QA-11-15/16 (recorded/manual evidence and G3).
+   OPS-19-08 needs authenticated reachable ingress and aligned real shadow evidence.
+3. QA-19-11/12/13 engineering drills are complete. QA-19-10/14 still require
+   actual recorded-day reconciliation and representative performance acceptance. Preserve measured failures.
+4. QA-19-15/16: at least 20 qualifying automated paper sessions with daily notes,
+   daily shadow comparisons and weekly reviews after prerequisites pass.
+5. LAST paper acceptance task: QA-19-17, explicit G4/G5 review of reconciled
+   results, resolved anomalies and drill evidence. No calendar or code-count waiver.
+   Phase-20 live-money work stays outside the funded paper scope.

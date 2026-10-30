@@ -315,8 +315,17 @@ export const ChartPane = memo(function ChartPane() {
     config: s.configuration_id,
     latest: s.latest_brick,
     signals: (s.signals ?? []).map((signal) => signal.id).join(":"),
+    quoteOnly: s.state === "running_quotes_only_anchor_required",
   }));
-  return source ? (
+  return source?.quoteOnly ? (
+    <Card title="Renko chart">
+      <p role="status">
+        Market data is quote-only. A verified Renko anchor is required before
+        chart history can be built.
+      </p>
+      <p>Quotes can continue. Trading entries remain blocked.</p>
+    </Card>
+  ) : source ? (
     <ChartSession key={`${source.stream}:${source.config}`} source={source} />
   ) : (
     <Card title="Renko chart">
@@ -452,7 +461,10 @@ function ChartSession({
     )
       void loadRef.current(false);
   }, [source.latest, last, history.data, busy, error]);
-  const data = history.data;
+  const data =
+    history.error instanceof ApiError && history.error.status === 404
+      ? undefined
+      : history.data;
   const visible =
     data?.items
       .filter((b) => endIndex === null || b.index <= endIndex)
@@ -502,12 +514,18 @@ function ChartSession({
       {history.isPending && <p role="status">Loading Renko history…</p>}
       {busy && <p role="status">Loading chart page…</p>}
       {notice && <p role="status">{notice}</p>}
-      {history.error && (
+      {history.error instanceof ApiError && history.error.status === 404 ? (
+        <p role="status">
+          No Renko history for this source yet. Configure verified Renko
+          settings and collect matching market data. Trading entries remain
+          blocked.
+        </p>
+      ) : history.error ? (
         <ErrorMessage
           error={history.error}
           retry={() => void history.refetch()}
         />
-      )}{" "}
+      ) : null}{" "}
       {error !== undefined && (
         <ErrorMessage
           error={error}

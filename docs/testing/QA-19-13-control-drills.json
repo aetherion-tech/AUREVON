@@ -1,0 +1,701 @@
+{
+  "at": "2026-10-30T15:10:03.557659+00:00",
+  "evidence": "ISOLATED_SYNTHETIC_DRILLS",
+  "qualifying_exchange_sessions": 0,
+  "formal_g5_accepted": false,
+  "groups": {
+    "QA-19-13": [
+      "tests/test_control_drills.py",
+      "tests/test_domain_api.py",
+      "tests/test_paper_execution.py"
+    ]
+  },
+  "exit_code": 0,
+  "cases": [
+    {
+      "class": "tests.test_control_drills",
+      "case": "test_control_waits_for_quotes_then_closes_and_reconciles[manual]",
+      "seconds": 2.185,
+      "status": "PASS"
+    },
+    {
+      "class": "tests.test_control_drills",
+      "case": "test_control_waits_for_quotes_then_closes_and_reconciles[kill]",
+      "seconds": 2.102,
+      "status": "PASS"
+    },
+    {
+      "class": "tests.test_control_drills",
+      "case": "test_control_waits_for_quotes_then_closes_and_reconciles[daily_loss]",
+      "seconds": 2.239,
+      "status": "PASS"
+    },
+    {
+      "class": "tests.test_control_drills",
+      "case": "test_control_waits_for_quotes_then_closes_and_reconciles[square_off]",
+      "seconds": 1.959,
+      "status": "PASS"
+    },
+    {
+      "class": "tests.test_control_drills",
+      "case": "test_clock_drift_warns_rejects_and_preserves_rejected_decision_after_recovery",
+      "seconds": 2.016,
+      "status": "PASS"
+    },
+    {
+      "class": "tests.test_domain_api",
+      "case": "test_owned_square_off_retries_quotes_then_reconciles_reports_and_restores",
+      "seconds": 2.522,
+      "status": "PASS"
+    },
+    {
+      "class": "tests.test_domain_api",
+      "case": "test_live_display_plan_risk_and_final_close_projections",
+      "seconds": 2.072,
+      "status": "PASS"
+    },
+    {
+      "class": "tests.test_domain_api",
+      "case": "test_live_loss_projection_preserves_unknown_open_marks",
+      "seconds": 2.086,
+      "status": "PASS"
+    },
+    {
+      "class": "tests.test_domain_api",
+      "case": "test_history_http_integer_filters_and_export_keep_internal_validation",
+      "seconds": 1.589,
+      "status": "PASS"
+    },
+    {
+      "class": "tests.test_domain_api",
+      "case": "test_history_period_extremes_and_trade_lineage_are_readonly",
+      "seconds": 2.28,
+      "status": "PASS"
+    },
+    {
+      "class": "tests.test_domain_api",
+      "case": "test_empty_period_extremes_remain_unavailable",
+      "seconds": 1.631,
+      "status": "PASS"
+    },
+    {
+      "class": "tests.test_domain_api",
+      "case": "test_domain_reads_require_dashboard_auth[/api/wallet]",
+      "seconds": 1.431,
+      "status": "PASS"
+    },
+    {
+      "class": "tests.test_domain_api",
+      "case": "test_domain_reads_require_dashboard_auth[/api/wallet/ledger]",
+      "seconds": 1.79,
+      "status": "PASS"
+    },
+    {
+      "class": "tests.test_domain_api",
+      "case": "test_domain_reads_require_dashboard_auth[/api/positions/open]",
+      "seconds": 1.881,
+      "status": "PASS"
+    },
+    {
+      "class": "tests.test_domain_api",
+      "case": "test_domain_reads_require_dashboard_auth[/api/trades]",
+      "seconds": 1.516,
+      "status": "PASS"
+    },
+    {
+      "class": "tests.test_domain_api",
+      "case": "test_domain_reads_require_dashboard_auth[/api/pnl/summary]",
+      "seconds": 1.979,
+      "status": "PASS"
+    },
+    {
+      "class": "tests.test_domain_api",
+      "case": "test_domain_reads_require_dashboard_auth[/api/pnl/daily]",
+      "seconds": 1.603,
+      "status": "PASS"
+    },
+    {
+      "class": "tests.test_domain_api",
+      "case": "test_domain_reads_require_dashboard_auth[/api/pnl/periods]",
+      "seconds": 2.079,
+      "status": "PASS"
+    },
+    {
+      "class": "tests.test_domain_api",
+      "case": "test_domain_reads_require_dashboard_auth[/api/pnl/by-family]",
+      "seconds": 3.443,
+      "status": "PASS"
+    },
+    {
+      "class": "tests.test_domain_api",
+      "case": "test_domain_reads_require_dashboard_auth[/api/settings]",
+      "seconds": 1.689,
+      "status": "PASS"
+    },
+    {
+      "class": "tests.test_domain_api",
+      "case": "test_domain_reads_require_dashboard_auth[/api/settings/defaults]",
+      "seconds": 1.651,
+      "status": "PASS"
+    },
+    {
+      "class": "tests.test_domain_api",
+      "case": "test_domain_reads_require_dashboard_auth[/api/settings/export]",
+      "seconds": 1.956,
+      "status": "PASS"
+    },
+    {
+      "class": "tests.test_domain_api",
+      "case": "test_domain_reads_require_dashboard_auth[/api/decisions]",
+      "seconds": 2.145,
+      "status": "PASS"
+    },
+    {
+      "class": "tests.test_domain_api",
+      "case": "test_domain_reads_require_dashboard_auth[/api/signals?stream=api-test]",
+      "seconds": 2.378,
+      "status": "PASS"
+    },
+    {
+      "class": "tests.test_domain_api",
+      "case": "test_signals_and_persisted_preview_admission_decisions_have_real_explanations",
+      "seconds": 2.397,
+      "status": "PASS"
+    },
+    {
+      "class": "tests.test_domain_api",
+      "case": "test_wallet_exact_mutations_csrf_idempotency_conflicts_and_reset",
+      "seconds": 2.742,
+      "status": "PASS"
+    },
+    {
+      "class": "tests.test_domain_api",
+      "case": "test_bad_money_never_changes_wallet[0]",
+      "seconds": 4.068,
+      "status": "PASS"
+    },
+    {
+      "class": "tests.test_domain_api",
+      "case": "test_bad_money_never_changes_wallet[-1]",
+      "seconds": 3.264,
+      "status": "PASS"
+    },
+    {
+      "class": "tests.test_domain_api",
+      "case": "test_bad_money_never_changes_wallet[0.001]",
+      "seconds": 1.781,
+      "status": "PASS"
+    },
+    {
+      "class": "tests.test_domain_api",
+      "case": "test_bad_money_never_changes_wallet[NaN]",
+      "seconds": 1.76,
+      "status": "PASS"
+    },
+    {
+      "class": "tests.test_domain_api",
+      "case": "test_bad_money_never_changes_wallet[1000000000000.00]",
+      "seconds": 1.856,
+      "status": "PASS"
+    },
+    {
+      "class": "tests.test_domain_api",
+      "case": "test_bad_money_never_changes_wallet[1.1]",
+      "seconds": 4.229,
+      "status": "PASS"
+    },
+    {
+      "class": "tests.test_domain_api",
+      "case": "test_prepare_confirm_fill_close_history_pnl_and_ledger_agree",
+      "seconds": 4.824,
+      "status": "PASS"
+    },
+    {
+      "class": "tests.test_domain_api",
+      "case": "test_confirmation_rechecks_readiness_and_persists_reject_alert",
+      "seconds": 2.557,
+      "status": "PASS"
+    },
+    {
+      "class": "tests.test_domain_api",
+      "case": "test_confirmation_fails_closed_on_missing_or_changed_server_evidence[not_authorized]",
+      "seconds": 2.438,
+      "status": "PASS"
+    },
+    {
+      "class": "tests.test_domain_api",
+      "case": "test_confirmation_fails_closed_on_missing_or_changed_server_evidence[stale_source]",
+      "seconds": 2.845,
+      "status": "PASS"
+    },
+    {
+      "class": "tests.test_domain_api",
+      "case": "test_confirmation_fails_closed_on_missing_or_changed_server_evidence[missing_signal]",
+      "seconds": 2.003,
+      "status": "PASS"
+    },
+    {
+      "class": "tests.test_domain_api",
+      "case": "test_confirmation_fails_closed_on_missing_or_changed_server_evidence[changed_settings]",
+      "seconds": 1.816,
+      "status": "PASS"
+    },
+    {
+      "class": "tests.test_domain_api",
+      "case": "test_confirmation_fails_closed_on_missing_or_changed_server_evidence[stale_clock]",
+      "seconds": 2.573,
+      "status": "PASS"
+    },
+    {
+      "class": "tests.test_domain_api",
+      "case": "test_settings_version_roundtrip_rebuild_requirement_and_active_exposure_block",
+      "seconds": 1.699,
+      "status": "PASS"
+    },
+    {
+      "class": "tests.test_domain_api",
+      "case": "test_risk_settings_owner_rebind_preserves_cash_history_and_locks",
+      "seconds": 1.453,
+      "status": "PASS"
+    },
+    {
+      "class": "tests.test_domain_api",
+      "case": "test_settings_update_does_not_mutate_an_open_observation",
+      "seconds": 1.661,
+      "status": "PASS"
+    },
+    {
+      "class": "tests.test_domain_api",
+      "case": "test_settings_import_rejects_unknown_or_secret_fields[extra0]",
+      "seconds": 1.477,
+      "status": "PASS"
+    },
+    {
+      "class": "tests.test_domain_api",
+      "case": "test_settings_import_rejects_unknown_or_secret_fields[extra1]",
+      "seconds": 1.986,
+      "status": "PASS"
+    },
+    {
+      "class": "tests.test_domain_api",
+      "case": "test_settings_import_rejects_unknown_or_secret_fields[extra2]",
+      "seconds": 1.692,
+      "status": "PASS"
+    },
+    {
+      "class": "tests.test_domain_api",
+      "case": "test_snapshot_and_socket_project_actual_wallet_positions_alerts_and_restart_cursor",
+      "seconds": 3.041,
+      "status": "PASS"
+    },
+    {
+      "class": "tests.test_domain_api",
+      "case": "test_default_unattached_domain_is_unavailable_not_a_fake_wallet",
+      "seconds": 1.561,
+      "status": "PASS"
+    },
+    {
+      "class": "tests.test_domain_api",
+      "case": "test_readonly_preview_has_no_domain_or_market_mutation",
+      "seconds": 1.52,
+      "status": "PASS"
+    },
+    {
+      "class": "tests.test_domain_api",
+      "case": "test_command_crash_after_wallet_commit_recovers_without_second_deposit",
+      "seconds": 1.638,
+      "status": "PASS"
+    },
+    {
+      "class": "tests.test_domain_api",
+      "case": "test_domain_migration_is_additive_and_preserves_previous_rows",
+      "seconds": 0.78,
+      "status": "PASS"
+    },
+    {
+      "class": "tests.test_domain_api",
+      "case": "test_real_frontend_client_auth_actions_and_resync",
+      "seconds": 6.458,
+      "status": "PASS"
+    },
+    {
+      "class": "tests.test_domain_api",
+      "case": "test_settings_command_recovers_commit_without_an_extra_version",
+      "seconds": 1.346,
+      "status": "PASS"
+    },
+    {
+      "class": "tests.test_domain_api",
+      "case": "test_prepare_and_confirm_recover_without_new_decision_or_trade",
+      "seconds": 1.437,
+      "status": "PASS"
+    },
+    {
+      "class": "tests.test_domain_api",
+      "case": "test_prepared_or_confirmed_requests_cannot_import_quotes_readiness_or_live_flags",
+      "seconds": 1.752,
+      "status": "PASS"
+    },
+    {
+      "class": "tests.test_domain_api",
+      "case": "test_canonical_preview_can_succeed_without_subscribing_or_saving_a_decision",
+      "seconds": 2.313,
+      "status": "PASS"
+    },
+    {
+      "class": "tests.test_domain_api",
+      "case": "test_new_domain_producers_do_not_break_feed_snapshot_before_domain_migrations",
+      "seconds": 1.012,
+      "status": "PASS"
+    },
+    {
+      "class": "tests.test_domain_api",
+      "case": "test_settings_save_and_stale_rejection_have_correlated_audit_outcomes",
+      "seconds": 1.567,
+      "status": "PASS"
+    },
+    {
+      "class": "tests.test_domain_api",
+      "case": "test_settings_schema_import_defaults_and_pine_rebuild_validation",
+      "seconds": 1.656,
+      "status": "PASS"
+    },
+    {
+      "class": "tests.test_domain_api",
+      "case": "test_owner_rebind_accepts_verified_rebuilt_grid_without_overwriting_old_stream",
+      "seconds": 1.448,
+      "status": "PASS"
+    },
+    {
+      "class": "tests.test_paper_execution",
+      "case": "test_nightly_snapshot_refuses_open_paper_exposure",
+      "seconds": 0.725,
+      "status": "PASS"
+    },
+    {
+      "class": "tests.test_paper_execution",
+      "case": "test_market_depth_tick_round_and_repeat[BUY-10.55]",
+      "seconds": 0.001,
+      "status": "PASS"
+    },
+    {
+      "class": "tests.test_paper_execution",
+      "case": "test_market_depth_tick_round_and_repeat[SELL-9.95]",
+      "seconds": 0.001,
+      "status": "PASS"
+    },
+    {
+      "class": "tests.test_paper_execution",
+      "case": "test_fallback_slippage[BUY-10.5]",
+      "seconds": 0.001,
+      "status": "PASS"
+    },
+    {
+      "class": "tests.test_paper_execution",
+      "case": "test_fallback_slippage[SELL-9.5]",
+      "seconds": 0.001,
+      "status": "PASS"
+    },
+    {
+      "class": "tests.test_paper_execution",
+      "case": "test_limit_touch_latency_and_cancellation[BUY-9.95-10.05]",
+      "seconds": 0.001,
+      "status": "PASS"
+    },
+    {
+      "class": "tests.test_paper_execution",
+      "case": "test_limit_touch_latency_and_cancellation[SELL-10.05-9.95]",
+      "seconds": 0.001,
+      "status": "PASS"
+    },
+    {
+      "class": "tests.test_paper_execution",
+      "case": "test_market_bad_prices[stale]",
+      "seconds": 0.001,
+      "status": "PASS"
+    },
+    {
+      "class": "tests.test_paper_execution",
+      "case": "test_market_bad_prices[future]",
+      "seconds": 0.001,
+      "status": "PASS"
+    },
+    {
+      "class": "tests.test_paper_execution",
+      "case": "test_market_bad_prices[token]",
+      "seconds": 0.001,
+      "status": "PASS"
+    },
+    {
+      "class": "tests.test_paper_execution",
+      "case": "test_market_bad_prices[thin]",
+      "seconds": 0.001,
+      "status": "PASS"
+    },
+    {
+      "class": "tests.test_paper_execution",
+      "case": "test_market_bad_prices[sanity]",
+      "seconds": 0.001,
+      "status": "PASS"
+    },
+    {
+      "class": "tests.test_paper_execution",
+      "case": "test_hedge_first_restart_short_first_close_and_exact_ledger",
+      "seconds": 0.826,
+      "status": "PASS"
+    },
+    {
+      "class": "tests.test_paper_execution",
+      "case": "test_partial_entry_unwinds_without_naked_short[short_depth]",
+      "seconds": 0.847,
+      "status": "PASS"
+    },
+    {
+      "class": "tests.test_paper_execution",
+      "case": "test_partial_entry_unwinds_without_naked_short[readiness]",
+      "seconds": 0.691,
+      "status": "PASS"
+    },
+    {
+      "class": "tests.test_paper_execution",
+      "case": "test_partial_entry_unwinds_without_naked_short[cancel_before_fill]",
+      "seconds": 0.795,
+      "status": "PASS"
+    },
+    {
+      "class": "tests.test_paper_execution",
+      "case": "test_duplicate_signal_decision_deposit_and_concurrent_entry",
+      "seconds": 0.591,
+      "status": "PASS"
+    },
+    {
+      "class": "tests.test_paper_execution",
+      "case": "test_final_readiness_rejects_are_durable[feed]",
+      "seconds": 0.629,
+      "status": "PASS"
+    },
+    {
+      "class": "tests.test_paper_execution",
+      "case": "test_final_readiness_rejects_are_durable[authenticated]",
+      "seconds": 0.621,
+      "status": "PASS"
+    },
+    {
+      "class": "tests.test_paper_execution",
+      "case": "test_final_readiness_rejects_are_durable[recovered]",
+      "seconds": 0.565,
+      "status": "PASS"
+    },
+    {
+      "class": "tests.test_paper_execution",
+      "case": "test_final_readiness_rejects_are_durable[clock]",
+      "seconds": 0.565,
+      "status": "PASS"
+    },
+    {
+      "class": "tests.test_paper_execution",
+      "case": "test_final_readiness_rejects_are_durable[indicators]",
+      "seconds": 0.606,
+      "status": "PASS"
+    },
+    {
+      "class": "tests.test_paper_execution",
+      "case": "test_final_readiness_rejects_are_durable[event_blocked]",
+      "seconds": 0.614,
+      "status": "PASS"
+    },
+    {
+      "class": "tests.test_paper_execution",
+      "case": "test_final_risk_gate[stale-stale_plan]",
+      "seconds": 0.563,
+      "status": "PASS"
+    },
+    {
+      "class": "tests.test_paper_execution",
+      "case": "test_final_risk_gate[capital-capital_unavailable_or_changed]",
+      "seconds": 0.616,
+      "status": "PASS"
+    },
+    {
+      "class": "tests.test_paper_execution",
+      "case": "test_final_risk_gate[loss-max_trade_loss]",
+      "seconds": 0.545,
+      "status": "PASS"
+    },
+    {
+      "class": "tests.test_paper_execution",
+      "case": "test_final_risk_gate[window-entry_window]",
+      "seconds": 0.505,
+      "status": "PASS"
+    },
+    {
+      "class": "tests.test_paper_execution",
+      "case": "test_final_risk_gate[quote-quote_quality_or_price_sanity]",
+      "seconds": 0.602,
+      "status": "PASS"
+    },
+    {
+      "class": "tests.test_paper_execution",
+      "case": "test_all_exit_sources_and_stale_exit_wait[manual]",
+      "seconds": 0.81,
+      "status": "PASS"
+    },
+    {
+      "class": "tests.test_paper_execution",
+      "case": "test_all_exit_sources_and_stale_exit_wait[indicator]",
+      "seconds": 0.687,
+      "status": "PASS"
+    },
+    {
+      "class": "tests.test_paper_execution",
+      "case": "test_all_exit_sources_and_stale_exit_wait[square_off]",
+      "seconds": 0.658,
+      "status": "PASS"
+    },
+    {
+      "class": "tests.test_paper_execution",
+      "case": "test_all_exit_sources_and_stale_exit_wait[kill]",
+      "seconds": 0.733,
+      "status": "PASS"
+    },
+    {
+      "class": "tests.test_paper_execution",
+      "case": "test_all_exit_sources_and_stale_exit_wait[stop]",
+      "seconds": 0.898,
+      "status": "PASS"
+    },
+    {
+      "class": "tests.test_paper_execution",
+      "case": "test_all_exit_sources_and_stale_exit_wait[target]",
+      "seconds": 0.908,
+      "status": "PASS"
+    },
+    {
+      "class": "tests.test_paper_execution",
+      "case": "test_stale_marks_are_unknown_and_daily_loss_lock_survives_restart",
+      "seconds": 0.842,
+      "status": "PASS"
+    },
+    {
+      "class": "tests.test_paper_execution",
+      "case": "test_valid_rollover_only_and_kill_persists",
+      "seconds": 0.713,
+      "status": "PASS"
+    },
+    {
+      "class": "tests.test_paper_execution",
+      "case": "test_exit_depth_retries_retain_attempt_and_margin",
+      "seconds": 0.76,
+      "status": "PASS"
+    },
+    {
+      "class": "tests.test_paper_execution",
+      "case": "test_settings_cannot_change_on_restart_and_live_never_arms",
+      "seconds": 0.47,
+      "status": "PASS"
+    },
+    {
+      "class": "tests.test_paper_execution",
+      "case": "test_restart_at_each_entry_and_exit_commit_matches_uninterrupted[0]",
+      "seconds": 1.614,
+      "status": "PASS"
+    },
+    {
+      "class": "tests.test_paper_execution",
+      "case": "test_restart_at_each_entry_and_exit_commit_matches_uninterrupted[1]",
+      "seconds": 1.655,
+      "status": "PASS"
+    },
+    {
+      "class": "tests.test_paper_execution",
+      "case": "test_restart_at_each_entry_and_exit_commit_matches_uninterrupted[2]",
+      "seconds": 3.093,
+      "status": "PASS"
+    },
+    {
+      "class": "tests.test_paper_execution",
+      "case": "test_restart_at_each_entry_and_exit_commit_matches_uninterrupted[3]",
+      "seconds": 1.985,
+      "status": "PASS"
+    },
+    {
+      "class": "tests.test_paper_execution",
+      "case": "test_restart_at_each_entry_and_exit_commit_matches_uninterrupted[4]",
+      "seconds": 1.493,
+      "status": "PASS"
+    },
+    {
+      "class": "tests.test_paper_execution",
+      "case": "test_restart_at_each_entry_and_exit_commit_matches_uninterrupted[5]",
+      "seconds": 1.56,
+      "status": "PASS"
+    },
+    {
+      "class": "tests.test_paper_execution",
+      "case": "test_restart_at_each_entry_and_exit_commit_matches_uninterrupted[6]",
+      "seconds": 1.382,
+      "status": "PASS"
+    },
+    {
+      "class": "tests.test_paper_execution",
+      "case": "test_restart_at_each_entry_and_exit_commit_matches_uninterrupted[7]",
+      "seconds": 1.363,
+      "status": "PASS"
+    },
+    {
+      "class": "tests.test_paper_execution",
+      "case": "test_restart_at_each_entry_and_exit_commit_matches_uninterrupted[8]",
+      "seconds": 1.575,
+      "status": "PASS"
+    },
+    {
+      "class": "tests.test_paper_execution",
+      "case": "test_restart_at_each_entry_and_exit_commit_matches_uninterrupted[9]",
+      "seconds": 1.494,
+      "status": "PASS"
+    },
+    {
+      "class": "tests.test_paper_execution",
+      "case": "test_transaction_rollback_retains_position_margin_and_ledger",
+      "seconds": 0.708,
+      "status": "PASS"
+    },
+    {
+      "class": "tests.test_paper_execution",
+      "case": "test_persistent_flag_does_not_cancel_exit_repeatedly",
+      "seconds": 0.722,
+      "status": "PASS"
+    },
+    {
+      "class": "tests.test_paper_execution",
+      "case": "test_one_position_max_trades_and_open_session_rollover",
+      "seconds": 0.715,
+      "status": "PASS"
+    },
+    {
+      "class": "tests.test_paper_execution",
+      "case": "test_preview_capital_never_executes_and_book_corruption_fails_closed",
+      "seconds": 0.675,
+      "status": "PASS"
+    },
+    {
+      "class": "tests.test_paper_execution",
+      "case": "test_clock_regression_skew_and_wrong_token_marks",
+      "seconds": 0.638,
+      "status": "PASS"
+    },
+    {
+      "class": "tests.test_paper_execution",
+      "case": "test_api_kill_auth_csrf_audit_and_disabled_default",
+      "seconds": 1.474,
+      "status": "PASS"
+    },
+    {
+      "class": "tests.test_paper_execution",
+      "case": "test_migration_upgrade_downgrade_preserves_existing_tables",
+      "seconds": 0.557,
+      "status": "PASS"
+    }
+  ],
+  "note": "Injected providers/socket events and an isolated process crash; no operator state or actual market-session claim."
+}

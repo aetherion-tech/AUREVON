@@ -1,0 +1,8 @@
+{
+  "evidence": "SECOND_BUILT_HTTPS_REGRESSION_FAILURE",
+  "passed": 11,
+  "failed": 1,
+  "failed_case": "real published Renko history, equal-time ordering, paging, source and persisted layers",
+  "cause": "Snapshot unavailable indicators denotes managed producer availability and can coexist with valid published replay overlays. Direction card now honors explicit quote-only or chart 404 plus existing matching source/configuration checks, preserving archived replay overlays.",
+  "formal_sessions": 0
+}

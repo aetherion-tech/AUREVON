@@ -1,0 +1,300 @@
+{
+  "at": "2026-10-30T15:22:29.999688+00:00",
+  "evidence": "ISOLATED_SYNTHETIC_DRILLS",
+  "qualifying_exchange_sessions": 0,
+  "formal_g5_accepted": false,
+  "groups": {
+    "QA-19-11": [
+      "tests/test_recovery_drills.py",
+      "tests/test_ticker.py",
+      "tests/test_readiness.py",
+      "tests/test_market_service.py"
+    ]
+  },
+  "exit_code": 0,
+  "cases": [
+    {
+      "class": "tests.test_market_service",
+      "case": "test_owned_cold_start_duplicate_start_stop_and_scheduler",
+      "seconds": 1.367,
+      "status": "PASS"
+    },
+    {
+      "class": "tests.test_market_service",
+      "case": "test_explicit_local_ui_without_anchor_streams_quotes_without_fake_chart",
+      "seconds": 0.474,
+      "status": "PASS"
+    },
+    {
+      "class": "tests.test_market_service",
+      "case": "test_expiry_relogin_and_real_recovery_before_resuming",
+      "seconds": 1.236,
+      "status": "PASS"
+    },
+    {
+      "class": "tests.test_market_service",
+      "case": "test_token_change_replaces_worker_with_distinct_stream",
+      "seconds": 1.509,
+      "status": "PASS"
+    },
+    {
+      "class": "tests.test_market_service",
+      "case": "test_fail_closed_service_paths[market_close]",
+      "seconds": 0.971,
+      "status": "PASS"
+    },
+    {
+      "class": "tests.test_market_service",
+      "case": "test_fail_closed_service_paths[missing_calendar]",
+      "seconds": 0.51,
+      "status": "PASS"
+    },
+    {
+      "class": "tests.test_market_service",
+      "case": "test_fail_closed_service_paths[stale_catalog]",
+      "seconds": 0.503,
+      "status": "PASS"
+    },
+    {
+      "class": "tests.test_market_service",
+      "case": "test_fail_closed_service_paths[failed_warmup]",
+      "seconds": 0.552,
+      "status": "PASS"
+    },
+    {
+      "class": "tests.test_market_service",
+      "case": "test_cancellation_joins_synchronous_work_before_disposal",
+      "seconds": 0.004,
+      "status": "PASS"
+    },
+    {
+      "class": "tests.test_market_service",
+      "case": "test_day_rollover_requires_new_catalog_and_preserves_recordings",
+      "seconds": 1.114,
+      "status": "PASS"
+    },
+    {
+      "class": "tests.test_market_service",
+      "case": "test_persisted_login_reminder_is_not_duplicated_after_restart",
+      "seconds": 0.539,
+      "status": "PASS"
+    },
+    {
+      "class": "tests.test_market_service",
+      "case": "test_catalog_transient_retry_then_freshness_gate",
+      "seconds": 1.347,
+      "status": "PASS"
+    },
+    {
+      "class": "tests.test_market_service",
+      "case": "test_app_lifespan_owns_service_with_no_default_broker_calls",
+      "seconds": 0.283,
+      "status": "PASS"
+    },
+    {
+      "class": "tests.test_readiness",
+      "case": "test_valid_history_is_read_only",
+      "seconds": 0.749,
+      "status": "PASS"
+    },
+    {
+      "class": "tests.test_readiness",
+      "case": "test_bad_history_cannot_release_handoff[missing]",
+      "seconds": 0.656,
+      "status": "PASS"
+    },
+    {
+      "class": "tests.test_readiness",
+      "case": "test_bad_history_cannot_release_handoff[partial]",
+      "seconds": 0.58,
+      "status": "PASS"
+    },
+    {
+      "class": "tests.test_readiness",
+      "case": "test_bad_history_cannot_release_handoff[oi]",
+      "seconds": 0.609,
+      "status": "PASS"
+    },
+    {
+      "class": "tests.test_readiness",
+      "case": "test_bad_history_cannot_release_handoff[vwap]",
+      "seconds": 0.616,
+      "status": "PASS"
+    },
+    {
+      "class": "tests.test_readiness",
+      "case": "test_bad_history_cannot_release_handoff[bricks]",
+      "seconds": 0.659,
+      "status": "PASS"
+    },
+    {
+      "class": "tests.test_readiness",
+      "case": "test_bad_history_cannot_release_handoff[builder]",
+      "seconds": 0.986,
+      "status": "PASS"
+    },
+    {
+      "class": "tests.test_readiness",
+      "case": "test_bad_history_cannot_release_handoff[gap]",
+      "seconds": 0.791,
+      "status": "PASS"
+    },
+    {
+      "class": "tests.test_readiness",
+      "case": "test_bad_history_cannot_release_handoff[recovery]",
+      "seconds": 0.68,
+      "status": "PASS"
+    },
+    {
+      "class": "tests.test_readiness",
+      "case": "test_bad_history_cannot_release_handoff[active]",
+      "seconds": 0.684,
+      "status": "PASS"
+    },
+    {
+      "class": "tests.test_readiness",
+      "case": "test_delay_revoke_restart_and_backward_clock",
+      "seconds": 0.001,
+      "status": "PASS"
+    },
+    {
+      "class": "tests.test_readiness",
+      "case": "test_managed_handoff_delay_and_new_gap",
+      "seconds": 0.802,
+      "status": "PASS"
+    },
+    {
+      "class": "tests.test_readiness",
+      "case": "test_invalid_boundary_keeps_queue_blocked",
+      "seconds": 0.629,
+      "status": "PASS"
+    },
+    {
+      "class": "tests.test_readiness",
+      "case": "test_configured_delay_boundary[60]",
+      "seconds": 0.001,
+      "status": "PASS"
+    },
+    {
+      "class": "tests.test_readiness",
+      "case": "test_configured_delay_boundary[120]",
+      "seconds": 0.0,
+      "status": "PASS"
+    },
+    {
+      "class": "tests.test_readiness",
+      "case": "test_configured_delay_boundary[3600]",
+      "seconds": 0.001,
+      "status": "PASS"
+    },
+    {
+      "class": "tests.test_readiness",
+      "case": "test_invalid_queued_tick_never_starts_delay",
+      "seconds": 0.63,
+      "status": "PASS"
+    },
+    {
+      "class": "tests.test_readiness",
+      "case": "test_changed_settings_are_not_accepted",
+      "seconds": 0.677,
+      "status": "PASS"
+    },
+    {
+      "class": "tests.test_readiness",
+      "case": "test_validation_to_handoff_failure_keeps_processing_blocked[revision_race]",
+      "seconds": 0.694,
+      "status": "PASS"
+    },
+    {
+      "class": "tests.test_readiness",
+      "case": "test_validation_to_handoff_failure_keeps_processing_blocked[commit_rollback]",
+      "seconds": 0.862,
+      "status": "PASS"
+    },
+    {
+      "class": "tests.test_readiness",
+      "case": "test_readiness_snapshot_does_not_advance_or_enable_gate",
+      "seconds": 0.001,
+      "status": "PASS"
+    },
+    {
+      "class": "tests.test_recovery_drills",
+      "case": "test_recovery_faults_deny_new_admissions_through_validated_handoff[disconnect-False]",
+      "seconds": 3.614,
+      "status": "PASS"
+    },
+    {
+      "class": "tests.test_recovery_drills",
+      "case": "test_recovery_faults_deny_new_admissions_through_validated_handoff[overflow-False]",
+      "seconds": 3.5,
+      "status": "PASS"
+    },
+    {
+      "class": "tests.test_recovery_drills",
+      "case": "test_recovery_faults_deny_new_admissions_through_validated_handoff[token_expiry-False]",
+      "seconds": 3.508,
+      "status": "PASS"
+    },
+    {
+      "class": "tests.test_recovery_drills",
+      "case": "test_recovery_faults_deny_new_admissions_through_validated_handoff[disconnect-True]",
+      "seconds": 3.678,
+      "status": "PASS"
+    },
+    {
+      "class": "tests.test_ticker",
+      "case": "test_subscription_queue_reconnect_and_shutdown",
+      "seconds": 0.004,
+      "status": "PASS"
+    },
+    {
+      "class": "tests.test_ticker",
+      "case": "test_stale_per_token_delayed_prices_invalid_and_same_second_updates",
+      "seconds": 0.001,
+      "status": "PASS"
+    },
+    {
+      "class": "tests.test_ticker",
+      "case": "test_overflow_requires_replay",
+      "seconds": 0.001,
+      "status": "PASS"
+    },
+    {
+      "class": "tests.test_ticker",
+      "case": "test_naive_sdk_timestamp_uses_system_timezone",
+      "seconds": 0.001,
+      "status": "PASS"
+    },
+    {
+      "class": "tests.test_ticker",
+      "case": "test_worker_publishes_only_closed_candles_and_marks_disconnect",
+      "seconds": 0.001,
+      "status": "PASS"
+    },
+    {
+      "class": "tests.test_ticker",
+      "case": "test_exhaustion_and_start_failure",
+      "seconds": 0.004,
+      "status": "PASS"
+    },
+    {
+      "class": "tests.test_ticker",
+      "case": "test_invalid_tokens[0-2]",
+      "seconds": 0.001,
+      "status": "PASS"
+    },
+    {
+      "class": "tests.test_ticker",
+      "case": "test_invalid_tokens[1-1]",
+      "seconds": 0.001,
+      "status": "PASS"
+    },
+    {
+      "class": "tests.test_ticker",
+      "case": "test_invalid_tokens[1--2]",
+      "seconds": 0.001,
+      "status": "PASS"
+    }
+  ],
+  "note": "Injected providers/socket events and an isolated process crash; no operator state or actual market-session claim."
+}

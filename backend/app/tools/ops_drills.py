@@ -13,23 +13,31 @@ from app.config import BACKEND_DIR
 
 GROUPS = {
     "QA-19-11": [
+        "tests/test_recovery_drills.py",
         "tests/test_ticker.py",
         "tests/test_readiness.py",
         "tests/test_market_service.py",
     ],
     "QA-19-12": ["tests/test_operations_process.py", "tests/test_paper_execution.py"],
-    "QA-19-13": ["tests/test_domain_api.py", "tests/test_paper_execution.py"],
+    "QA-19-13": [
+        "tests/test_control_drills.py",
+        "tests/test_domain_api.py",
+        "tests/test_paper_execution.py",
+    ],
 }
 
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--output", type=Path, required=True)
-    parser.add_argument("--all-tests", action="store_true")
+    selection = parser.add_mutually_exclusive_group()
+    selection.add_argument("--all-tests", action="store_true")
+    selection.add_argument("--group", choices=sorted(GROUPS))
     args = parser.parse_args()
     if args.output.exists():
         parser.error("Choose a new evidence file; prior drill records are immutable")
-    paths = sorted({path for group in GROUPS.values() for path in group})
+    groups = {args.group: GROUPS[args.group]} if args.group else GROUPS
+    paths = sorted({path for group in groups.values() for path in group})
     if args.all_tests:
         paths = ["tests"]
     with tempfile.TemporaryDirectory(prefix="aurevon-drills-") as folder:
@@ -65,7 +73,7 @@ def main() -> None:
             "evidence": "ISOLATED_SYNTHETIC_DRILLS",
             "qualifying_exchange_sessions": 0,
             "formal_g5_accepted": False,
-            "groups": GROUPS,
+            "groups": groups,
             "exit_code": result.returncode,
             "cases": cases,
             "note": (

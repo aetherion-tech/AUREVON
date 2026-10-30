@@ -1,0 +1,30 @@
+{
+  "evidence": "LOCAL_REFERENCE_SOURCE_AND_SYNTHETIC_INTAKE_CHECKS",
+  "focused_passed": 91,
+  "ruff_lint_format": "PASS",
+  "strict_mypy_new_tools": "PASS",
+  "generator_drift_check": "PASS",
+  "tradingview_compilation_verified": false,
+  "actual_reference_exports_supplied": false,
+  "qualifying_formal_sessions": 0,
+  "ref_status": {
+    "REF-00-01": "Completed",
+    "REF-00-02": "Completed",
+    "REF-00-03": "Pending",
+    "REF-00-04": "Completed",
+    "REF-00-05": "Pending",
+    "REF-00-06": "Pending",
+    "REF-00-07": "Pending",
+    "REF-00-08": "Completed"
+  },
+  "product_completed": 235,
+  "product_pending": 45,
+  "hashes": {
+    "docs/pine/renko_indicator.pine": "d1b4e220a8e575c3e6839ca5e2058d2de190ee56fcf308ccf31e7864088170b2",
+    "docs/pine/renko_indicator_debug.pine": "b1d2c2c7a227ee15d351b12b8820d93ba0469ea0a59ffb80b89eba77e05d9d24",
+    "backend/app/tools/reference_debug.py": "25d13d593be74c8f6a2d6f556e1071d380bb8289ff07ac57df8ef3bcd16cb628",
+    "backend/app/tools/reference_export.py": "b56fb98f533f8e828b6acc4cfcc7994bd0e47f02a761604af8e8fc8d53ef04c5",
+    "backend/tests/test_reference_intake.py": "637efec28278f54e13736d0d288ee9b51e6552f1b40e0af6535d96294a2a7e22"
+  },
+  "note": "REF-00-04 acceptance is debug source creation only. Actual REF-00-03/05/06/07 and G1/G2 remain pending. No original Pine/operator state changes."
+}

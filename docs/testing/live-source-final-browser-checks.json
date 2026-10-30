@@ -1,0 +1,35 @@
+{
+  "evidence": "ISOLATED_BUILT_HTTPS_LIVE_SOURCE_UI_REPAIR",
+  "browser_passed": 12,
+  "browser_failed": 0,
+  "browser_seconds": 47.6,
+  "frontend_unit_passed": 35,
+  "build_typescript": "PASS",
+  "eslint": "PASS",
+  "backend_application_changed": false,
+  "operator_state_changed": false,
+  "reference_verified": false,
+  "formal_sessions": 0,
+  "product_counts": {
+    "completed": 237,
+    "pending": 43
+  },
+  "checks": [
+    "Quote-only makes no chart/signal missing-resource requests",
+    "Availability restores fetches; cached stale direction/signals hidden when unavailable",
+    "Stopped missing chart source 404 has guidance",
+    "Server 500 errors remain visible",
+    "Archived published Renko history and source/revision fencing preserved",
+    "Equal-time ordering, paging and incremental DOM updates preserved"
+  ],
+  "hashes": {
+    "frontend/src/Chart.tsx": "2d4f02fe01e8c18a83af28e638778d5c7afaec9194199675bf1baf346d79a34b",
+    "frontend/src/LivePage.tsx": "3250524368979803c55bfa0a136f8478d1ddb69f6dabd8f46ceb15252237baaa",
+    "frontend/tests/unavailable-source.spec.ts": "ceff29208d8b8483eddeb0ca9728b98515e4b98787c15fcb2fc94f546cda050b"
+  },
+  "prior_failure_receipts": [
+    "live-source-initial-browser-checks.json",
+    "live-source-second-browser-checks.json"
+  ],
+  "note": "Three new browser cases mock source availability/errors; other Live/feed regressions use the temporary synthetic HTTPS harness. Screenshot preview uses fixture balances, not actual operator funds. No fabricated anchor or data."
+}

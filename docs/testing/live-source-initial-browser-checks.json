@@ -1,0 +1,15 @@
+{
+  "evidence": "INITIAL_BUILT_HTTPS_REGRESSION_FAILURE",
+  "passed": 6,
+  "failed": 5,
+  "cause": "Initial UI guard incorrectly inferred absent stored chart history from latest_brick null. A stopped worker can retain valid archived history. Narrowed guard to explicit quote-only mode; actual 404 source has explicit unavailable state.",
+  "failed_cases": [
+    "real published Renko history, equal-time ordering, paging, source and persisted layers",
+    "empty history, unavailable overlays and stale prices stay explicit on mobile",
+    "ticks preserve chart nodes; brick updates are incremental and gaps reload snapshot/history",
+    "quote-only missing source avoids 404 requests and resumes when history appears",
+    "available-source server failures remain visible instead of becoming empty states"
+  ],
+  "warnings": "Existing Windows Proactor ConnectionResetError callbacks during browser disconnects.",
+  "formal_sessions": 0
+}

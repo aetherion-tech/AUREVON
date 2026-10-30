@@ -1,0 +1,4 @@
+# The reference checksum describes the operator's original Windows bytes.
+docs/pine/renko_indicator.pine text eol=crlf
+# Preserve the generated copy verbatim, including its byte-exact original prefix.
+docs/pine/renko_indicator_debug.pine -text whitespace=cr-at-eol

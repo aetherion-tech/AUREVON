@@ -1,0 +1,19 @@
+{
+  "evidence": "ISOLATED_BUILT_HTTPS_BROWSER_RECOVERY_CHECKS",
+  "passed": 2,
+  "failed": 0,
+  "elapsed_seconds": 29.8,
+  "formal_sessions": 0,
+  "command": "npm.cmd run test:browser -- --config playwright.release.config.ts --grep \"session expiry|socket reconnect\"",
+  "cases": [
+    {
+      "case": "session expiry clears private screens and stale socket",
+      "injection": "MOCKED_401_RESPONSE"
+    },
+    {
+      "case": "socket reconnect reloads REST snapshot; mobile navigation remains usable",
+      "injection": "MOCKED_WEBSOCKET_CLOSE"
+    }
+  ],
+  "note": "Temporary 5174 HTTPS harness, real client snapshot requests; injected browser faults are not actual broker token expiry or external feed recovery evidence. Separate backend recovery drill report supplies managed worker/recovery/admission checks."
+}
