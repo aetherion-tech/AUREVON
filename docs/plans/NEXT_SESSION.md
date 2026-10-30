@@ -2,6 +2,42 @@
 
 Updated: 2026-10-30, D05. README is authoritative.
 
+## Immediate user priority - hourly Live screen batches
+
+User requested this persistent queue on 2026-10-30 so a new chat can resume
+without losing context. NEXT ACTION: UI-LIVE-B1, then UI-LIVE-B2. This UI
+priority precedes the previous QA-19-14 engineering pointer; QA-19-14 remains
+Pending and resumes after this queue or while reference-dependent B3 is blocked.
+These are incremental UI follow-ups, not new master-task completions. Existing
+FE-15 tasks remain Completed; do not rebuild their accepted functionality.
+
+| Batch | Status | Scope / acceptance | Effort estimate |
+| --- | --- | --- | --- |
+| UI-LIVE-B1 | Pending | Reuse active spread/account projections for a compact positions table: side, strike, expiry, lots/quantity, entry, current price and per-leg/total P&L where supported. Add prominent green/red total P&L. Preserve close confirmation, decimal accounting and explicit unavailable/stale prices; do not substitute zero for missing marks. | 1-2 hours |
+| UI-LIVE-B2 | Pending | Reuse existing Renko renderer/overlays: large chart on left, strategy and P&L summary on right, positions below; responsive layout and clear labels. Retain quote-only/missing-history guidance and source identity. | 1-2 hours |
+| UI-LIVE-B3 | Pending - input blocked | Confirm actual chart settings/anchor, then configure and verify genuine feed-driven Renko updates. Screenshot visibly suggests Nifty 50, 5-minute, Traditional 50; these are observations, not confirmed operator settings. Source, wicks, timezone, anchor and indicator inputs still require confirmation under REF-00-03. No guessed anchor, signal parity claim or entry-gate bypass. | 1-2 hours only if inputs are ready; reference acceptance separate |
+| UI-LIVE-B4 | Pending | Final integrated checks: chart/source updates, option-leg MTM, totals, stale/missing quotes, empty positions, responsive layout and guarded close using isolated replay/test state. Capture evidence and report remaining live/reference gates. | 0.5-1 hour |
+
+Fastest useful delivery: B1+B2, estimated 2-4 working hours, not a deadline.
+Run meaningful focused checks with EACH batch; B4 does not defer required
+verification. If inputs for B3 remain missing, continue independent B4 checks
+and leave B3 explicitly blocked. UI completion does not enable paper entries.
+Use backend option-leg marks and quantities for P&L, not NIFTY chart movements.
+RSI, payoff curves, POP and Greeks are deferred from this minimal queue.
+
+Implementation starting points: frontend/src/LivePage.tsx, Chart.tsx and
+style.css; reuse existing live-data/contracts and FE-15 acceptance evidence.
+Screenshot intent is captured above; temporary attachment paths may expire.
+Preserve running 5173/8000 owners, market observations, operator DB/config and
+original Pine. Use isolated test state; never create fake operator trades.
+At each completed batch, update this table, README/current daily-log evidence
+and next pointer together; retain product counts 237 Completed / 43 Pending
+unless a separate master task is actually accepted. Report exact BE/FE commands
+below, dashboard URL and what to inspect. Do not restart Completed batches in a
+new chat. Documentation-only queue recording is not implementation completion.
+Usage, cash/headroom and renewal remain Unknown; extra paid usage INR 0 by
+default, project ceiling INR 20,000 including fees. No purchase authorized.
+
 ## Required completion handoff: local execution commands
 
 User instruction: whenever a task/batch is completed, always include exact

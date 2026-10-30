@@ -5,6 +5,15 @@ trading with Zerodha Kite market data. Development follows small, testable steps
 
 ## Current progress
 
+D05 user-priority queue recorded (planning only): hourly Live UI follow-ups
+UI-LIVE-B1 positions/P&L (1-2h), B2 layout (1-2h), B3 actual chart configuration
+(1-2h if reference inputs are ready), B4 integrated checks (0.5-1h). All Pending;
+B3 input-blocked. Next UI-LIVE-B1 then B2; QA-19-14 remains Pending behind this
+priority or available while B3 is blocked. Reuse Completed FE-15 functionality;
+per-batch verification remains required. See [persistent batch queue](docs/plans/NEXT_SESSION.md#immediate-user-priority---hourly-live-screen-batches).
+No implementation, tests or new product completion claimed; counts 237/43,
+formal sessions zero; usage/cash/renewal Unknown and extra paid usage INR 0.
+
 D05 Live UI 404 repair: quote-only/missing chart and unavailable signals show
 clear guidance; archived replay history remains accessible. No guessed anchor
 or generated signals. Final 12/12 selected built HTTPS checks, 35 frontend tests,
@@ -100,7 +109,7 @@ The original master checklist, stable IDs and all unfinished scope remain below.
 | Short next-session handoff | [NEXT_SESSION.md](docs/plans/NEXT_SESSION.md) |
 | Immutable Version 1 backup | [README.v1.md](docs/plans/README.v1.md), [SHA-256](docs/plans/README.v1.sha256) |
 | Plan preparation | Completed on 2026-10-26; documentation only, outside the 280 product tasks |
-| Current implementation slot | D05 QA-19-11 recovery engineering drills accepted: 47 selected backend/two HTTPS browser checks pass. QA-19-09/11/12/13 done; 10/14/15/16/17 remain Pending. Next engineering batch QA-19-14 profiling/optimization; representative-load and dispatch acceptance still required. REF inputs and SCM lifecycle remain separately pending. Continue 5173/8000; no production owner changes. docs/testing/QA-19-11-recovery-drills.md. |
+| Current implementation slot | User-priority hourly UI queue: next UI-LIVE-B1 then B2; B3 reference-input blocked; B4 integrated checks, with focused checks each batch. All Pending; see NEXT_SESSION. Prior engineering pointer retained: D05 QA-19-11 recovery engineering drills accepted: 47 selected backend/two HTTPS browser checks pass. QA-19-09/11/12/13 done; 10/14/15/16/17 remain Pending. Next engineering batch QA-19-14 profiling/optimization; representative-load and dispatch acceptance still required. REF inputs and SCM lifecycle remain separately pending. Continue 5173/8000; no production owner changes. docs/testing/QA-19-11-recovery-drills.md. |
 | Kickoff / elapsed day | 2026-10-26 IST / current D05 (2026-10-30); task carry-over and early batches are recorded without renumbering elapsed days |
 | Existing plan, all-in price, renewal and usage-reset times | Unverified; obtain actual account readings, never assume a reset/renewal date |
 | Cash already spent / reserved / remaining | Unverified; reconcile receipts before proposing any purchase |
