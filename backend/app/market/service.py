@@ -147,6 +147,7 @@ class MarketService:
         self.retry_at: datetime | None = None
         self.failures = 0
         self.context: dict[str, Any] = {}
+        self.display_generation: str | None = None
 
     def cached_closed_chart(self) -> ClosedChart | None:
         """Projection-only cache lookup; never authenticates, downloads or rebuilds."""
@@ -155,7 +156,11 @@ class MarketService:
         if self.worker is not None and self.worker.persistence is not None:
             return None
         try:
-            return load_closed_chart(
+            from app.market.saved_chart import saved_chart
+
+            return saved_chart(
+                self.engine, self.settings, self.calendar, self.clock().astimezone(IST)
+            ) or load_closed_chart(
                 self.auth,
                 self.engine,
                 self.settings,
@@ -176,26 +181,28 @@ class MarketService:
         ):
             self.reason = "session_closed_history_anchor_required"
             return
-        cached = await blocking(
-            lambda: load_closed_chart(
-                self.auth, self.engine, self.settings, self.calendar, now, fetch=False
-            )
-        )
+        cached = await blocking(self.cached_closed_chart)
         if cached is not None:
             self.reason = "session_closed_historical"
-            return
-        if self.failures >= self.settings.recovery_max_attempts or (
-            self.retry_at is not None and now < self.retry_at
-        ):
-            self.reason = "session_closed_history_retry_wait"
             return
         session = await blocking(self.auth.managed_session)
         if session is None or session[1] <= now:
             self.reason = "session_closed_history_login_required"
             return
+        if self.display_generation != session[0]:
+            self.display_generation = session[0]
+            self.failures = 0
+            self.retry_at = None
+        if self.failures >= self.settings.recovery_max_attempts or (
+            self.retry_at is not None and now < self.retry_at
+        ):
+            self.reason = "session_closed_history_retry_wait"
+            return
         verified = await blocking(self.auth.status)
         if not verified.authenticated:
             self.reason = "session_closed_history_login_required"
+            self.failures += 1
+            self.retry_at = now + timedelta(seconds=30)
             return
 
         def missing_spot() -> bool:
@@ -267,7 +274,21 @@ class MarketService:
 
     async def step(self) -> None:
         async with self.lock:
-            if not self.desired or self.closed:
+            if self.closed:
+                return
+            if not self.desired:
+                # Login can prepare a display without starting data/trading. Do
+                # not run paper polling, maintenance, or create a socket here.
+                if self.settings.local_ui_enabled and self.worker is None:
+                    try:
+                        self.lease.acquire()
+                        await self.prepare_closed_chart(self.clock().astimezone(IST))
+                    except Exception:
+                        self.reason = "chart_history_unavailable"
+                        self.failures += 1
+                        self.retry_at = self.clock() + timedelta(seconds=30)
+                    finally:
+                        self.lease.release()
                 return
             try:
                 self.lease.acquire()

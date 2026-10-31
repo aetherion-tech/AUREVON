@@ -4,14 +4,54 @@ from dataclasses import asdict
 from datetime import datetime, timedelta, timezone
 from decimal import Decimal
 
-from sqlalchemy.orm import Session
-
 from app.db.models import MarketCheckpoint, StoredBrick
 from app.indicator.chart_history import publish_chart_history
 from app.indicator.persistence import IndicatorRepository
 from app.indicator.settings import IndicatorSettings
 from app.market.persistence import encode
 from app.market.renko_builder import Brick, WickBrick
+from sqlalchemy.orm import Session
+
+
+def seed_saved_chart(engine, settings):
+    """Synthetic stopped managed source with real publication; no broker access."""
+    from app.db.models import Instrument
+    from app.market.persistence import MarketPersistence, brick_from
+    from sqlalchemy import select
+
+    settings.local_ui_enabled = True
+    settings.renko_source_minutes = 1
+    stream = settings.market_stream + ":0123456789abcdef"
+    seed_chart(engine, stream)
+    store = MarketPersistence(engine, stream, 111, 222, box=50, anchor=23900)
+    with Session(engine) as db, db.begin():
+        db.add(
+            Instrument(
+                exchange="NSE",
+                tradingsymbol="NIFTY 50",
+                instrument_token=111,
+                name="NIFTY",
+                expiry=None,
+                strike=0,
+                tick_size=Decimal(".05"),
+                lot_size=1,
+                instrument_type="INDEX",
+                segment="INDICES",
+            )
+        )
+        row = db.scalars(
+            select(StoredBrick)
+            .where(StoredBrick.stream == stream)
+            .order_by(StoredBrick.index.desc())
+            .limit(1)
+        ).one()
+        import json
+
+        last = brick_from(json.loads(row.payload))
+        checkpoint = db.get(MarketCheckpoint, stream)
+        checkpoint.configuration = store.configuration
+        checkpoint.state = encode(dict(next_index=last.index + 1, last=asdict(last)))
+    publish_chart_history(engine, stream)
 
 
 def seed_closed_chart(engine, settings):

@@ -617,6 +617,7 @@ function SignalFeed() {
   const { data: source } = useSnapshot((s) => ({
     stream: s.stream,
     available: !(s.unavailable ?? []).includes("signals"),
+    historical: s.context.chart_display_mode === "historical",
   }));
   const stream = source?.stream;
   const q = useInfiniteQuery({
@@ -643,8 +644,9 @@ function SignalFeed() {
     return (
       <Card title="Signal feed">
         <p role="status">
-          Signals are unavailable until Renko history and matching indicator
-          data are ready.
+          {source.historical
+            ? "Previous signals are unavailable: this saved chart has no matching published indicator history."
+            : "Signals are unavailable until Renko history and matching indicator data are ready."}
         </p>
         <p>Quotes can continue. Trading entries remain blocked.</p>
       </Card>
@@ -653,8 +655,10 @@ function SignalFeed() {
   return (
     <Card title="Signal feed">
       <p className="muted">
-        Indicator replay signals; indicator acceptance does not imply paper
-        admission or a fill.
+        {source?.historical
+          ? "Previous saved signals. "
+          : "Indicator replay signals. "}
+        Indicator acceptance does not imply paper admission or a fill.
       </p>
       <ResultState
         pending={q.isPending}

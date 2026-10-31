@@ -58,6 +58,15 @@ class LiveService:
                 if not worker.get("persisted_stream")
                 else None
             )
+            historical_indicators = bool(
+                historical and historical.get("indicators_available")
+            )
+            historical_signals = bool(
+                historical
+                and historical_indicators
+                and domain.get("signal_stream") == historical["stream"]
+                and "signals" not in domain.get("unavailable", ["signals"])
+            )
             display_context = dict(raw["context"])
             if historical:
                 display_context.update(
@@ -68,6 +77,7 @@ class LiveService:
                         else historical["as_of"]
                     ),
                     historical_stream=historical["stream"],
+                    historical_signals_available=historical_signals,
                 )
             quality = DataQuality.model_validate(
                 json.loads(
@@ -188,7 +198,11 @@ class LiveService:
                 ],
             )
             if historical:
-                unavailable = sorted(set(unavailable + ["indicators", "signals"]))
+                unavailable = sorted(
+                    (set(unavailable) - {"indicators", "signals"})
+                    | (set() if historical_indicators else {"indicators"})
+                    | (set() if historical_signals else {"signals"})
+                )
             result = LiveSnapshot(
                 run_id=self.hub.run_id,
                 sequence=self.hub.sequence,
@@ -206,7 +220,9 @@ class LiveService:
                 wallet=domain.get("wallet"),
                 pnl=domain.get("pnl"),
                 positions=domain.get("positions", []),
-                signals=[] if historical else domain.get("signals", []),
+                signals=[]
+                if historical and not historical_signals
+                else domain.get("signals", []),
                 last_trade=domain.get("last_trade"),
                 entries_enabled=False
                 if historical

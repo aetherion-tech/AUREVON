@@ -20,6 +20,61 @@ from app.market.service import MarketService, blocking
 NOW = datetime(2026, 10, 23, 11, 0, tzinfo=IST)
 
 
+@pytest.mark.asyncio
+@pytest.mark.parametrize("days", [0, 1])
+async def test_login_auto_prepares_chart_without_start_or_paper_poll(managed, days):
+    from app.api.event_hub import EventHub
+    from app.api.live_service import LiveService
+
+    service, wall, auth, workers, _ = managed
+    service.settings.local_ui_enabled = True
+    wall[0] = NOW + timedelta(days=days)
+    auth.managed_session.return_value = ("logged-in", wall[0] + timedelta(days=1))
+    service.paper_poll = Mock(side_effect=AssertionError("No paper actions"))
+    try:
+        assert not service.desired
+        await service.step()
+        snap = LiveService(service, service.engine, EventHub()).sample()
+        assert snap.latest_brick is not None
+        assert snap.context["chart_display_mode"] == "historical"
+        assert not snap.desired and not snap.entries_enabled
+        assert service.worker is None and workers == []
+        assert service.lease.stream is None
+        auth.create_ticker.assert_not_called()
+        service.paper_poll.assert_not_called()
+        auth.historical_data.reset_mock()
+        auth.status.reset_mock()
+        await service.step()
+        auth.historical_data.assert_not_called()
+        auth.status.assert_not_called()
+    finally:
+        await service.close()
+
+
+@pytest.mark.asyncio
+async def test_auto_chart_requires_login_and_bounds_failed_downloads(managed):
+    service, wall, auth, workers, _ = managed
+    service.settings.local_ui_enabled = True
+    auth.managed_session.return_value = None
+    try:
+        await service.step()
+        auth.historical_data.assert_not_called()
+        auth.managed_session.return_value = ("first", wall[0] + timedelta(days=1))
+        auth.historical_data.side_effect = RuntimeError("private broker error")
+        await service.step()
+        assert service.reason == "chart_history_unavailable"
+        assert service.cached_closed_chart() is None
+        calls = auth.historical_data.call_count
+        await service.step()
+        assert auth.historical_data.call_count == calls
+        auth.managed_session.return_value = ("new-login", wall[0] + timedelta(days=1))
+        await service.step()
+        assert auth.historical_data.call_count > calls
+        assert not service.desired and workers == []
+    finally:
+        await service.close()
+
+
 @pytest.fixture
 def managed(tmp_path, request):
     settings = Settings(

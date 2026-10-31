@@ -1,0 +1,49 @@
+{
+  "batch": "HIST-REPLAY-DATA1",
+  "date_ist": "2026-10-31",
+  "engineering_status": "DELIVERED",
+  "feature_status": "PENDING",
+  "pricing": "ACTUAL_RECORDED_DEPTH_ONLY",
+  "actual_option_dataset_supplied": false,
+  "audit": {
+    "method": "Read-only SQLite mode=ro and local file metadata/recording schema inspection; no credentials read",
+    "operator_database": "backend/data/aurevon.db",
+    "option_contracts": 34004,
+    "option_expiry_min": "2026-11-03",
+    "option_expiry_max": "2031-06-24",
+    "catalog_loaded_at_recorded": "2026-10-30 05:15:34.055155",
+    "option_named_tables": [],
+    "recording": "backend/data/ticks/21ce9234a1164b8b877c6804cc0420f0/2026-10-30.jsonl",
+    "recording_events": {
+      "advance": 150,
+      "tick": 3742
+    },
+    "recording_has_option_depth": false,
+    "csv_inventory": "8 retained files: spot/futures and TradingView reference exports; no option-depth bundle found",
+    "scope_limit": "Observed default local database/data directory only; not proof that no external/private archive exists"
+  },
+  "example_range": {
+    "from": "2025-01-01",
+    "to": "2025-03-03",
+    "status": "BLOCKED",
+    "reason": "historical_option_bundle_not_supplied",
+    "option_pnl": null
+  },
+  "checks": {
+    "focused_option_and_replay": "35 passed; one existing Starlette/httpx deprecation warning",
+    "ruff": "PASS selected 4 files",
+    "mypy": "PASS selected 3 modules",
+    "local_ui_readiness": "BLOCKED; BE-08-14 QA-09-19/20 QA-11-15/16 unchanged; runtime not checked",
+    "planner_execution_historical_regression": "114 passed; one existing Starlette/httpx deprecation warning"
+  },
+  "product_counts": {
+    "completed": 241,
+    "pending": 39,
+    "formal_sessions": 0
+  },
+  "usage": "Unknown",
+  "cash": "Unknown",
+  "renewal": "Unknown",
+  "extra_paid_usage_inr": 0,
+  "next": "Historical option contract/depth import and verification, followed by isolated strategy/execution playback and frontend; no source purchase authorized"
+}

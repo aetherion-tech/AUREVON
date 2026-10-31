@@ -1,0 +1,38 @@
+{
+  "batch": "UI-LIVE-B3-AUTO1",
+  "date_ist": "2026-10-31",
+  "engineering_status": "DELIVERED",
+  "operator_acceptance": "PENDING",
+  "checks": {
+    "backend_focused": "109 passed; one existing Starlette/httpx deprecation warning",
+    "frontend": "38 passed",
+    "build": "PASS",
+    "types": "PASS",
+    "eslint": "PASS",
+    "ruff_lint_format": "PASS seven backend files",
+    "strict_mypy": "PASS four changed modules",
+    "browser": "2 distinct built HTTPS checks PASS: saved-chart.spec.ts and closed-history.spec.ts",
+    "browser_note": "Initial saved-chart reload failed ERR_TOO_MANY_RETRIES with Windows TLS reset warnings; one rerun passed all assertions. Closed regression passed with a transport teardown warning. No application verification waived.",
+    "local_ui_readiness": "BLOCKED: BE-08-14 QA-09-19/20 QA-11-15/16; runtime NOT_CHECKED"
+  },
+  "operator_processes_restarted": false,
+  "operator_database_config_changed": false,
+  "original_pine_sha256": "d1b4e220a8e575c3e6839ca5e2058d2de190ee56fcf308ccf31e7864088170b2",
+  "new_synthetic_test_cases": 6,
+  "real_broker_downloads": 0,
+  "real_signals_or_trades_created": 0,
+  "formal_sessions": 0,
+  "product_completed": 241,
+  "product_pending": 39,
+  "limitations": [
+    "Prior signals only from exact matching saved published indicator source; no invented history",
+    "No TradingView/G1/G2/G3 parity acceptance",
+    "Auto initial completed-history fetch needs valid broker login/catalog/profile and complete source history",
+    "No data socket or trading owner started by display",
+    "Historical backtesting remains deferred"
+  ],
+  "usage": "Unknown",
+  "cash_headroom": "Unknown",
+  "renewal": "Unknown",
+  "extra_paid_usage_inr": 0
+}

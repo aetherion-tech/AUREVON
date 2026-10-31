@@ -32,12 +32,11 @@ with tempfile.TemporaryDirectory(prefix="aurevon-browser-") as folder:
     )
     os.chdir(frontend)
     import uvicorn
-    from argon2 import PasswordHasher
-
     from app.config import Settings
     from app.db.models import Base
     from app.market.exchange_calendar import ExchangeCalendar
     from app.wallet.service import WalletService
+    from argon2 import PasswordHasher
 
     # main also constructs a module-level default app. Disable dotenv there too.
     Settings.model_config["env_file"] = None
@@ -65,7 +64,12 @@ with tempfile.TemporaryDirectory(prefix="aurevon-browser-") as folder:
     Base.metadata.create_all(app.state.database_engine)
     from live_fixture import seed_chart
 
-    seed_chart(app.state.database_engine, settings.market_stream)
+    if os.environ.get("PLAYWRIGHT_SAVED_CHART") == "1":
+        from live_fixture import seed_saved_chart
+
+        seed_saved_chart(app.state.database_engine, settings)
+    else:
+        seed_chart(app.state.database_engine, settings.market_stream)
     if os.environ.get("PLAYWRIGHT_CLOSED_HISTORY") == "1":
         from live_fixture import seed_closed_chart
 

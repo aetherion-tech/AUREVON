@@ -33,6 +33,7 @@ class ClosedChart:
     stream: str
     as_of: datetime
     bricks: int
+    indicators_available: bool = False
 
 
 def load_closed_chart(

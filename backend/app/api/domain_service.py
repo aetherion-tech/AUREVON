@@ -682,7 +682,16 @@ class DomainService:
             # New domain migrations are applied only with the owner stopped.
             # Keep the accepted feed snapshot usable on its older schema.
             self.available_tables = set(inspect(self.engine).get_table_names())
-        stream = self.market.settings.market_stream
+        worker = self.market.worker
+        display = self.market.cached_closed_chart() if worker is None else None
+        stream = (
+            worker.persistence.stream
+            if worker is not None and worker.persistence is not None
+            else display.stream
+            if display is not None
+            else self.market.settings.market_stream
+        )
+        result["signal_stream"] = stream
         try:
             if (
                 not {"indicator_checkpoints", "indicator_events", "indicator_results"}

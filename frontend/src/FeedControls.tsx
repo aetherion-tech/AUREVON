@@ -34,8 +34,9 @@ export function FeedControls() {
   return (
     <div className="feed-controls">
       <p>
-        Market data and paper trading have separate controls. Starting data does
-        not enable entries.
+        After Kite login, saved Renko history loads automatically. Start market
+        data for live updates. Chart display and starting data do not enable
+        paper entries.
       </p>
       <button
         disabled={busy || !kite.data?.authenticated || !!state.data?.desired}
@@ -51,8 +52,9 @@ export function FeedControls() {
       </button>
       {!kite.data?.authenticated && (
         <p>
-          Complete Kite login until the status says Verified, then start market
-          data.
+          Complete Kite login until the status says Verified to load chart
+          history. Previously saved history can remain visible while the feed is
+          stopped.
         </p>
       )}
       {state.data?.desired && (
