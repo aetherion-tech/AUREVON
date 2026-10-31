@@ -5,7 +5,7 @@ from copy import deepcopy
 from dataclasses import asdict
 from datetime import UTC, date, datetime
 from decimal import Decimal
-from typing import TYPE_CHECKING, Any, cast
+from typing import TYPE_CHECKING, Any, Literal, cast
 
 from sqlalchemy import CursorResult, Engine, select, update
 from sqlalchemy.exc import SQLAlchemyError
@@ -13,7 +13,9 @@ from sqlalchemy.orm import Session
 
 from app.db.models import MarketCheckpoint, StoredBrick, StoredCandle
 from app.market.candles_5m import CandleBuilder, MarketCandle
-from app.market.renko_builder import Brick, RenkoBuilder
+from app.market.five_minute_renko import FiveMinuteCloseRenko
+from app.market.renko_builder import Brick, RenkoBuilder, WickBrick
+from app.market.warmup import SessionCalendar
 
 if TYPE_CHECKING:
     from app.broker.kite_ticker import TickerWorker
@@ -44,6 +46,19 @@ def candle_from(data: dict[str, Any]) -> MarketCandle:
 
 
 def brick_from(data: dict[str, Any]) -> Brick:
+    if "wick_high" in data or "wick_low" in data:
+        if data.get("wick_high") is None or data.get("wick_low") is None:
+            raise ValueError("Both Renko wick extrema are required")
+        return WickBrick(
+            data["index"],
+            Decimal(data["open"]),
+            Decimal(data["close"]),
+            data["direction"],
+            datetime.fromisoformat(data["ts"]),
+            Decimal(data["volume"]),
+            wick_high=Decimal(data["wick_high"]),
+            wick_low=Decimal(data["wick_low"]),
+        )
     return Brick(
         data["index"],
         Decimal(data["open"]),
@@ -87,6 +102,12 @@ def restore_builder(builder: CandleBuilder, data: dict[str, Any]) -> None:
 
 
 class MarketPersistence:
+    engine: Engine
+    stream: str
+    configuration: str
+    revision: int
+    counts: dict[int, int]
+
     def __init__(
         self,
         engine: Engine,
@@ -96,22 +117,37 @@ class MarketPersistence:
         *,
         box: float | str = 50,
         anchor: float | str,
+        source_minutes: Literal[1, 5] = 1,
+        calendar: SessionCalendar | None = None,
     ) -> None:
         if not stream.strip() or len(stream) > 160:
             raise ValueError("Stream name must contain 1–160 characters")
+        if type(source_minutes) is not int:
+            raise ValueError("Source minutes must be an integer interval")
         self.engine = engine
         self.stream = stream
-        self.renko = RenkoBuilder(box, anchor)
-        self.configuration = encode(
-            {
-                "version": 1,
-                "spot": spot,
-                "future": future,
-                "box": str(self.renko.box.normalize()),
-                "anchor": str(self.renko.anchor.normalize()),
-                "mode": "minute_close",
-            }
-        )
+        self.renko: RenkoBuilder
+        if source_minutes == 5:
+            if calendar is None:
+                raise ValueError(
+                    "Five-minute construction requires an explicit calendar"
+                )
+            self.renko = FiveMinuteCloseRenko(box, anchor, calendar)
+        elif source_minutes == 1:
+            self.renko = RenkoBuilder(box, anchor)
+        else:
+            raise ValueError("Unsupported Renko source interval")
+        configuration: dict[str, Any] = {
+            "version": 1,
+            "spot": spot,
+            "future": future,
+            "box": str(self.renko.box.normalize()),
+            "anchor": str(self.renko.anchor.normalize()),
+            "mode": "minute_close",
+        }
+        if isinstance(self.renko, FiveMinuteCloseRenko):
+            configuration.update(self.renko.configuration())
+        self.configuration = encode(configuration)
         self.revision = 0
         self.counts = {spot: 0, future: 0}
         self.metadata: dict[str, Any] = {}
@@ -120,7 +156,7 @@ class MarketPersistence:
         self, worker: "TickerWorker", renko: RenkoBuilder | None = None
     ) -> dict[str, Any]:
         builder = renko if renko is not None else self.renko
-        return {
+        state = {
             **self.metadata,
             "version": 1,
             "recording_cursor": worker.recording_cursor,
@@ -132,6 +168,10 @@ class MarketPersistence:
             "last_timestamp": builder.last_timestamp,
             "next_index": builder.index,
         }
+        if isinstance(builder, FiveMinuteCloseRenko):
+            state["renko_pipeline"] = builder.snapshot()
+            state["construction_gap_detected"] = builder.gap_detected
+        return state
 
     def restore(self, worker: "TickerWorker") -> bool:
         """Restore exact pre-shutdown state; caller must mark downtime as a gap."""
@@ -186,6 +226,24 @@ class MarketPersistence:
                     else None
                 )
                 self.renko.index = data["next_index"]
+                if isinstance(self.renko, FiveMinuteCloseRenko):
+                    previous = (
+                        self.renko.last,
+                        self.renko.last_timestamp,
+                        self.renko.index,
+                    )
+                    self.renko.restore_snapshot(data["renko_pipeline"])
+                    if previous != (
+                        self.renko.last,
+                        self.renko.last_timestamp,
+                        self.renko.index,
+                    ):
+                        raise ValueError("Conflicting Renko checkpoint summaries")
+                    if (
+                        data.get("construction_gap_detected", self.renko.gap_detected)
+                        != self.renko.gap_detected
+                    ):
+                        raise ValueError("Conflicting construction gap evidence")
                 self.revision = checkpoint.revision
                 return True
         except SQLAlchemyError:
@@ -198,7 +256,11 @@ class MarketPersistence:
             ) from None
 
     def save(self, worker: "TickerWorker") -> None:
-        renko = deepcopy(self.renko)
+        renko = (
+            self.renko.clone()
+            if isinstance(self.renko, FiveMinuteCloseRenko)
+            else deepcopy(self.renko)
+        )
         try:
             with Session(self.engine) as db, db.begin():
                 for token in worker.tokens:
@@ -218,7 +280,12 @@ class MarketPersistence:
                             )
                         )
                         if token == worker.tokens[0]:
-                            for brick in renko.on_price(candle.close, candle.end):
+                            outputs = (
+                                renko.on_candle(candle)
+                                if isinstance(renko, FiveMinuteCloseRenko)
+                                else renko.on_price(candle.close, candle.end)
+                            )
+                            for brick in outputs:
                                 db.add(
                                     StoredBrick(
                                         stream=self.stream,
@@ -252,6 +319,8 @@ class MarketPersistence:
             self.revision += 1
             self.counts = worker.candle_counts.copy()
             self.renko = renko
+            if isinstance(renko, FiveMinuteCloseRenko) and renko.gap_detected:
+                worker.resume_gate.revoke()
         except SQLAlchemyError:
             raise PersistenceError(
                 "Market checkpoint save failed; previous transaction retained"

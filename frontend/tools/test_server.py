@@ -66,6 +66,11 @@ with tempfile.TemporaryDirectory(prefix="aurevon-browser-") as folder:
     from live_fixture import seed_chart
 
     seed_chart(app.state.database_engine, settings.market_stream)
+    if os.environ.get("PLAYWRIGHT_CLOSED_HISTORY") == "1":
+        from live_fixture import seed_closed_chart
+
+        closed_at = seed_closed_chart(app.state.database_engine, settings)
+        app.state.market_service.clock = lambda: closed_at
     wallet = WalletService(
         app.state.database_engine, ExchangeCalendar(settings.market_calendar_dir)
     )

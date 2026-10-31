@@ -1,0 +1,61 @@
+{
+  "status": "BLOCKED",
+  "paper_trading_ready": false,
+  "genuine_feed_verified": false,
+  "reference_parity_verified": false,
+  "chart": {
+    "exchange_symbol": "NSE:NIFTY",
+    "resolution": "5",
+    "renko_method": "Traditional",
+    "box_size": "50",
+    "price_source": "Close",
+    "wicks_enabled": true,
+    "timezone": "Asia/Kolkata",
+    "anchor_completed_brick_close": "22700",
+    "anchor_timestamp": "2026-10-27T13:25:00+05:30",
+    "loaded_history_start": null,
+    "reference_start": null,
+    "reference_end": null
+  },
+  "configured": {
+    "box": 50.0,
+    "anchor": null,
+    "mode": "minute_close"
+  },
+  "managed_capabilities": {
+    "source_minutes": 1,
+    "wicks": false
+  },
+  "blockers": [
+    {
+      "code": "missing_loaded_history_start",
+      "reason": "Actual chart evidence missing: loaded_history_start"
+    },
+    {
+      "code": "missing_reference_start",
+      "reason": "Actual chart evidence missing: reference_start"
+    },
+    {
+      "code": "missing_reference_end",
+      "reason": "Actual chart evidence missing: reference_end"
+    },
+    {
+      "code": "interval_unsupported",
+      "reason": "Managed Renko consumes minute closes; reference interval is 5 minutes. Futures flow timeframe is independent."
+    },
+    {
+      "code": "wicks_unsupported",
+      "reason": "Managed Renko construction remains body-only. Observed wick transport, replay and rendering do not establish feed-driven wick construction. Preserve actual wick data; do not remove it to force a match."
+    },
+    {
+      "code": "runtime_anchor_missing",
+      "reason": "Reference anchor recorded but not configured"
+    },
+    {
+      "code": "inputs_unconfirmed",
+      "reason": "Only some saved indicator inputs are observed"
+    }
+  ],
+  "operator_state_changed": false,
+  "note": "A recorded grid anchor is not a historical seed or a matching sequence."
+}

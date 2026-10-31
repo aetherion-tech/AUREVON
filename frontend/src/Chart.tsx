@@ -47,20 +47,41 @@ const Brick = memo(function Brick({
   step: number;
 }) {
   const open = Number(brick.open),
-    close = Number(brick.close);
+    close = Number(brick.close),
+    high = Number(brick.wick_high ?? Math.max(open, close)),
+    low = Number(brick.wick_low ?? Math.min(open, close));
   return (
-    <rect
-      data-brick-index={brick.index}
-      x={x - step * 0.35}
-      y={y(Math.max(open, close))}
-      width={Math.max(0.8, step * 0.7)}
-      height={Math.max(1, Math.abs(y(open) - y(close)))}
-      fill={
-        brick.direction === 1 ? "var(--bull, #7ce8c0)" : "var(--bear, #ff9a9f)"
-      }
-    >
-      <title>{`Brick ${brick.index} · ${ist(brick.ts)} · ${brick.open} → ${brick.close}`}</title>
-    </rect>
+    <g>
+      {(high > Math.max(open, close) || low < Math.min(open, close)) && (
+        <line
+          data-wick-index={brick.index}
+          x1={x}
+          x2={x}
+          y1={y(high)}
+          y2={y(low)}
+          stroke={
+            brick.direction === 1
+              ? "var(--bull, #7ce8c0)"
+              : "var(--bear, #ff9a9f)"
+          }
+          strokeWidth="1.5"
+        />
+      )}
+      <rect
+        data-brick-index={brick.index}
+        x={x - step * 0.35}
+        y={y(Math.max(open, close))}
+        width={Math.max(0.8, step * 0.7)}
+        height={Math.max(1, Math.abs(y(open) - y(close)))}
+        fill={
+          brick.direction === 1
+            ? "var(--bull, #7ce8c0)"
+            : "var(--bear, #ff9a9f)"
+        }
+      >
+        <title>{`Brick ${brick.index} · ${ist(brick.ts)} · ${brick.open} → ${brick.close} · High ${high} · Low ${low}`}</title>
+      </rect>
+    </g>
   );
 });
 export const RenkoChart = memo(function RenkoChart({
@@ -90,7 +111,12 @@ export const RenkoChart = memo(function RenkoChart({
     : undefined;
   const lines = layers.levels ? priceLines(last) : [];
   const all = bricks
-    .flatMap((b) => [Number(b.open), Number(b.close)])
+    .flatMap((b) => [
+      Number(b.open),
+      Number(b.close),
+      Number(b.wick_high ?? Math.max(Number(b.open), Number(b.close))),
+      Number(b.wick_low ?? Math.min(Number(b.open), Number(b.close))),
+    ])
     .concat(
       layers.trend
         ? bricks.flatMap((b) => {
@@ -131,7 +157,7 @@ export const RenkoChart = memo(function RenkoChart({
       <svg
         viewBox="0 0 1060 385"
         role="img"
-        aria-label={`Renko chart, ${bricks.length} bricks ordered by index; no wicks`}
+        aria-label={`Renko chart, ${bricks.length} bricks ordered by index; ${bricks.some((b) => Number(b.wick_high ?? b.open) > Math.max(Number(b.open), Number(b.close)) || Number(b.wick_low ?? b.close) < Math.min(Number(b.open), Number(b.close))) ? "with observed wicks" : "body-only"}`}
         data-testid="renko-chart"
       >
         <rect x="20" y="10" width="910" height="325" fill="#0d141d" />
@@ -316,6 +342,11 @@ export const ChartPane = memo(function ChartPane() {
     latest: s.latest_brick,
     signals: (s.signals ?? []).map((signal) => signal.id).join(":"),
     quoteOnly: s.state === "running_quotes_only_anchor_required",
+    historicalAt:
+      s.context.chart_display_mode === "historical" &&
+      typeof s.context.historical_as_of === "string"
+        ? s.context.historical_as_of
+        : undefined,
   }));
   return source?.quoteOnly ? (
     <Card title="Renko chart">
@@ -341,6 +372,7 @@ function ChartSession({
     config: string;
     latest: Schema["BrickData"] | null;
     signals: string;
+    historicalAt?: string;
   };
 }) {
   const [layers, setLayers] = useState(readLayers),
@@ -535,6 +567,21 @@ function ChartSession({
       {data && (
         <>
           <p className="source-identity">
+            {source.historicalAt && (
+              <>
+                <strong>
+                  Historical / stale · completed through{" "}
+                  {ist(source.historicalAt)}
+                </strong>
+                <br />
+              </>
+            )}
+            {data.configuration.source_minutes === 5 && (
+              <>
+                5-minute Close · wicks
+                <br />
+              </>
+            )}
             Stream {data.stream} · revision {data.revision} · config{" "}
             <code>{data.configuration_id}</code>
             <br />

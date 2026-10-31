@@ -162,6 +162,28 @@
           "volume": {
             "title": "Volume",
             "type": "string"
+          },
+          "wick_high": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Wick High"
+          },
+          "wick_low": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Wick Low"
           }
         },
         "required": [

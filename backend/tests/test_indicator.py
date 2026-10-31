@@ -129,7 +129,7 @@ def test_true_range_and_supertrend_equal_boundaries():
     assert true_range(12, 10, None) == 2
     assert true_range(12, 10, 8) == 4
     st = Supertrend(2, 1)
-    assert st.update(11, 9, 10) == (None, 1)
+    assert st.update(11, 9, 10) == (0, 1)
     assert st.update(11, 9, 10) == (12, 1)
     assert st.update(12, 10, 12) == (12, 1)  # exact upper: no flip
     assert st.update(13, 11, 13) == (10, -1)
@@ -140,10 +140,39 @@ def test_true_range_and_supertrend_equal_boundaries():
 
 def test_supertrend_warmup():
     st = Supertrend(3, 2)
-    assert st.update(11, 9, 10) == (None, 1)
+    assert st.update(11, 9, 10) == (0, 1)
     assert st.update(12, 10, 11) == (None, 1)
     assert st.update(13, 11, 12) == (16, 1)
     assert st.atr.value == 2
+
+
+def test_supertrend_recorded_reference_warmup():
+    # First ten observed OHLC/ST rows, without account metadata, from export
+    # SHA256 9497c1713821e75703883b5e54ffd1b451aaf53c47fbecae6f4acc5bf20f9d68.
+    # Preserve zero on brick 0, missing values on 1-8, and first seeded ATR on 9.
+    observed = [
+        (2850, 2800, 2850, 0),
+        (2900, 2850, 2900, None),
+        (2942.5, 2800, 2800, None),
+        (2800, 2750, 2750, None),
+        (2750, 2700, 2700, None),
+        (2700, 2650, 2650, None),
+        (2650, 2600, 2600, None),
+        (2700, 2577.25, 2700, None),
+        (2750, 2700, 2750, None),
+        (2800, 2750, 2800, 2941.3125),
+    ]
+    st = Supertrend(10, 2.5)
+    for high, low, close, expected in observed:
+        assert st.update(high, low, close) == (expected, 1)
+
+
+def test_supertrend_length_one_preserves_band_initialization():
+    st = Supertrend(1, 2)
+    # With no prior band/close, Pine's nz(previous upper band) is zero.
+    assert st.update(11, 9, 10) == (0, 1)
+    assert st.atr.value == 2
+    assert st.update(11, 9, 10) == (14, 1)
 
 
 def test_helpers_na_equal_and_window_alignment():
@@ -318,7 +347,7 @@ def test_parity_hand_fixture_and_first_divergence(tmp_path):
         dict(zip(fields, [i, timestamp(i).isoformat(), o, h, low, c, r, s, d]))
         for i, (o, h, low, c, r, s, d) in enumerate(
             [
-                (10, 11, 9, 10, "", "", 1),
+                (10, 11, 9, 10, "", 0, 1),
                 (10, 11, 9, 10, 100, 12, 1),
                 (10, 12, 10, 12, 100, 12, 1),
                 (12, 13, 11, 13, 100, 10, -1),

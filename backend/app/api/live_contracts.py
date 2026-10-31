@@ -41,6 +41,26 @@ class BrickData(Contract):
     direction: Literal[-1, 1]
     ts: ISTTimestamp
     volume: DecimalValue
+    wick_high: DecimalValue | None = None
+    wick_low: DecimalValue | None = None
+
+    @model_validator(mode="after")
+    def valid_wicks(self) -> "BrickData":
+        if (self.wick_high is None) != (self.wick_low is None):
+            raise ValueError("Both Renko wick extrema are required")
+        if (
+            self.wick_high is not None
+            and self.wick_low is not None
+            and not (
+                0
+                < self.wick_low
+                <= min(self.open, self.close)
+                <= max(self.open, self.close)
+                <= self.wick_high
+            )
+        ):
+            raise ValueError("Invalid Renko wick OHLC")
+        return self
 
 
 class LiveSnapshot(Contract):

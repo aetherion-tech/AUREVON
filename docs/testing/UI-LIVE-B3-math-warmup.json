@@ -1,0 +1,47 @@
+{
+  "scope": "UI-LIVE-B3-MATH1 engineering follow-up; no master acceptance",
+  "source_sha256": "9497c1713821e75703883b5e54ffd1b451aaf53c47fbecae6f4acc5bf20f9d68",
+  "before": {
+    "passed": false,
+    "index": 0,
+    "column": "supertrend",
+    "expected": 0.0,
+    "actual": null,
+    "tolerance": 1e-08
+  },
+  "after": {
+    "passed": true,
+    "bricks": 6904,
+    "tolerance": 1e-08
+  },
+  "settings_used": {
+    "atrLen": 10,
+    "factor": 2.5,
+    "rsiLen": 14
+  },
+  "settings_status": "Source-default maths subset; rsiLen14 observed. Debug-to-original saved input equality confirmed by user; remaining exact saved inputs not independently supplied. Passing maths is not full strategy parity.",
+  "comparison": "All6904 observed OHLC rows; RSI/Supertrend absolute tolerance1e-8; direction exact; expected values unchanged",
+  "focused_tests": {
+    "passed": 159,
+    "command": ".\\.venv\\Scripts\\python.exe -m pytest tests/test_indicator.py tests/test_pine_strategy.py tests/test_pine_parity.py -q"
+  },
+  "full_backend_tests": {
+    "passed": 871,
+    "warnings": 1,
+    "duration_seconds": 398.38,
+    "command": ".\\.venv\\Scripts\\python.exe -m pytest -q",
+    "warning": "Existing Starlette/httpx TestClient deprecation"
+  },
+  "static_checks": "Ruff lint/format and strict mypy selected file PASS",
+  "pine_integrity": "Original hash and append-only debug generation PASS",
+  "formal_sessions": 0,
+  "reference_verified": false,
+  "live_feed_verified": false,
+  "operator_state_changed": false,
+  "remaining": [
+    "five-minute Close/wick-capable construction across history/live and restoration",
+    "renderer/publication source identity and matching seeded history",
+    "exact remaining saved indicator inputs and independent source context",
+    "genuine feed acceptance in eligible session"
+  ]
+}

@@ -20,7 +20,7 @@ from typing import Any
 from app.indicator.flow import FlowBar, FuturesFlow
 from app.indicator.settings import IndicatorSettings
 from app.indicator.strategy import PineContext, PineEngine
-from app.market.renko_builder import IST, Brick
+from app.market.renko_builder import IST, WickBrick
 
 SIGNAL_KEYS = ("type", "direction", "grade", "accepted", "reason")
 EVENT_KEYS = ("kind", "trade_id", "type", "direction", "price")
@@ -132,19 +132,14 @@ def compare_full(
         for row in reader:
             time = datetime.fromisoformat(row["time"])
             opening, close = Decimal(row["open"]), Decimal(row["close"])
-            if Decimal(row["high"]) != max(opening, close) or Decimal(
-                row["low"]
-            ) != min(opening, close):
-                raise ValueError(
-                    "full engine requires body-only Renko OHLC; "
-                    "wick parity is unavailable"
-                )
-            brick = Brick(
+            brick = WickBrick(
                 int(row["index"]),
                 opening,
                 close,
                 1 if close > opening else -1 if close < opening else 0,
                 time,
+                wick_high=Decimal(row["high"]),
+                wick_low=Decimal(row["low"]),
             )
             daily = json.loads(row["context"] or "{}")
             if {"flow_ok", "flow_score", "vwap_side", "volume_side"} & daily.keys():

@@ -10,9 +10,9 @@ from sqlalchemy.orm import Session
 
 from app.config import Settings
 from app.db.models import Instrument, MarketCheckpoint, StoredBrick, StoredCandle
+from app.market.construction import construction_state, consume_spot, managed_store
 from app.market.history_import import build_historical_seed
 from app.market.persistence import (
-    MarketPersistence,
     PersistenceError,
     builder_state,
     encode,
@@ -58,14 +58,7 @@ def rebuild_historical_renko(
         )
     if min(spot_token, future_token) <= 0 or spot_token == future_token:
         raise ValueError("Expected distinct positive spot and futures tokens")
-    store = MarketPersistence(
-        engine,
-        stream,
-        spot_token,
-        future_token,
-        box=settings.renko_box,
-        anchor=settings.renko_anchor,
-    )
+    store = managed_store(engine, settings, stream, spot_token, future_token, calendar)
     try:
         with Session(engine) as db:
             spot = db.get(Instrument, ("NSE", "NIFTY 50"))
@@ -107,7 +100,7 @@ def rebuild_historical_renko(
             raise ValueError(
                 "Historical Renko sources must have increasing close timestamps"
             )
-        bricks.extend(store.renko.on_price(candle.close, candle.end))
+        bricks.extend(consume_spot(store.renko, candle))
     candles = {
         (token, candle.time.astimezone(UTC).isoformat()): encode(asdict(candle))
         for token, items in (
@@ -119,6 +112,7 @@ def rebuild_historical_renko(
     brick_payloads = {brick.index: encode(asdict(brick)) for brick in bricks}
     state = encode(
         {
+            **construction_state(store.renko),
             "version": 1,
             "builders": {
                 spot_token: builder_state(seed.spot),

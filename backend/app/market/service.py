@@ -16,6 +16,7 @@ from app.broker.kite_auth import IST, AuthError, KiteAuth
 from app.broker.kite_ticker import TickerWorker
 from app.config import Settings
 from app.db.models import Instrument
+from app.market.closed_history import ClosedChart, load_closed_chart
 from app.market.exchange_calendar import ExchangeCalendar
 from app.market.lifecycle_state import LifecycleStore, MarketEvents, ProcessLease
 from app.market.maintenance import nightly
@@ -27,6 +28,14 @@ from app.market.warmup import SessionCalendar
 from app.wallet.reconciliation import WalletReconciler
 
 T = TypeVar("T")
+
+
+class HistoryBoundaryPending(PersistenceError):
+    """Retained active fragments must close before independent recovery."""
+
+    def __init__(self, until: datetime) -> None:
+        super().__init__("Waiting for completed source bucket")
+        self.until = until
 
 
 @dataclass(frozen=True)
@@ -139,6 +148,75 @@ class MarketService:
         self.failures = 0
         self.context: dict[str, Any] = {}
 
+    def cached_closed_chart(self) -> ClosedChart | None:
+        """Projection-only cache lookup; never authenticates, downloads or rebuilds."""
+        if not self.settings.local_ui_enabled:
+            return None
+        if self.worker is not None and self.worker.persistence is not None:
+            return None
+        try:
+            return load_closed_chart(
+                self.auth,
+                self.engine,
+                self.settings,
+                self.calendar,
+                self.clock().astimezone(IST),
+                fetch=False,
+            )
+        except Exception:
+            # A damaged/unavailable cache is not presented as valid market evidence.
+            return None
+
+    async def prepare_closed_chart(self, now: datetime) -> None:
+        if not self.settings.local_ui_enabled:
+            return
+        if (
+            self.settings.renko_anchor is None
+            or self.settings.renko_mode != "minute_close"
+        ):
+            self.reason = "session_closed_history_anchor_required"
+            return
+        cached = await blocking(
+            lambda: load_closed_chart(
+                self.auth, self.engine, self.settings, self.calendar, now, fetch=False
+            )
+        )
+        if cached is not None:
+            self.reason = "session_closed_historical"
+            return
+        if self.failures >= self.settings.recovery_max_attempts or (
+            self.retry_at is not None and now < self.retry_at
+        ):
+            self.reason = "session_closed_history_retry_wait"
+            return
+        session = await blocking(self.auth.managed_session)
+        if session is None or session[1] <= now:
+            self.reason = "session_closed_history_login_required"
+            return
+        verified = await blocking(self.auth.status)
+        if not verified.authenticated:
+            self.reason = "session_closed_history_login_required"
+            return
+
+        def missing_spot() -> bool:
+            with Session(self.engine) as db:
+                return db.get(Instrument, ("NSE", "NIFTY 50")) is None
+
+        if await blocking(missing_spot):
+            await blocking(self.instruments.refresh)
+        self.reason = "session_closed_loading_history"
+        self.progress.begin()
+        self.progress.stage("downloading")
+        loaded = await blocking(
+            lambda: load_closed_chart(
+                self.auth, self.engine, self.settings, self.calendar, now, fetch=True
+            )
+        )
+        if loaded is None:
+            raise PersistenceError("Closed historical chart unavailable")
+        self.progress.committed({}, quality_pending=True)
+        self.reason = "session_closed_historical"
+
     async def open(self) -> None:
         if self.task is None:
             self.task = asyncio.create_task(self._run())
@@ -214,6 +292,11 @@ class MarketService:
             except asyncio.CancelledError:
                 await self._stop_worker()
                 raise
+            except HistoryBoundaryPending as pending:
+                self.reason = "history_waiting_for_completed_bucket"
+                self.retry_at = pending.until
+                self.progress.begin()
+                await self._stop_worker()
             except Exception:
                 # Fixed safe reason. Do not emit exception text or broker payloads.
                 self.reason = "market_start_or_recovery_failed"
@@ -277,9 +360,11 @@ class MarketService:
                     )
             await self._stop_worker()
             self.reason = "session_closed"
+            await self.prepare_closed_chart(now)
             return
         if now < session.opening - timedelta(minutes=15):
             self.reason = "before_preparation_window"
+            await self.prepare_closed_chart(now)
             return
         self.lease.acquire()
         local_session = await blocking(self.auth.managed_session)
@@ -311,7 +396,8 @@ class MarketService:
             self.failures >= self.settings.recovery_max_attempts
             or (self.retry_at is not None and now < self.retry_at)
         ):
-            self.reason = "recovery_retry_wait"
+            if self.reason != "history_waiting_for_completed_bucket":
+                self.reason = "recovery_retry_wait"
             return
         if not (await blocking(self.instruments.status))["ready"]:
             await self._stop_worker()
@@ -344,6 +430,7 @@ class MarketService:
             self.events.publish("contract_selected", asdict(selected))
         if now < session.opening:
             self.reason = "prepared_waiting_for_open"
+            await self.prepare_closed_chart(now)
             return
         quotes_only = self.settings.local_ui_enabled and (
             self.settings.renko_anchor is None
@@ -475,13 +562,12 @@ class MarketService:
             json.dumps(asdict(selected), sort_keys=True).encode()
         ).hexdigest()[:16]
         stream = f"{self.settings.market_stream}:{identity}"
-        store = MarketPersistence(
-            self.engine,
-            stream,
-            selected.spot,
-            selected.future,
-            box=self.settings.renko_box,
-            anchor=self.settings.renko_anchor,
+        from app.market.construction import managed_store
+
+        if self.settings.renko_source_minutes == 5:
+            stream += ":5m-close-wicks-v2"
+        store = managed_store(
+            self.engine, self.settings, stream, selected.spot, selected.future, calendar
         )
         scratch = TickerWorker(
             None,
@@ -493,6 +579,16 @@ class MarketService:
             calendar=calendar,
         )
         if store.restore(scratch):
+            if self.settings.renko_source_minutes == 5:
+                deadlines = []
+                for builder in scratch.candles.values():
+                    active = builder.current
+                    if active is not None and active.end > now:
+                        if active.time > now or active.end - now > timedelta(minutes=5):
+                            raise PersistenceError("Invalid future active source state")
+                        deadlines.append(active.end)
+                if deadlines:
+                    raise HistoryBoundaryPending(max(deadlines))
             scratch.persistence = store
             if scratch.recording_cursor is not None:
                 reconcile_recording(scratch)
@@ -551,4 +647,7 @@ class MarketService:
             "context": self.context,
             "events_sequence": self.events.sequence,
             "entries_enabled": False,
+            "historical_chart": asdict(chart)
+            if (chart := self.cached_closed_chart())
+            else None,
         }

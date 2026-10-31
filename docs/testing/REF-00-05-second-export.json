@@ -1,0 +1,31 @@
+{
+  "source_sha256": "0c0a308060e8f6c14d5e5f79a059669dceca43341cc1e3298f47d47e3d9627e0",
+  "preserved_original": "data\\references\\nifty-debug-20261031-second-received\\original.csv",
+  "rows": 4035,
+  "debug_columns_present": true,
+  "first_index": "2869",
+  "last_index": "6903",
+  "indices_contiguous": true,
+  "all_confirmed": true,
+  "first_ist": "2021-07-30T09:15:00+05:30",
+  "last_ist": "2026-10-30T12:00:00+05:30",
+  "distinct_ist_dates": 1132,
+  "timestamps_nondecreasing": true,
+  "ohlc_valid": true,
+  "overlap_rows": 300,
+  "overlap_identical": true,
+  "additional_rows": 3735,
+  "missing_prefix_bricks": 2869,
+  "intake_status": "REJECTED_MISSING_PREFIX",
+  "error": "Export must start at bar_index 0; do not rebase or sort",
+  "reference_verified": false,
+  "formal_sessions": 0,
+  "operator_state_changed": false,
+  "limitations": [
+    "Observed dates are not verified exchange sessions",
+    "Remaining saved inputs and seed context unconfirmed",
+    "No five-minute/wick implementation or G1/G2 acceptance"
+  ],
+  "source_filename": "NewFile_NSE_NIFTY, 5.csv",
+  "source_path_redacted_for_publication": true
+}

@@ -86,6 +86,11 @@ class Supertrend:
                 self.direction = 1 if close < lower else -1
             self.upper, self.lower = upper, lower
             self.line = lower if self.direction == -1 else upper
+        else:
+            # ta.supertrend initializes its first output to zero. Later ATR
+            # warm-up bars are na; carrying that zero would invent a level.
+            # Observed in the retained index-0 TradingView debug export.
+            self.line = 0.0 if self.previous is None else None
         self.previous = close
         return self.line, self.direction
 

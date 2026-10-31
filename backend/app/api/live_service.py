@@ -53,6 +53,22 @@ class LiveService:
             raw = self.market.status()
             domain = self.domain_sample() if self.domain_sample is not None else {}
             worker = raw["worker"] or {}
+            historical = (
+                raw.get("historical_chart")
+                if not worker.get("persisted_stream")
+                else None
+            )
+            display_context = dict(raw["context"])
+            if historical:
+                display_context.update(
+                    chart_display_mode="historical",
+                    historical_as_of=(
+                        historical["as_of"].isoformat()
+                        if isinstance(historical["as_of"], datetime)
+                        else historical["as_of"]
+                    ),
+                    historical_stream=historical["stream"],
+                )
             quality = DataQuality.model_validate(
                 json.loads(
                     encode(
@@ -60,13 +76,24 @@ class LiveService:
                     )
                 )
             )
+            if historical:
+                quality = DataQuality(
+                    connected=False,
+                    stale=True,
+                    history_pending=False,
+                    gap_requires_replay=True,
+                    clock_or_feed_delay=True,
+                    readiness={"historical_only": True, "history_validated": False},
+                )
             selected = (
                 SelectedInstrument.model_validate(raw["selected"])
                 if raw["selected"]
                 else None
             )
             stream = (
-                worker.get("persisted_stream") or self.market.settings.market_stream
+                worker.get("persisted_stream")
+                or (historical["stream"] if historical else None)
+                or self.market.settings.market_stream
             )
             status = StatusData(
                 state=raw["state"],
@@ -74,8 +101,10 @@ class LiveService:
                 selected=selected,
                 quality=quality,
                 recovery=raw["recovery"],
-                context=json.loads(encode(raw["context"])),
-                entries_enabled=domain.get("entries_enabled", False),
+                context=json.loads(encode(display_context)),
+                entries_enabled=False
+                if historical
+                else domain.get("entries_enabled", False),
                 wallet=domain.get("wallet"),
                 pnl=domain.get("pnl"),
             )
@@ -85,7 +114,7 @@ class LiveService:
                 self.last_status = encoded
                 self.last_status_at = monotonic()
             ticks = []
-            for token, tick in worker.get("latest", {}).items():
+            for token, tick in ({} if historical else worker.get("latest", {})).items():
                 value = TickData(
                     token=int(token),
                     price=Decimal(str(tick["price"])),
@@ -115,6 +144,18 @@ class LiveService:
                 checkpoint = db.get(MarketCheckpoint, stream)
                 if checkpoint:
                     configuration = checkpoint.configuration
+                    if historical:
+                        last = db.scalars(
+                            select(StoredBrick)
+                            .where(StoredBrick.stream == stream)
+                            .order_by(StoredBrick.index.desc())
+                            .limit(1)
+                        ).first()
+                        latest_brick = (
+                            BrickData.model_validate_json(last.payload)
+                            if last
+                            else None
+                        )
                 # Emit every persisted brick, including multi-brick source closes.
                 if self.brick_cursor is None or self.brick_cursor[0] != stream:
                     self.brick_cursor = (
@@ -135,6 +176,19 @@ class LiveService:
                         self.hub.publish(BrickData.model_validate_json(row.payload))
                         self.brick_cursor = (stream, row.index)
             self._quality_alerts(raw, quality)
+            unavailable = domain.get(
+                "unavailable",
+                [
+                    "indicators",
+                    "signals",
+                    "execution",
+                    "positions",
+                    "wallet",
+                    "pnl",
+                ],
+            )
+            if historical:
+                unavailable = sorted(set(unavailable + ["indicators", "signals"]))
             result = LiveSnapshot(
                 run_id=self.hub.run_id,
                 sequence=self.hub.sequence,
@@ -152,20 +206,12 @@ class LiveService:
                 wallet=domain.get("wallet"),
                 pnl=domain.get("pnl"),
                 positions=domain.get("positions", []),
-                signals=domain.get("signals", []),
+                signals=[] if historical else domain.get("signals", []),
                 last_trade=domain.get("last_trade"),
-                entries_enabled=domain.get("entries_enabled", False),
-                unavailable=domain.get(
-                    "unavailable",
-                    [
-                        "indicators",
-                        "signals",
-                        "execution",
-                        "positions",
-                        "wallet",
-                        "pnl",
-                    ],
-                ),
+                entries_enabled=False
+                if historical
+                else domain.get("entries_enabled", False),
+                unavailable=unavailable,
             )
             self.hub.latest = result
             return result

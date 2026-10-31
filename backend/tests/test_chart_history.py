@@ -25,9 +25,68 @@ from app.indicator.persistence import IndicatorRepository
 from app.indicator.settings import IndicatorSettings
 from app.main import create_app
 from app.market.persistence import encode
-from app.market.renko_builder import IST, Brick
+from app.market.renko_builder import IST, Brick, WickBrick
 
 AT = datetime(2026, 10, 29, 10, tzinfo=IST)
+
+
+def test_wick_replay_restoration_publication_api_and_source_tampering(chart):
+    client, app, _, _ = chart
+    engine = app.state.database_engine
+    settings = IndicatorSettings(atrLen=2, rsiLen=2)
+    bricks = [
+        WickBrick(
+            i,
+            Decimal(100 + i * 50),
+            Decimal(150 + i * 50),
+            1,
+            AT,
+            wick_high=Decimal(160 + i * 50),
+            wick_low=Decimal(90 + i * 50),
+        )
+        for i in range(2)
+    ]
+    with Session(engine) as db, db.begin():
+        config = db.get(MarketCheckpoint, "chart").configuration
+        db.add(
+            MarketCheckpoint(
+                stream="wicks", revision=1, configuration=config, state="{}"
+            )
+        )
+        for b in bricks:
+            db.add(
+                StoredBrick(stream="wicks", index=b.index, payload=encode(asdict(b)))
+            )
+    IndicatorRepository(engine, "wicks", settings).process(bricks[0])
+    # New repository restores the previous wick-derived smoothing state.
+    repository = IndicatorRepository(engine, "wicks", settings)
+    result = repository.process(bricks[1])
+    assert result["atr"] == 70
+    assert result["supertrend"] == 350
+    assert repository.process(bricks[1]) == result
+    with pytest.raises(ValueError, match="identity"):
+        repository.process(replace(bricks[1], wick_high=Decimal(211)))
+    source = publish_chart_history(engine, "wicks")
+    response = client.get("/api/bricks?stream=wicks&after=-1")
+    assert response.status_code == 200, response.text
+    data = response.json()
+    assert data["items"][0]["wick_high"] == "160"
+    assert data["items"][1]["wick_low"] == "140"
+    assert data["overlays"][1]["atr"] == 70
+    assert data["indicator_source"]["reference_verified"] is False
+    with Session(engine) as db, db.begin():
+        row = db.get(StoredBrick, ("wicks", 1))
+        row.payload = encode(asdict(replace(bricks[1], wick_high=Decimal(211))))
+    assert (
+        client.get(
+            "/api/bricks",
+            params={
+                "stream": "wicks",
+                "indicator_source": source.source_id,
+            },
+        ).status_code
+        == 409
+    )
 
 
 @pytest.fixture

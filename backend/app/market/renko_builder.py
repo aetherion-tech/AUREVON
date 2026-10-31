@@ -30,6 +30,36 @@ class Brick:
         return min(self.open, self.close)
 
 
+@dataclass(frozen=True, kw_only=True)
+class WickBrick(Brick):
+    """Observed Renko OHLC; separate from the legacy body-only constructor.
+
+    Explicit extrema are immutable input evidence, never inferred from a body.
+    Keeping this subclass separate preserves legacy payload/retry identities.
+    """
+
+    wick_high: Decimal
+    wick_low: Decimal
+
+    def __post_init__(self) -> None:
+        prices = (self.open, self.close, self.wick_high, self.wick_low)
+        if any(not p.is_finite() or p <= 0 for p in prices) or not (
+            self.wick_low
+            <= min(self.open, self.close)
+            <= max(self.open, self.close)
+            <= self.wick_high
+        ):
+            raise ValueError("Invalid Renko wick OHLC")
+
+    @property
+    def high(self) -> Decimal:
+        return self.wick_high
+
+    @property
+    def low(self) -> Decimal:
+        return self.wick_low
+
+
 class RenkoBuilder:
     """Feed completed minute closes or ticks, as selected by the caller.
 

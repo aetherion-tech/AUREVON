@@ -25,10 +25,10 @@ from app.db.models import (
     StoredCandle,
 )
 from app.market.candles_5m import CandleBuilder, MarketCandle
+from app.market.construction import construction_state, consume_spot, managed_store
 from app.market.gaps import GapTracker
 from app.market.historical import Candle, download, parse_candle
 from app.market.persistence import (
-    MarketPersistence,
     PersistenceError,
     builder_state,
     candle_from,
@@ -158,14 +158,7 @@ def _recover_missing_history(
         raise ValueError("Recovery requires minute_close mode and an explicit anchor")
     if min(spot_token, future_token) <= 0 or spot_token == future_token:
         raise ValueError("Expected distinct positive spot/futures tokens")
-    store = MarketPersistence(
-        engine,
-        stream,
-        spot_token,
-        future_token,
-        box=settings.renko_box,
-        anchor=settings.renko_anchor,
-    )
+    store = managed_store(engine, settings, stream, spot_token, future_token, calendar)
     tokens = [spot_token, future_token]
     try:
         with Session(engine) as db, db.begin():
@@ -397,7 +390,7 @@ def _recover_missing_history(
             partial += int(result.partial)
             oi_missing += int(token == future_token and result.oi is None)
             if token == spot_token:
-                bricks.extend(store.renko.on_price(result.close, result.end))
+                bricks.extend(consume_spot(store.renko, result))
         missing[token] = sum(
             (r.end - r.start) // timedelta(minutes=minutes) + 1
             for r in _missing_ranges(ranges[token], candles[token])
@@ -450,6 +443,7 @@ def _recover_missing_history(
     new_state = encode(
         {
             **state,
+            **construction_state(store.renko),
             "builders": {t: builder_state(b) for t, b in rebuilt.items()},
             "counts": {t: len(candles[t]) for t in tokens},
             "gap": True,

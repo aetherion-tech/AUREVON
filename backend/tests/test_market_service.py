@@ -21,7 +21,7 @@ NOW = datetime(2026, 10, 23, 11, 0, tzinfo=IST)
 
 
 @pytest.fixture
-def managed(tmp_path):
+def managed(tmp_path, request):
     settings = Settings(
         _env_file=None,
         database_url=f"sqlite:///{(tmp_path / 'service.db').as_posix()}",
@@ -30,6 +30,7 @@ def managed(tmp_path):
         warmup_lookback_trading_days=1,
         renko_anchor=100,
         renko_box=10,
+        renko_source_minutes=getattr(request, "param", 1),
         recovery_max_attempts=2,
         recovery_backoff_seconds=0.001,
         recovery_backoff_max_seconds=0.01,
@@ -127,6 +128,279 @@ def managed(tmp_path):
     with patch("twisted.internet.reactor.callFromThread") as reactor:
         yield service, wall, auth, workers, reactor
     engine.dispose()
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("managed", [1, 5], indirect=True)
+async def test_closed_history_cache_projection_without_socket_or_entry_permission(
+    managed,
+):
+    import json
+
+    from app.api.event_hub import EventHub
+    from app.api.live_service import LiveService
+
+    service, wall, auth, workers, _ = managed
+    service.settings.local_ui_enabled = True
+    wall[0] = NOW + timedelta(days=1)
+    auth.managed_session.return_value = ("weekend", wall[0] + timedelta(days=1))
+    with Session(service.engine) as db, db.begin():
+        db.add(
+            MarketCheckpoint(
+                stream="retained-observation",
+                revision=7,
+                configuration='{"retained":true}',
+                state='{"do_not_change":true}',
+            )
+        )
+    other = None
+    try:
+        result = await service.start()
+        assert result["state"] == "session_closed_historical", result
+        assert service.worker is None and workers == []
+        auth.create_ticker.assert_not_called()
+        assert all(
+            c.args[0] == 111 and c.args[1] == "minute"
+            for c in auth.historical_data.call_args_list
+        )
+        live = LiveService(service, service.engine, EventHub())
+        live.domain_sample = lambda: {
+            "entries_enabled": True,
+            "signals": [],
+            "unavailable": [],
+        }
+        snap = live.sample()
+        assert snap.context["chart_display_mode"] == "historical"
+        assert (
+            snap.context["historical_as_of"]
+            == NOW.replace(hour=15, minute=30).isoformat()
+        )
+        assert snap.quality.stale and not snap.quality.connected
+        assert not snap.entries_enabled and snap.ticks == []
+        assert snap.latest_brick is not None
+        assert {"indicators", "signals"} <= set(snap.unavailable)
+        page = live.bricks(snap.stream, -1, 300, None)
+        assert page.items and page.configuration["scope"] == "SPOT_ONLY_DISPLAY"
+        assert page.configuration["future"] is None
+        assert (
+            page.configuration["source_minutes"]
+            == service.settings.renko_source_minutes
+        )
+        assert all(b.ts <= NOW.replace(hour=15, minute=30) for b in page.items)
+        with Session(service.engine) as db:
+            retained = db.get(MarketCheckpoint, "retained-observation")
+            assert (
+                retained.revision == 7 and json.loads(retained.state)["do_not_change"]
+            )
+        auth.historical_data.reset_mock()
+        auth.status.reset_mock()
+        auth.managed_session.return_value = None
+        with patch(
+            "app.market.closed_history.consume_spot",
+            side_effect=AssertionError("No read-time recalculation"),
+        ):
+            await service.step()
+            assert live.sample().stream == snap.stream
+        auth.historical_data.assert_not_called()
+        auth.status.assert_not_called()
+        await service.close()
+        # Read-only cache remains available across app restart without login/start.
+        other = MarketService(
+            service.settings,
+            auth,
+            service.engine,
+            service.instruments,
+            clock=lambda: wall[0],
+        )
+        cached = LiveService(other, service.engine, EventHub()).sample()
+        assert cached.stream == snap.stream and cached.latest_brick == snap.latest_brick
+        assert cached.context["chart_display_mode"] == "historical"
+        assert cached.quality.stale and not cached.entries_enabled
+        assert {"execution", "positions", "wallet", "pnl"} <= set(cached.unavailable)
+        auth.historical_data.assert_not_called()
+    finally:
+        await service.close()
+        if other:
+            await other.close()
+
+
+@pytest.mark.asyncio
+async def test_corrupt_closed_display_is_not_overwritten_or_refetched(managed):
+    from app.db.models import StoredBrick
+
+    service, wall, auth, _, _ = managed
+    service.settings.local_ui_enabled = True
+    wall[0] = NOW + timedelta(days=1)
+    auth.managed_session.return_value = ("weekend", wall[0] + timedelta(days=1))
+    try:
+        await service.start()
+        chart = service.cached_closed_chart()
+        assert chart is not None
+        with Session(service.engine) as db, db.begin():
+            row = db.get(StoredBrick, (chart.stream, 0))
+            row.payload = '{"tampered":true}'
+        auth.historical_data.reset_mock()
+        await service.step()
+        assert service.cached_closed_chart() is None
+        auth.historical_data.assert_not_called()
+        with Session(service.engine) as db:
+            assert db.get(StoredBrick, (chart.stream, 0)).payload == '{"tampered":true}'
+        assert not service.status()["entries_enabled"]
+    finally:
+        await service.close()
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("managed", [5], indirect=True)
+async def test_closed_to_live_clears_historical_display_metadata(managed):
+    from app.api.event_hub import EventHub
+    from app.api.live_service import LiveService
+
+    service, wall, auth, _, _ = managed
+    service.settings.local_ui_enabled = True
+    wall[0] = NOW + timedelta(days=1)
+    auth.managed_session.return_value = ("weekend", wall[0] + timedelta(days=1))
+    try:
+        await service.start()
+        live = LiveService(service, service.engine, EventHub())
+        archived = live.sample()
+        assert archived.context["chart_display_mode"] == "historical"
+        wall[0] = NOW + timedelta(days=3)
+        auth.managed_session.return_value = ("monday", wall[0] + timedelta(days=1))
+        with Session(service.engine) as db, db.begin():
+            for row in db.scalars(select(InstrumentSnapshot)):
+                row.loaded_at = wall[0]
+        await service.start()
+        assert service.worker is not None, service.status()
+        current = live.sample()
+        assert current.stream != archived.stream
+        assert "chart_display_mode" not in current.context
+        assert "historical_as_of" not in current.context
+        assert current.quality.connected and not current.quality.stale
+        assert current.ticks and current.latest_brick is not None
+        assert not current.entries_enabled
+    finally:
+        await service.close()
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("failure", ["login", "missing_minute", "broker"])
+async def test_closed_history_failure_does_not_publish_or_start_socket(
+    managed, failure
+):
+    from app.db.models import StoredBrick
+
+    service, wall, auth, workers, _ = managed
+    service.settings.local_ui_enabled = True
+    wall[0] = NOW + timedelta(days=1)
+    auth.managed_session.return_value = ("weekend", wall[0] + timedelta(days=1))
+    original = auth.historical_data.side_effect
+    if failure == "login":
+        auth.managed_session.return_value = None
+    elif failure == "broker":
+        auth.historical_data.side_effect = RuntimeError("fixture")
+    else:
+
+        def missing(*args, **kwargs):
+            result = original(*args, **kwargs)
+            result["candles"] = result["candles"][1:]
+            return result
+
+        auth.historical_data.side_effect = missing
+    try:
+        await service.start()
+        assert service.worker is None and workers == []
+        assert service.cached_closed_chart() is None
+        assert not service.status()["entries_enabled"]
+        auth.create_ticker.assert_not_called()
+        if failure == "login":
+            auth.historical_data.assert_not_called()
+        with Session(service.engine) as db:
+            assert db.scalars(select(StoredBrick)).all() == []
+            assert db.scalars(select(MarketCheckpoint)).all() == []
+    finally:
+        await service.close()
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("managed", [5], indirect=True)
+async def test_five_minute_managed_history_live_ui_restart_and_profile_fence(managed):
+    import json
+
+    from app.api.event_hub import EventHub
+    from app.api.live_service import LiveService
+    from app.market.five_minute_renko import FiveMinuteCloseRenko
+    from app.market.persistence import PersistenceError
+
+    service, wall, auth, workers, _ = managed
+    try:
+        result = await service.start()
+        assert result["state"] == "running_entries_blocked", result
+        worker = service.worker
+        store = worker.persistence
+        assert isinstance(store.renko, FiveMinuteCloseRenko)
+        assert store.stream.endswith(":5m-close-wicks-v2")
+        assert json.loads(store.configuration)["source_minutes"] == 5
+        live = LiveService(service, service.engine, EventHub())
+        initial = live.sample()
+        assert initial.latest_brick is not None and not initial.entries_enabled
+        before = initial.latest_brick.index
+        origin = wall[0]
+        for i in range(1, 11):
+            wall[0] = origin + timedelta(minutes=i)
+            for token in worker.tokens:
+                worker._accept(
+                    {
+                        "instrument_token": token,
+                        "exchange_timestamp": wall[0],
+                        "last_price": 100 + (i % 4) * 10,
+                        "volume_traded": 100 + i * 10,
+                        "oi": 50,
+                    },
+                    wall[0],
+                )
+        assert worker.invalid == 0
+        assert not worker.gap_required
+        assert worker.status()["readiness"]["construction_gap_detected"] is True
+        assert not worker._entry_source_quality()
+        await service.step()
+        assert service.worker is worker  # known partial prefix must not loop reconnects
+        snapshot = live.sample()
+        assert snapshot.latest_brick.index > before
+        page = live.bricks(snapshot.stream, before, 300, None)
+        assert page.items and page.configuration["source_minutes"] == 5
+        assert all(
+            b.wick_high is not None and b.wick_low is not None for b in page.items
+        )
+        assert not snapshot.entries_enabled
+        await service.stop()
+        # Fresh owner takes the real recovery/validated-handoff path.
+        await service.start()
+        assert service.worker is None
+        assert service.reason == "history_waiting_for_completed_bucket"
+        assert service.failures == 0
+        deadline = service.retry_at
+        assert deadline > wall[0]
+        await service.step()
+        assert service.failures == 0 and len(workers) == 2
+        wall[0] = deadline
+        await service.step()
+        assert service.worker is not None, service.status()
+        assert service.worker.persistence.stream == store.stream
+        assert len(workers) == 3
+        assert (
+            service.worker.status()["readiness"]["construction_gap_detected"] is False
+        )
+        assert not service.status()["entries_enabled"]
+        from app.market.construction import managed_store
+
+        legacy = service.settings.model_copy(update={"renko_source_minutes": 1})
+        calendar = service.calendar.window(wall[0])
+        old = managed_store(service.engine, legacy, store.stream, 111, 222, calendar)
+        with pytest.raises(PersistenceError, match="configuration"):
+            TickerWorker(None, 111, 222, persistence=old)
+    finally:
+        await service.close()
 
 
 @pytest.mark.asyncio

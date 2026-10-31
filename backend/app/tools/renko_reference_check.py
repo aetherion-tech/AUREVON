@@ -59,17 +59,23 @@ def compare(settings: Settings, package: dict[str, Any]) -> dict[str, Any]:
         block("symbol_unsupported", "Managed source is NSE NIFTY 50")
     if chart.timezone not in (None, "Asia/Kolkata"):
         block("timezone_mismatch", "Managed session alignment uses Asia/Kolkata")
-    if chart.resolution not in (None, "1"):
+    if chart.resolution not in (None, str(settings.renko_source_minutes)):
         block(
             "interval_unsupported",
-            "Managed Renko consumes minute closes; reference interval is "
+            f"Managed Renko consumes {settings.renko_source_minutes}-minute closes; "
+            "reference interval is "
             f"{chart.resolution} minutes. Futures flow timeframe is independent.",
         )
-    if chart.wicks_enabled:
+    if chart.wicks_enabled and settings.renko_source_minutes != 5:
         block(
             "wicks_unsupported",
-            "Managed Brick high/low are body-only; full parity rejects wick OHLC. "
+            "Managed Renko construction remains body-only. Observed wick transport, "
+            "replay and rendering do not establish feed-driven wick construction. "
             "Preserve actual wick data; do not remove it to force a match.",
+        )
+    elif chart.wicks_enabled is False and settings.renko_source_minutes == 5:
+        block(
+            "wicks_mismatch", "Five-minute profile emits wicks; reference disables them"
         )
     if settings.renko_mode != "minute_close":
         block("runtime_mode_unsupported", "Managed pipeline requires minute_close")
@@ -102,8 +108,12 @@ def compare(settings: Settings, package: dict[str, Any]) -> dict[str, Any]:
             "box": settings.renko_box,
             "anchor": settings.renko_anchor,
             "mode": settings.renko_mode,
+            "source_minutes": settings.renko_source_minutes,
         },
-        "managed_capabilities": {"source_minutes": 1, "wicks": False},
+        "managed_capabilities": {
+            "source_minutes": settings.renko_source_minutes,
+            "wicks": settings.renko_source_minutes == 5,
+        },
         "blockers": blockers,
         "operator_state_changed": False,
         "note": (

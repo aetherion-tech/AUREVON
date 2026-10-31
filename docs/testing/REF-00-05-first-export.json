@@ -1,0 +1,14 @@
+{
+  "rows": 300,
+  "sha256": "1941868f415a36206bbe719c1ee7772d8ecded490687f4d73e074345f8e8f90f",
+  "first_index": "6604",
+  "last_index": "6903",
+  "all_confirmed": true,
+  "contiguous_indices": true,
+  "first_ist": "2026-06-23T13:30:00+05:30",
+  "last_ist": "2026-10-30T12:00:00+05:30",
+  "distinct_dates": 84,
+  "intake_status": "REJECTED: missing index0 prefix",
+  "reference_verified": false,
+  "operator_state_changed": false
+}

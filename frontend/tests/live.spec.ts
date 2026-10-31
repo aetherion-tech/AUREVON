@@ -2,6 +2,50 @@ import { test, expect, type Page } from "@playwright/test";
 test.afterEach(async ({ page }) => {
   await page.unrouteAll({ behavior: "wait" });
 });
+test("observed wick survives real API publication and renders within desktop/mobile bounds", async ({
+  page,
+}) => {
+  await login(page);
+  const chart = page.getByTestId("renko-chart");
+  await expect(chart).toBeVisible();
+  // SVG vertical lines have zero layout width despite their visible stroke.
+  await expect(chart.locator('[data-wick-index="654"]')).toBeAttached();
+  await expect(chart).toHaveAttribute("aria-label", /with observed wicks/);
+  const response = await page.request.get(
+    "/api/bricks?stream=browser-live&after=653&limit=2",
+  );
+  expect(response.ok()).toBeTruthy();
+  const body = await response.json();
+  const brick = body.items.find(
+    (item: { index: number }) => item.index === 654,
+  );
+  expect(brick.wick_high).toBe("23920");
+  expect(brick.wick_low).toBe("23837.5");
+  expect(body.indicator_source.reference_verified).toBe(false);
+  for (const viewport of [
+    { width: 1440, height: 900 },
+    { width: 390, height: 844 },
+  ]) {
+    await page.setViewportSize(viewport);
+    const extent = await chart
+      .locator('[data-wick-index="654"]')
+      .evaluate((node) => ({
+        top: Number(node.getAttribute("y1")),
+        bottom: Number(node.getAttribute("y2")),
+        stroke: getComputedStyle(node).stroke,
+        strokeWidth: parseFloat(getComputedStyle(node).strokeWidth),
+      }));
+    expect(extent.top).toBeGreaterThanOrEqual(10);
+    expect(extent.bottom).toBeLessThanOrEqual(335);
+    expect(extent.top).toBeLessThan(extent.bottom);
+    expect(extent.stroke).not.toBe("none");
+    expect(extent.strokeWidth).toBeGreaterThan(0);
+    await expect(chart.locator('[data-brick-index="654"]')).toBeVisible();
+    await chart.screenshot({
+      path: `test-results/wick-chart-${viewport.width}.png`,
+    });
+  }
+});
 test("B1 exact total, metadata, stale and missing prices on mobile", async ({
   page,
 }) => {

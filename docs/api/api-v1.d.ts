@@ -944,6 +944,10 @@ export interface components {
             ts: string;
             /** Volume */
             volume: string;
+            /** Wick High */
+            wick_high?: string | null;
+            /** Wick Low */
+            wick_low?: string | null;
         };
         /** BrickHistory */
         BrickHistory: {

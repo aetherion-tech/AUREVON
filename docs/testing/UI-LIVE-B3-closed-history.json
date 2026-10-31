@@ -1,0 +1,43 @@
+{
+  "scope": "CLOSED1 engineering; actual operator and genuine-feed/reference acceptance pending",
+  "full_backend": {
+    "passed": 954,
+    "seconds": 403.71,
+    "warnings": 1
+  },
+  "final_service_cases": {
+    "passed": 21,
+    "seconds": 17.93,
+    "scope": "Final projection fallback and new live-transition case after full-suite collection;counts overlap"
+  },
+  "earlier_selected_cases": 137,
+  "frontend_tests": 38,
+  "distinct_built_https_cases": 7,
+  "closed_case_repeats": 1,
+  "build_types_lint_selected_strict_mypy": "PASS",
+  "api_drift_pine_integrity": "PASS",
+  "source_scope": "Completed spot-only historical price display;no futures or trading owner",
+  "cache_reads": "No auth/download/Renko recalculation/publication",
+  "entry_permission": false,
+  "quality": "Historical/stale;no live ticks",
+  "operator_state_changed": false,
+  "operator_closed_history_verified": false,
+  "genuine_feed_verified": false,
+  "reference_parity_verified": false,
+  "formal_sessions": 0,
+  "product_counts": {
+    "completed": 241,
+    "pending": 39
+  },
+  "user_report": "Prior startup commands executed;Kite Verified/session_closed screenshots;effective process profile not independently checked",
+  "preserved_owners": {
+    "backend8000": 16236,
+    "frontend5173": 19968
+  },
+  "usage_cash_headroom_renewal": "Unknown",
+  "extra_paid_cash_inr": 0,
+  "screenshots": {
+    "UI-LIVE-B3-closed-history-1440.png": "30f2991235646727f52489d874387bba897473fdd612f53db9a7d2ff88282dff",
+    "UI-LIVE-B3-closed-history-390.png": "03d6523b2a547f1188c988f8f463326ea28f7b724ec9ae423bea4064d20344dc"
+  }
+}

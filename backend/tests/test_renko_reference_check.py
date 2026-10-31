@@ -71,6 +71,22 @@ def test_missing_anchor_and_wrong_grid_are_distinct():
     )
 
 
+def test_five_minute_profile_resolves_capability_only_not_readiness():
+    package = complete_package()
+    package["chart"].update(resolution="5", wicks_enabled=True)
+    report = compare(
+        Settings(_env_file=None, renko_anchor=22700, renko_source_minutes=5), package
+    )
+    assert report["status"] == "READY_FOR_ISOLATED_VALIDATION"
+    assert not {"interval_unsupported", "wicks_unsupported"} & codes(report)
+    assert not report["paper_trading_ready"] and not report["genuine_feed_verified"]
+    package["chart"]["wicks_enabled"] = False
+    mismatch = compare(
+        Settings(_env_file=None, renko_anchor=22700, renko_source_minutes=5), package
+    )
+    assert "wicks_mismatch" in codes(mismatch)
+
+
 @pytest.mark.parametrize("value", ["NaN", "Infinity", "0", "-1"])
 def test_invalid_box_fails_before_any_configuration_change(value):
     package = complete_package()

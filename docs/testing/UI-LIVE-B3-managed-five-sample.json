@@ -1,0 +1,25 @@
+{
+  "source_sha256": "4b322de55cd1e611cba33e2ca49b1cdf1415facdec7e636b42ae2c2812603575",
+  "retained_real_spot_minutes": 375,
+  "completed_five_minute_periods": 75,
+  "generated_bricks": 4,
+  "generated_wick_bricks": 0,
+  "managed_configuration": {
+    "anchor": "2.27E+4",
+    "box": "5E+1",
+    "calendar_sha256": "76dc2cf0e666a5f75679aa27a955c3b660255ba4351cd5e9ff384159c6ae969b",
+    "future": 15736578,
+    "mode": "five_minute_close",
+    "source_minutes": 5,
+    "spot": 256265,
+    "version": 2,
+    "wicks": "close_excursion"
+  },
+  "rolling_window_profile_stable": true,
+  "restored_state_equal": true,
+  "source_unchanged": true,
+  "reference_parity_verified": false,
+  "genuine_feed_verified": false,
+  "operator_state_changed": false,
+  "formal_sessions": 0
+}

@@ -13,6 +13,7 @@ from typing import Any
 from app.broker.kite_auth import IST
 from app.config import Settings
 from app.market.candles_5m import CandleBuilder, MarketCandle
+from app.market.five_minute_renko import FiveMinuteCloseRenko
 from app.market.gaps import GapReason, GapTracker
 from app.market.persistence import MarketPersistence, PersistenceError
 from app.market.readiness import ResumeGate, validate_history
@@ -486,7 +487,12 @@ class TickerWorker:
         )
 
     def _entry_source_quality(self) -> bool:
-        return all(
+        construction_gap = (
+            self.persistence is not None
+            and isinstance(self.persistence.renko, FiveMinuteCloseRenko)
+            and self.persistence.renko.gap_detected
+        )
+        return not construction_gap and all(
             not builder.vwap_partial
             and (builder.current is None or not builder.current.partial)
             for builder in self.candles.values()
@@ -645,9 +651,16 @@ class TickerWorker:
             "connections": self.reconnects,
             "entries_enabled": False,
             "recovery": self.recovery_progress.snapshot(),
-            "readiness": self.resume_gate.snapshot(
-                healthy=self._resume_health() and self._entry_source_quality()
-            ),
+            "readiness": {
+                **self.resume_gate.snapshot(
+                    healthy=self._resume_health() and self._entry_source_quality()
+                ),
+                "construction_gap_detected": bool(
+                    self.persistence is not None
+                    and isinstance(self.persistence.renko, FiveMinuteCloseRenko)
+                    and self.persistence.renko.gap_detected
+                ),
+            },
             "persisted_stream": self.persistence.stream
             if self.persistence is not None
             else None,

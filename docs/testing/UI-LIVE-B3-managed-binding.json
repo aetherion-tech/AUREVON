@@ -1,0 +1,36 @@
+{
+  "scope": "B3-BIND1 managed engineering; actual activation/reference/feed acceptance pending",
+  "operator_profile_activated": false,
+  "operator_state_changed": false,
+  "full_backend": {
+    "passed": 947,
+    "duration_seconds": 404.8,
+    "warnings": 1,
+    "warning": "Existing Starlette/httpx TestClient deprecation"
+  },
+  "final_focused_backend": {
+    "passed": 163,
+    "scope": "Post-collection immutable-calendar clone change/regression covered; counts overlap full suite"
+  },
+  "frontend_tests": 38,
+  "built_https_browser_checks": 6,
+  "frontend_build_types_lint": "PASS",
+  "selected_ruff_format_strict_mypy": "PASS",
+  "api_drift_and_pine_integrity": "PASS",
+  "managed_lifecycle": "Fake broker/socket; real SQLite history,recovery,validation,live tick increments,LiveService snapshot/history,partial-prefix gap block,completed-bucket wait/restart and profile fence PASS",
+  "retained_real_sample": "UI-LIVE-B3-managed-five-sample.json;375 minutes/75 periods/4 bricks/0 extending wicks; no new broker request",
+  "initial_failure": "Active partial state requires recovery before handoff",
+  "resolution": "Wait for retained spot/futures fragments to close without charging failure budget; recover and independently validate; no admission of partial source",
+  "chart_gap_policy": "Separate from connection incidents; persistent chart gap and revoked/blocked entry quality; completed diagnostic periods may continue",
+  "screenshot": "UI-LIVE-B3-managed-profile-gap.png",
+  "screenshot_sha256": "0bbf01b4117770b21a883f3c17fb62fe642ea472cfb3e674fc4b2f734246840b",
+  "genuine_feed_verified": false,
+  "reference_parity_verified": false,
+  "formal_sessions": 0,
+  "product_counts": {
+    "completed": 241,
+    "pending": 39
+  },
+  "usage_cash_headroom_renewal": "Unknown",
+  "extra_paid_cash_inr": 0
+}

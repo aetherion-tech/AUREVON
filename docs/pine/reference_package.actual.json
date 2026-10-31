@@ -1,5 +1,5 @@
 {
-  "status": "CHART_SETTINGS_RECORDED_REFERENCE_DATA_PENDING",
+  "status": "ACTUAL_EXPORT_TRANSPORT_VALIDATED_PARITY_PENDING",
   "reference_verified": false,
   "chart": {
     "exchange_symbol": "NSE:NIFTY",
@@ -20,16 +20,26 @@
   "pine_original_sha256": "d1b4e220a8e575c3e6839ca5e2058d2de190ee56fcf308ccf31e7864088170b2",
   "pine_debug_sha256": null,
   "tradingview_compile_verified": false,
-  "tradingview_export_files": [],
+  "tradingview_export_files": [
+    {
+      "path": "backend/data/references/nifty-debug-20261031-third/original.csv",
+      "sha256": "9497c1713821e75703883b5e54ffd1b451aaf53c47fbecae6f4acc5bf20f9d68",
+      "rows": 6904,
+      "first": "2009-02-09T03:45:00+00:00",
+      "last": "2026-10-30T06:30:00+00:00",
+      "transport_validated": true,
+      "reference_verified": false
+    }
+  ],
   "spot_minute_files": [],
   "futures_contracts": [],
   "futures_five_minute_ohlcv_oi_files": [],
   "daily_context_files": [],
   "rollover_boundaries": [],
   "missing_data": [
-    "Loaded-history start and reference range",
-    "Remaining saved indicator input overrides or explicit default confirmation",
-    "Actual reference exports and genuine feed acceptance"
+    "Exact values of remaining original saved input overrides, or explicit source-default confirmation; debug-to-original equality confirmed",
+    "Verified reference session range and matching independent source/context",
+    "five-minute/wick construction/reference/feed acceptance"
   ],
   "settings_sha256": null,
   "calendar_sha256": null,
@@ -54,5 +64,57 @@
     "rsiLen": 14
   },
   "evidence_record": "docs/testing/UI-LIVE-B3-input-evidence.json",
-  "ref_00_03_completed_on": "2026-10-31"
+  "ref_00_03_completed_on": "2026-10-31",
+  "debug_inputs_match_original_saved_inputs": {
+    "confirmed": true,
+    "source": "User explicitly answered Yes to whether every debug indicator Input matches original indicator",
+    "date_ist": "2026-10-31",
+    "all_source_defaults_confirmed": false,
+    "limitation": "Exact values for remaining original saved inputs are not established by equality confirmation."
+  },
+  "observed_math_comparison": {
+    "source_sha256": "9497c1713821e75703883b5e54ffd1b451aaf53c47fbecae6f4acc5bf20f9d68",
+    "passed": true,
+    "bricks": 6904,
+    "settings_used": {
+      "atrLen": 10,
+      "factor": 2.5,
+      "rsiLen": 14
+    },
+    "continuous_absolute_tolerance": 1e-08,
+    "categorical_tolerance": 0,
+    "scope": "Observed RSI/Supertrend/direction only; not full settings/strategy/construction/feed acceptance",
+    "evidence": "docs/testing/UI-LIVE-B3-math-warmup.json"
+  },
+  "observed_wick_support": {
+    "transport_restoration_api_renderer": true,
+    "observed_rows_checked": 6904,
+    "rows_with_wicks": 1274,
+    "math_comparison_passed": true,
+    "managed_five_minute_wick_construction": false,
+    "feed_verified": false,
+    "evidence": "docs/testing/UI-LIVE-B3-wick-replay.json"
+  },
+  "five_minute_construction_engineering": {
+    "implemented_opt_in": true,
+    "managed_owner_bound": true,
+    "source": "completed spot minutes aggregated to five-minute closes",
+    "configuration_version": 2,
+    "matched_reference_parity_verified": false,
+    "genuine_feed_verified": false,
+    "evidence": "docs/testing/UI-LIVE-B3-managed-binding.md",
+    "operator_profile_activated": null
+  },
+  "operator_startup_report": {
+    "commands_executed_reported": true,
+    "effective_profile_verified": false,
+    "screenshots": "Kite Verified;session_closed;missing Renko history",
+    "date_ist": "2026-10-31"
+  },
+  "closed_session_history": {
+    "engineering_delivered": true,
+    "operator_verified": false,
+    "scope": "SPOT_ONLY_DISPLAY;historical/stale;entry permission false",
+    "evidence": "docs/testing/UI-LIVE-B3-closed-history.md"
+  }
 }

@@ -130,6 +130,34 @@ it("keeps missing supertrend values empty and terminates segments across flips",
   );
   expect(container.querySelectorAll('[data-layer="flip"]')).toHaveLength(1);
 });
+it("draws observed wicks within the price scale and preserves equal-time brick order", () => {
+  const h = history();
+  h.items[0] = { ...h.items[0], wick_high: "22804.85", wick_low: "90" };
+  h.items[1] = { ...h.items[1], wick_high: "150", wick_low: "100" };
+  const { container, getByRole } = render(
+    <RenkoChart
+      history={h}
+      layers={{ trend: false, bias: false, events: false, levels: false }}
+      windowSize={100}
+      endIndex={null}
+    />,
+  );
+  expect(getByRole("img").getAttribute("aria-label")).toContain(
+    "observed wicks",
+  );
+  const wicks = container.querySelectorAll("[data-wick-index]");
+  expect(wicks).toHaveLength(1);
+  expect(wicks[0].getAttribute("data-wick-index")).toBe("0");
+  const top = Number(wicks[0].getAttribute("y1"));
+  const bottom = Number(wicks[0].getAttribute("y2"));
+  expect(top).toBeGreaterThanOrEqual(10);
+  expect(bottom).toBeLessThanOrEqual(335);
+  expect(top).toBeLessThan(bottom);
+  expect(container.querySelectorAll("[data-brick-index]")).toHaveLength(2);
+  expect(
+    container.querySelector('[data-brick-index="0"] title')?.textContent,
+  ).toContain("High 22804.85 · Low 90");
+});
 it("uses the fixed final timestamp for closed duration and rejects invalid timestamps", () => {
   expect(
     duration("2026-10-29T00:00:00Z", "2026-10-29T01:01:01Z", Date.now()),

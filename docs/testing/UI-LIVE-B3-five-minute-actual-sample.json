@@ -1,0 +1,37 @@
+{
+  "source": "Actual retained authenticated historical spot minutes; no new broker request",
+  "source_sha256": "4b322de55cd1e611cba33e2ca49b1cdf1415facdec7e636b42ae2c2812603575",
+  "source_minutes": 375,
+  "completed_five_minute_periods": 75,
+  "generated_bricks": 4,
+  "generated_wick_bricks": 0,
+  "gap_detected": false,
+  "last_input": "2026-10-30T15:30:00+05:30",
+  "restart_split_minute": 188,
+  "restart_matches_uninterrupted": true,
+  "source_unchanged": true,
+  "seed_policy": "Cold grid seed from first completed five-minute close; not the full TradingView historical state",
+  "reference_parity_verified": false,
+  "genuine_feed_verified": false,
+  "operator_state_changed": false,
+  "formal_sessions": 0,
+  "verification": {
+    "initial_focused_tests": 105,
+    "full_backend_tests": {
+      "passed": 932,
+      "duration_seconds": 373.68,
+      "warnings": 1,
+      "warning": "Existing Starlette/httpx TestClient deprecation"
+    },
+    "final_focused_tests": {
+      "passed": 106,
+      "duration_seconds": 32.09,
+      "scope": "Includes the positive-grid-seed guard/regression added after full-suite collection; counts overlap"
+    },
+    "ruff_lint_format": "PASS",
+    "strict_mypy_selected_files": "PASS",
+    "pine_integrity": "PASS",
+    "frontend": "No frontend change; prior WICK1 evidence remains separate"
+  },
+  "construction_source_sha256": "93583335ade5abfdf9d94ca64341485bd6acd0240691dd501ab74b9e328ce2a3"
+}

@@ -1,0 +1,48 @@
+{
+  "scope": "Observed OHLC transport/restoration/API/indicator replay; not Renko construction or full strategy parity",
+  "source_sha256": "9497c1713821e75703883b5e54ffd1b451aaf53c47fbecae6f4acc5bf20f9d68",
+  "bricks": 6904,
+  "wick_rows": 1274,
+  "roundtrip_and_wire_exact": true,
+  "math_passed": true,
+  "first_difference": null,
+  "maximum_absolute_error": {
+    "rsi": 4.263256414560601e-14,
+    "supertrend": 3.637978807091713e-12
+  },
+  "settings": {
+    "atrLen": 10,
+    "factor": 2.5,
+    "rsiLen": 14
+  },
+  "tolerance": 1e-08,
+  "reference_verified": false,
+  "genuine_feed_verified": false,
+  "formal_sessions": 0,
+  "operator_state_changed": false,
+  "verification": {
+    "selected_backend": {
+      "passed": 82
+    },
+    "full_backend": {
+      "passed": 881,
+      "duration_seconds": 455.43,
+      "warnings": 1,
+      "warning": "Existing Starlette/httpx TestClient deprecation"
+    },
+    "final_focused_backend": {
+      "passed": 29,
+      "scope": "full-parity and wick tests, includes one added post-collection parser sensitivity regression; not additive test count"
+    },
+    "frontend_tests": 38,
+    "built_https_browser_checks": 5,
+    "frontend_build_types_lint": "PASS",
+    "openapi_and_typescript_contract_checks": "PASS",
+    "selected_ruff_format_strict_mypy": "PASS",
+    "pine_integrity": "PASS"
+  },
+  "screenshots": {
+    "UI-LIVE-B3-wick-desktop.png": "a0611bdf34d4477841477b4c81977c56d791928845d9569ea601e32be5dafc49",
+    "UI-LIVE-B3-wick-mobile.png": "32b4d96da7fb85a8097735c145dcd111fbfe7e1c3130dd1fba7ff8f08b9aa84c"
+  }
+}

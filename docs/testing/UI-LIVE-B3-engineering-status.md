@@ -1,6 +1,6 @@
 # UI-LIVE-B3 — construction compatibility and activation status
 
-2026-10-31, D06. **B3 remains Pending**, not a completed UI/live batch.
+2026-10-31, D06. Later WICK1 supersedes the representation/replay/renderer limitations below: observed wicks now survive end to end. Managed five-minute/wick construction and feed acceptance remain Pending. See UI-LIVE-B3-wick-support.md. **B3 remains Pending**, not a completed UI/live batch.
 Product counts remain 237 Completed / 43 Pending; formal sessions zero.
 
 ## Completed preparation

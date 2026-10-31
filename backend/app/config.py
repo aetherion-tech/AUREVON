@@ -4,7 +4,7 @@ from pathlib import Path
 from typing import Literal
 from urllib.parse import urlsplit
 
-from pydantic import Field, SecretStr, model_validator
+from pydantic import Field, SecretStr, field_validator, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 BACKEND_DIR = Path(__file__).resolve().parent.parent
@@ -20,6 +20,15 @@ class Settings(BaseSettings):
     renko_box: float = Field(default=50, gt=0, allow_inf_nan=False)
     renko_anchor: float | None = Field(default=None, allow_inf_nan=False)
     renko_mode: Literal["minute_close", "tick"] = "minute_close"
+    renko_source_minutes: Literal[1, 5] = 1
+
+    @field_validator("renko_source_minutes", mode="before")
+    @classmethod
+    def source_minutes_value(cls, value: object) -> object:
+        if type(value) not in (int, str) or value not in (1, 5, "1", "5"):
+            raise ValueError("Renko source minutes must be 1 or 5")
+        return int(str(value))
+
     # Policy inputs for the managed warm-up/recovery stages, not runtime switches.
     warmup_lookback_trading_days: int = Field(default=20, ge=1, le=250)
     recovery_max_gap_days: int = Field(default=30, ge=1, le=365)

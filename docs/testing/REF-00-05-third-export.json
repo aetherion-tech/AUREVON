@@ -1,0 +1,37 @@
+{
+  "intake_status": "PASS_TRANSPORT_ONLY",
+  "source_sha256": "9497c1713821e75703883b5e54ffd1b451aaf53c47fbecae6f4acc5bf20f9d68",
+  "original_pine_sha256": "d1b4e220a8e575c3e6839ca5e2058d2de190ee56fcf308ccf31e7864088170b2",
+  "rows": 6904,
+  "first": "2009-02-09T03:45:00+00:00",
+  "last": "2026-10-30T06:30:00+00:00",
+  "reference_verified": false,
+  "formal_sessions": 0,
+  "limitations": [
+    "Chart identity, input settings and ten exchange days not verified",
+    "Independent spot/futures/OI/daily context and G1/G2 still required",
+    "No full signals/events/context parity envelope synthesized",
+    "Numeric trade IDs use the debug alphabet, never guessed sequence IDs"
+  ],
+  "files": {
+    "debug.csv": "571a6d74aeffbf0154ad1c32657cb87b381d38835adbfab6e1b92279898150b7",
+    "math.csv": "9fa9fdb0172e6bf7a5f9f7c89cf4162ace0338a3282797765cfc7d1bb13baff3",
+    "original.csv": "9497c1713821e75703883b5e54ffd1b451aaf53c47fbecae6f4acc5bf20f9d68"
+  },
+  "first_index": "0",
+  "last_index": "6903",
+  "prior_overlap_rows": 4035,
+  "prior_overlap_identical": true,
+  "history_limit_reported_by_user": true,
+  "missing_prefix_resolved": true,
+  "math_default_diagnostic": {
+    "passed": false,
+    "index": 0,
+    "column": "supertrend",
+    "expected": 0.0,
+    "actual": null,
+    "tolerance": 1e-08
+  },
+  "math_scope": "Unconfirmed source-default settings; first divergence retained, no tolerance or expected-value changes",
+  "operator_state_changed": false
+}

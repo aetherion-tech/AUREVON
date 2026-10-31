@@ -69,6 +69,7 @@ function Readiness({ connection }: { connection: string }) {
     entries: s.entries_enabled,
     state: s.state,
     recovery: s.recovery,
+    context: s.context,
   }));
   const d = q.data;
   return (
@@ -81,6 +82,15 @@ function Readiness({ connection }: { connection: string }) {
         Server state: {d?.state ?? "Unavailable"} · Entries{" "}
         {d?.entries ? "enabled by owner" : "blocked"}
       </p>
+      {d?.context.chart_display_mode === "historical" && (
+        <p role="status" className="notice">
+          Historical / stale chart · completed source data through{" "}
+          {typeof d.context.historical_as_of === "string"
+            ? ist(d.context.historical_as_of)
+            : "Unavailable"}
+          . Live quotes are unavailable; trading entries remain blocked.
+        </p>
+      )}
       {connection !== "Connected" && (
         <p role="status" className="notice">
           {connection}. Displayed data may be old; reconnect reloads server
@@ -89,6 +99,12 @@ function Readiness({ connection }: { connection: string }) {
       )}
       {d && (
         <>
+          {d.quality.readiness?.construction_gap_detected === true && (
+            <p role="status" className="notice">
+              Renko history has an unresolved source gap. Complete periods can
+              continue updating the chart; trading entries remain blocked.
+            </p>
+          )}
           {(d.quality.stale ||
             !d.quality.connected ||
             d.quality.gap_requires_replay ||
@@ -111,9 +127,17 @@ function Readiness({ connection }: { connection: string }) {
               {Object.entries(d.quality.readiness ?? {}).map(([k, v]) => (
                 <Datum key={k} name={k.replaceAll("_", " ")}>
                   {typeof v === "boolean"
-                    ? v
-                      ? "Ready"
-                      : "Blocked"
+                    ? k === "historical_only"
+                      ? v
+                        ? "Historical only"
+                        : "Live source"
+                      : k === "construction_gap_detected"
+                        ? v
+                          ? "Blocked"
+                          : "Clear"
+                        : v
+                          ? "Ready"
+                          : "Blocked"
                     : JSON.stringify(v)}
                 </Datum>
               ))}

@@ -14,15 +14,26 @@ from app.db.session import database_engine
 from app.indicator.full_parity import compare_full, first_difference, projection
 from app.indicator.strategy import PineContext, PineEngine
 from app.indicator.text import number_text
+from app.market.renko_builder import WickBrick
 
 
-def fixture_rows():
+def fixture_rows(wicks=False):
     s = settings(atrLen=2, rsiLen=2)
     engine = PineEngine("reference", s)
     prices = [1000, 1050, 1100, 1150, 1100, 1050, 1000, 1050]
     rows = []
     for i in range(len(prices) - 1):
         b = brick(i, prices[i], prices[i + 1])
+        if wicks:
+            b = WickBrick(
+                b.index,
+                b.open,
+                b.close,
+                b.direction,
+                b.ts,
+                wick_high=b.high + 20,
+                wick_low=b.low - 10,
+            )
         result = projection(engine.process(b))
         row = {
             "index": i,
@@ -61,6 +72,20 @@ def test_full_export_roundtrip_and_insufficient_days(tmp_path):
     result = compare_full(path, s, required_days=10)
     assert not result["passed"]
     assert result["reason"] == "insufficient_reference_days"
+
+
+def test_full_export_retains_wicks_and_detects_changed_high(tmp_path):
+    s, rows = fixture_rows(wicks=True)
+    # First two true ranges are80; second midpoint1080 plus2.5*ATR80=1280.
+    assert rows[1]["supertrend"] == 1280
+    path = tmp_path / "wick-debug.csv"
+    write(path, rows)
+    assert compare_full(path, s)["passed"]
+    rows[1]["high"] = "9999"
+    write(path, rows)
+    mismatch = compare_full(path, s)
+    assert not mismatch["passed"]
+    assert mismatch["index"] == 1 and mismatch["column"] == "supertrend"
 
 
 @pytest.mark.parametrize(
@@ -119,7 +144,7 @@ def test_independent_futures_flow_is_calculated_not_reference_input(tmp_path):
         compare_full(path, s)
 
 
-def test_future_source_context_and_wicks_are_rejected(tmp_path):
+def test_future_source_context_and_invalid_wick_ohlc_are_rejected(tmp_path):
     s, rows = fixture_rows()
     path = tmp_path / "debug.csv"
     rows[0]["context"] = json.dumps(
@@ -129,7 +154,7 @@ def test_future_source_context_and_wicks_are_rejected(tmp_path):
     with pytest.raises(ValueError, match="unavailable"):
         compare_full(path, s)
     rows[0]["context"] = "{}"
-    rows[0]["high"] = 9999
+    rows[0]["high"] = 999
     write(path, rows)
     with pytest.raises(ValueError, match="wick"):
         compare_full(path, s)

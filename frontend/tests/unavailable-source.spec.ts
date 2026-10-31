@@ -7,6 +7,39 @@ async function login(page: import("@playwright/test").Page) {
   await expect(page.getByText("Connected", { exact: true })).toBeVisible();
 }
 
+test("five-minute profile label and chart-gap warning preserve chart visibility", async ({
+  page,
+}) => {
+  // Presentation fixture only; managed constructor/feed handoff is tested in BE.
+  await page.routeWebSocket("**/ws/live*", () => {});
+  await page.route("**/api/live/snapshot", async (route) => {
+    const response = await route.fetch();
+    const data = await response.json();
+    data.quality.readiness.construction_gap_detected = true;
+    data.entries_enabled = false;
+    await route.fulfill({ json: data });
+  });
+  await page.route("**/api/bricks?*", async (route) => {
+    const response = await route.fetch();
+    const data = await response.json();
+    data.configuration.source_minutes = 5;
+    await route.fulfill({ json: data });
+  });
+  await login(page);
+  await expect(page.getByText("5-minute Close · wicks")).toBeVisible();
+  await expect(
+    page.getByText(/Renko history has an unresolved source gap/),
+  ).toBeVisible();
+  await expect(page.getByTestId("renko-chart")).toBeVisible();
+  await page.getByText("Readiness and recovery details").click();
+  const label = page.getByText("construction gap detected", { exact: true });
+  await expect(label.locator("..")).toContainText("Blocked");
+  await page.screenshot({
+    path: "test-results/five-minute-profile-gap.png",
+    fullPage: true,
+  });
+});
+
 test("quote-only missing source avoids 404 requests and resumes when history appears", async ({
   page,
 }) => {

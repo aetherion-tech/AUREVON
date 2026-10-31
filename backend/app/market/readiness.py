@@ -13,6 +13,8 @@ from sqlalchemy.orm import Session
 from app.config import Settings
 from app.db.models import MarketCheckpoint, StoredBrick, StoredCandle
 from app.market.candles_5m import CandleBuilder, MarketCandle
+from app.market.construction import construction_state, consume_spot, managed_store
+from app.market.five_minute_renko import FiveMinuteCloseRenko
 from app.market.gaps import GapTracker
 from app.market.persistence import (
     PersistenceError,
@@ -21,7 +23,6 @@ from app.market.persistence import (
     candle_from,
     encode,
 )
-from app.market.renko_builder import RenkoBuilder
 from app.market.warmup import SessionCalendar, local_time, plan_history
 
 if TYPE_CHECKING:
@@ -115,17 +116,10 @@ def _validate_history(
     if settings.renko_mode != "minute_close" or settings.renko_anchor is None:
         raise PersistenceError("Validated resumption requires minute-close mode")
     config = json.loads(store.configuration)
-    expected = {
-        "spot": config["spot"],
-        "future": config["future"],
-        "box": str(
-            RenkoBuilder(settings.renko_box, settings.renko_anchor).box.normalize()
-        ),
-        "anchor": str(
-            RenkoBuilder(settings.renko_box, settings.renko_anchor).anchor.normalize()
-        ),
-    }
-    if any(config[key] != value for key, value in expected.items()):
+    expected_store = managed_store(
+        store.engine, settings, store.stream, config["spot"], config["future"], calendar
+    )
+    if store.configuration != expected_store.configuration:
         raise PersistenceError("Resume settings do not match checkpoint")
     plan = plan_history(settings, calendar, at)
     tokens = [config["spot"], config["future"]]
@@ -148,7 +142,7 @@ def _validate_history(
             tokens[0]: CandleBuilder(1, futures=False),
             tokens[1]: CandleBuilder(5, futures=True),
         }
-        renko = RenkoBuilder(settings.renko_box, settings.renko_anchor)
+        renko = expected_store.renko
         bricks = []
         for row in rows:
             if row.token not in candles:
@@ -176,7 +170,7 @@ def _validate_history(
                 raise PersistenceError("Candle/VWAP source state is inconsistent")
             candles[row.token][candle.time] = candle
             if row.token == tokens[0]:
-                bricks.extend(renko.on_price(candle.close, candle.end))
+                bricks.extend(consume_spot(renko, candle))
         for token, ranges, minutes in (
             (tokens[0], plan.spot, 1),
             (tokens[1], plan.futures, 5),
@@ -262,6 +256,20 @@ def _validate_history(
             )
         if renko.index == 0:
             raise PersistenceError("Insufficient Renko history; extend lookback")
+        if isinstance(renko, FiveMinuteCloseRenko):
+            if (
+                state.get("construction_gap_detected", renko.gap_detected)
+                != renko.gap_detected
+            ):
+                raise PersistenceError(
+                    "Construction gap summary does not match sources"
+                )
+            if renko.gap_detected or state.get("renko_pipeline") != json.loads(
+                encode(construction_state(renko)["renko_pipeline"])
+            ):
+                raise PersistenceError(
+                    "Five-minute construction state or gaps not validated"
+                )
         # Open incident markers can retire only for their proven completed prefix.
         # The fresh unfinished bucket remains partial; no tick order is inferred.
         for gap in state.get("gaps", []):
