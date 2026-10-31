@@ -1,0 +1,27 @@
+{
+  "status": "FAILED",
+  "task": "QA-07-01",
+  "date": "2026-10-30",
+  "evidence": "ACTUAL_AUTHENTICATED_KITE_HISTORICAL",
+  "future_symbol": "NIFTY26NOVFUT",
+  "future_expiry": "2026-11-23",
+  "operator_state_changed": false,
+  "formal_sessions": 0,
+  "g1_accepted": false,
+  "spot": {
+    "token": 256265,
+    "interval": "minute",
+    "candles": 375,
+    "opening_time_first": "2026-10-30T09:15:00+05:30",
+    "opening_time_last": "2026-10-30T15:29:00+05:30",
+    "completion_time_last": "2026-10-30T15:30:00+05:30",
+    "inclusive_boundary_repeat_matches": true,
+    "oi_requested": false,
+    "oi_present": 0,
+    "oi_positive": 0,
+    "volume_positive": 0,
+    "csv": "data\\qa-07-01-20261031\\spot.csv",
+    "csv_sha256": "4b322de55cd1e611cba33e2ca49b1cdf1415facdec7e636b42ae2c2812603575",
+    "raw_values_hash": "9b0adbf57856811e5e28c70d4df3151fe37213e24d7c88a5305e18207cfab103"
+  }
+}

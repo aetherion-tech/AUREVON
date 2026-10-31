@@ -191,13 +191,31 @@ textarea {
 }
 .live-grid {
   display: grid;
-  grid-template-columns: minmax(0, 1.8fr) minmax(300px, 1fr);
+  grid-template-columns: minmax(0, 2.4fr) minmax(300px, 1fr);
   gap: 22px;
   align-items: start;
 }
 .live-main,
-.live-cards {
+.live-cards,
+.live-positions,
+.live-activity {
   min-width: 0;
+}
+.live-positions,
+.live-activity {
+  grid-column: 1 / -1;
+}
+.live-activity {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 22px;
+  align-items: start;
+}
+.live-positions .metric-grid {
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+}
+.live-positions table {
+  min-width: 840px;
 }
 .readiness h1 {
   font-size: 26px;
@@ -326,7 +344,7 @@ td {
   overflow-wrap: anywhere;
   font-size: 15px;
 }
-@media (max-width: 1200px) {
+@media (max-width: 1050px) {
   .live-grid {
     grid-template-columns: minmax(0, 1fr);
   }
@@ -335,10 +353,19 @@ td {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 20px;
   }
+  .live-cards > :first-child {
+    grid-column: 1 / -1;
+  }
+  .live-activity {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 @media (max-width: 760px) {
   .live-cards {
     display: block;
+  }
+  .live-activity {
+    grid-template-columns: minmax(0, 1fr);
   }
   .renko-frame svg {
     min-height: 140px;
@@ -629,4 +656,22 @@ dialog button {
     display: block;
     margin: 8px 0;
   }
+}
+.positions-total {
+  display: grid;
+  gap: 0.5rem;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  border: 1px solid currentColor;
+  border-radius: 0.75rem;
+}
+.pnl-total {
+  font-size: clamp(1.75rem, 4vw, 2.5rem);
+  font-variant-numeric: tabular-nums;
+}
+.pnl-profit {
+  color: #15803d;
+}
+.pnl-loss {
+  color: #b91c1c;
 }

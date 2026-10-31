@@ -1,0 +1,267 @@
+{
+  "date_ist": "2026-10-31",
+  "completed_this_batch": [
+    "REF-00-03",
+    "QA-07-01"
+  ],
+  "counts": {
+    "total": 280,
+    "completed": 239,
+    "pending": 41,
+    "paper_scope_pending": 21,
+    "outside_funded_scope": 20
+  },
+  "acceptance_ready_remaining": [],
+  "qa_19_14": "Optimization delivered; acceptance Pending",
+  "tasks": [
+    {
+      "id": "REF-00-05",
+      "status": "Pending",
+      "eligibility": "BLOCKED",
+      "reason": "Actual TradingView export/seed/remaining inputs and independent source/context/provenance needed"
+    },
+    {
+      "id": "REF-00-06",
+      "status": "Pending",
+      "eligibility": "BLOCKED",
+      "reason": "Actual TradingView export/seed/remaining inputs and independent source/context/provenance needed"
+    },
+    {
+      "id": "REF-00-07",
+      "status": "Pending",
+      "eligibility": "BLOCKED",
+      "reason": "Actual TradingView export/seed/remaining inputs and independent source/context/provenance needed"
+    },
+    {
+      "id": "QA-07-02",
+      "status": "Pending",
+      "eligibility": "BLOCKED",
+      "reason": "Actual market-hours tick/recording/quality or reconnect and sampled live/historical comparison evidence needed"
+    },
+    {
+      "id": "QA-07-03",
+      "status": "Pending",
+      "eligibility": "BLOCKED",
+      "reason": "Actual market-hours tick/recording/quality or reconnect and sampled live/historical comparison evidence needed"
+    },
+    {
+      "id": "QA-07-04",
+      "status": "Pending",
+      "eligibility": "BLOCKED",
+      "reason": "Actual reference data,5-minute/wick construction reconciliation and G1/G2 parity prerequisites"
+    },
+    {
+      "id": "QA-07-05",
+      "status": "Pending",
+      "eligibility": "BLOCKED",
+      "reason": "Actual reference data,5-minute/wick construction reconciliation and G1/G2 parity prerequisites"
+    },
+    {
+      "id": "QA-07-06",
+      "status": "Pending",
+      "eligibility": "BLOCKED",
+      "reason": "Actual reference data,5-minute/wick construction reconciliation and G1/G2 parity prerequisites"
+    },
+    {
+      "id": "QA-07-07",
+      "status": "Pending",
+      "eligibility": "BLOCKED",
+      "reason": "Actual market-hours tick/recording/quality or reconnect and sampled live/historical comparison evidence needed"
+    },
+    {
+      "id": "BE-08-14",
+      "status": "Pending",
+      "eligibility": "BLOCKED",
+      "reason": "Actual reference data,5-minute/wick construction reconciliation and G1/G2 parity prerequisites"
+    },
+    {
+      "id": "QA-09-19",
+      "status": "Pending",
+      "eligibility": "BLOCKED",
+      "reason": "Actual reference data,5-minute/wick construction reconciliation and G1/G2 parity prerequisites"
+    },
+    {
+      "id": "QA-09-20",
+      "status": "Pending",
+      "eligibility": "BLOCKED",
+      "reason": "Actual reference data,5-minute/wick construction reconciliation and G1/G2 parity prerequisites"
+    },
+    {
+      "id": "QA-11-15",
+      "status": "Pending",
+      "eligibility": "BLOCKED",
+      "reason": "G2/G3,recorded eligible day and manual strike/accounting examples missing"
+    },
+    {
+      "id": "QA-11-16",
+      "status": "Pending",
+      "eligibility": "BLOCKED",
+      "reason": "G2/G3,recorded eligible day and manual strike/accounting examples missing"
+    },
+    {
+      "id": "OPS-19-03",
+      "status": "Pending",
+      "eligibility": "BLOCKED",
+      "reason": "Windows SCM access denied(error5); actual TLS/DPAPI/lifecycle/single-worker verification pending"
+    },
+    {
+      "id": "OPS-19-08",
+      "status": "Pending",
+      "eligibility": "BLOCKED",
+      "reason": "Actual reachable authenticated TLS shadow ingress,event identity calibration and G2 missing"
+    },
+    {
+      "id": "QA-19-10",
+      "status": "Pending",
+      "eligibility": "BLOCKED",
+      "reason": "G2/G3,recorded eligible day and manual strike/accounting examples missing"
+    },
+    {
+      "id": "QA-19-14",
+      "status": "Pending",
+      "eligibility": "BLOCKED_ACCEPTANCE_ENGINEERING_OPTIMIZED",
+      "reason": "Synthetic storage hotspot fixed; representative warmed option/network/queue load and managed dispatch path timing absent"
+    },
+    {
+      "id": "QA-19-15",
+      "status": "Pending",
+      "eligibility": "BLOCKED",
+      "reason": "20 qualifying sessions,daily shadow/weekly review and G4/G5 prerequisites unaccepted"
+    },
+    {
+      "id": "QA-19-16",
+      "status": "Pending",
+      "eligibility": "BLOCKED",
+      "reason": "20 qualifying sessions,daily shadow/weekly review and G4/G5 prerequisites unaccepted"
+    },
+    {
+      "id": "QA-19-17",
+      "status": "Pending",
+      "eligibility": "BLOCKED",
+      "reason": "20 qualifying sessions,daily shadow/weekly review and G4/G5 prerequisites unaccepted"
+    },
+    {
+      "id": "LIVE-20-01",
+      "status": "Pending",
+      "eligibility": "OUTSIDE_FUNDED_SCOPE",
+      "reason": "Phase20 live-money or Phase21 later scope; separate prerequisites/authorization"
+    },
+    {
+      "id": "LIVE-20-02",
+      "status": "Pending",
+      "eligibility": "OUTSIDE_FUNDED_SCOPE",
+      "reason": "Phase20 live-money or Phase21 later scope; separate prerequisites/authorization"
+    },
+    {
+      "id": "LIVE-20-03",
+      "status": "Pending",
+      "eligibility": "OUTSIDE_FUNDED_SCOPE",
+      "reason": "Phase20 live-money or Phase21 later scope; separate prerequisites/authorization"
+    },
+    {
+      "id": "LIVE-20-04",
+      "status": "Pending",
+      "eligibility": "OUTSIDE_FUNDED_SCOPE",
+      "reason": "Phase20 live-money or Phase21 later scope; separate prerequisites/authorization"
+    },
+    {
+      "id": "LIVE-20-05",
+      "status": "Pending",
+      "eligibility": "OUTSIDE_FUNDED_SCOPE",
+      "reason": "Phase20 live-money or Phase21 later scope; separate prerequisites/authorization"
+    },
+    {
+      "id": "LIVE-20-06",
+      "status": "Pending",
+      "eligibility": "OUTSIDE_FUNDED_SCOPE",
+      "reason": "Phase20 live-money or Phase21 later scope; separate prerequisites/authorization"
+    },
+    {
+      "id": "LIVE-20-07",
+      "status": "Pending",
+      "eligibility": "OUTSIDE_FUNDED_SCOPE",
+      "reason": "Phase20 live-money or Phase21 later scope; separate prerequisites/authorization"
+    },
+    {
+      "id": "LIVE-20-08",
+      "status": "Pending",
+      "eligibility": "OUTSIDE_FUNDED_SCOPE",
+      "reason": "Phase20 live-money or Phase21 later scope; separate prerequisites/authorization"
+    },
+    {
+      "id": "LIVE-20-09",
+      "status": "Pending",
+      "eligibility": "OUTSIDE_FUNDED_SCOPE",
+      "reason": "Phase20 live-money or Phase21 later scope; separate prerequisites/authorization"
+    },
+    {
+      "id": "LIVE-20-10",
+      "status": "Pending",
+      "eligibility": "OUTSIDE_FUNDED_SCOPE",
+      "reason": "Phase20 live-money or Phase21 later scope; separate prerequisites/authorization"
+    },
+    {
+      "id": "LIVE-20-11",
+      "status": "Pending",
+      "eligibility": "OUTSIDE_FUNDED_SCOPE",
+      "reason": "Phase20 live-money or Phase21 later scope; separate prerequisites/authorization"
+    },
+    {
+      "id": "LIVE-20-12",
+      "status": "Pending",
+      "eligibility": "OUTSIDE_FUNDED_SCOPE",
+      "reason": "Phase20 live-money or Phase21 later scope; separate prerequisites/authorization"
+    },
+    {
+      "id": "LIVE-20-13",
+      "status": "Pending",
+      "eligibility": "OUTSIDE_FUNDED_SCOPE",
+      "reason": "Phase20 live-money or Phase21 later scope; separate prerequisites/authorization"
+    },
+    {
+      "id": "LIVE-20-14",
+      "status": "Pending",
+      "eligibility": "OUTSIDE_FUNDED_SCOPE",
+      "reason": "Phase20 live-money or Phase21 later scope; separate prerequisites/authorization"
+    },
+    {
+      "id": "LIVE-20-15",
+      "status": "Pending",
+      "eligibility": "OUTSIDE_FUNDED_SCOPE",
+      "reason": "Phase20 live-money or Phase21 later scope; separate prerequisites/authorization"
+    },
+    {
+      "id": "FUT-21-01",
+      "status": "Pending",
+      "eligibility": "OUTSIDE_FUNDED_SCOPE",
+      "reason": "Phase20 live-money or Phase21 later scope; separate prerequisites/authorization"
+    },
+    {
+      "id": "FUT-21-02",
+      "status": "Pending",
+      "eligibility": "OUTSIDE_FUNDED_SCOPE",
+      "reason": "Phase20 live-money or Phase21 later scope; separate prerequisites/authorization"
+    },
+    {
+      "id": "FUT-21-03",
+      "status": "Pending",
+      "eligibility": "OUTSIDE_FUNDED_SCOPE",
+      "reason": "Phase20 live-money or Phase21 later scope; separate prerequisites/authorization"
+    },
+    {
+      "id": "FUT-21-04",
+      "status": "Pending",
+      "eligibility": "OUTSIDE_FUNDED_SCOPE",
+      "reason": "Phase20 live-money or Phase21 later scope; separate prerequisites/authorization"
+    },
+    {
+      "id": "FUT-21-05",
+      "status": "Pending",
+      "eligibility": "OUTSIDE_FUNDED_SCOPE",
+      "reason": "Phase20 live-money or Phase21 later scope; separate prerequisites/authorization"
+    }
+  ],
+  "formal_sessions": 0,
+  "usage_cash_renewal": "Unknown",
+  "extra_paid_usage_inr": 0
+}

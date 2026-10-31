@@ -15,6 +15,7 @@ import { Card, Dialog, ErrorMessage } from "./ui";
 import { readIntent, saveIntent, type Intent } from "./intents";
 import { ShadowPanel } from "./ShadowPanel";
 import { FeedControls } from "./FeedControls";
+import { PnlValue, totalOpenPnl } from "./positions";
 
 function Datum({ name, children }: { name: string; children: ReactNode }) {
   return (
@@ -50,7 +51,10 @@ function Freshness({ at }: { at: string | null | undefined }) {
     return () => clearInterval(timer);
   }, []);
   const stale =
-    !at || !Number.isFinite(Date.parse(at)) || now - Date.parse(at) > 15000;
+    !at ||
+    !Number.isFinite(Date.parse(at)) ||
+    now - Date.parse(at) > 15000 ||
+    Date.parse(at) > now;
   return (
     <p className={stale ? "warning" : "muted"}>
       {stale ? "Stale or unavailable mark" : "Mark received"} ·{" "}
@@ -316,6 +320,54 @@ export function CloseDialog({
     </Dialog>
   );
 }
+function useOpenPositions() {
+  return useQuery({
+    queryKey: ["positions"],
+    queryFn: ({ signal }) =>
+      api.get("/api/positions/open", undefined, { signal }),
+    refetchInterval: 10000,
+  });
+}
+function OpenPnlSummary() {
+  const q = useOpenPositions();
+  const [now, setNow] = useState(Date.now());
+  useEffect(() => {
+    const timer = setInterval(() => setNow(Date.now()), 1000);
+    return () => clearInterval(timer);
+  }, []);
+  return (
+    <Card title="Open paper P&L">
+      <div className="positions-total">
+        <span>Total open P&amp;L · before costs</span>
+        <PnlValue
+          value={q.data && !q.error ? totalOpenPnl(q.data) : null}
+          prominent
+        />
+        {!!q.data?.length &&
+          q.data.some(
+            (p) =>
+              !p.mark_at ||
+              !Number.isFinite(Date.parse(p.mark_at)) ||
+              now - Date.parse(p.mark_at) > 15000 ||
+              Date.parse(p.mark_at) > now,
+          ) && (
+            <span className="warning">
+              Stale or unavailable marks · total is not a fresh valuation
+            </span>
+          )}
+        <small>
+          Option-leg MTM. Missing marks keep the total unavailable; stale values
+          are last observations.
+        </small>
+      </div>
+      <ResultState
+        pending={q.isPending}
+        error={q.error}
+        retry={() => void q.refetch()}
+      />
+    </Card>
+  );
+}
 function ActiveSpreads() {
   const [closing, setClosing] = useState<string | null>(null),
     [now, setNow] = useState(Date.now());
@@ -323,12 +375,7 @@ function ActiveSpreads() {
     const t = setInterval(() => setNow(Date.now()), 1000);
     return () => clearInterval(t);
   }, []);
-  const q = useQuery({
-    queryKey: ["positions"],
-    queryFn: ({ signal }) =>
-      api.get("/api/positions/open", undefined, { signal }),
-    refetchInterval: 10000,
-  });
+  const q = useOpenPositions();
   return (
     <Card title="Active paper spreads">
       <ResultState
@@ -349,14 +396,23 @@ function ActiveSpreads() {
           <Freshness at={p.mark_at} />
           <div className="table-scroll">
             <table>
-              <caption>Both spread legs; marks are server observations</caption>
+              <caption>
+                Current price is last traded. P&amp;L uses liquidation quotes
+                before costs; per-leg P&amp;L is unavailable without depth or
+                during transitions.
+              </caption>
               <thead>
                 <tr>
                   <th>Leg</th>
                   <th>Symbol</th>
+                  <th>Side</th>
+                  <th>Strike</th>
+                  <th>Expiry</th>
+                  <th>Lots</th>
                   <th>Quantity</th>
                   <th>Entry</th>
-                  <th>Mark</th>
+                  <th>Current price</th>
+                  <th>P&amp;L</th>
                 </tr>
               </thead>
               <tbody>
@@ -364,16 +420,29 @@ function ActiveSpreads() {
                   <tr key={leg.role}>
                     <td>{leg.role}</td>
                     <td>{leg.symbol}</td>
+                    <td>{leg.role === "SHORT" ? "Sell" : "Buy"}</td>
+                    <td>{decimal(leg.strike)}</td>
+                    <td>{leg.expiry ?? "Unavailable"}</td>
+                    <td>
+                      {leg.lot_size && leg.quantity % leg.lot_size === 0
+                        ? leg.quantity / leg.lot_size
+                        : "Unavailable"}
+                    </td>
                     <td>{leg.quantity}</td>
                     <td>{decimal(leg.entry)}</td>
                     <td>{decimal(leg.mark)}</td>
+                    <td>
+                      <PnlValue value={leg.unrealised} />
+                    </td>
                   </tr>
                 ))}
               </tbody>
             </table>
           </div>
           <dl className="metric-grid">
-            <Datum name="MTM">{money(p.unrealised)}</Datum>
+            <Datum name="MTM">
+              <PnlValue value={p.unrealised} />
+            </Datum>
             <Datum name="Reserved margin">{money(p.margin)}</Datum>
             <Datum name="Margin return">
               {p.margin_return_pct == null
@@ -718,16 +787,33 @@ export function LivePage({ connection }: { connection: string }) {
     <>
       <Readiness connection={connection} />
       <div className="live-grid">
-        <div className="live-main">
+        <div className="live-main" role="region" aria-label="Market chart">
           <ChartPane />
+        </div>
+        <div
+          className="live-cards"
+          role="complementary"
+          aria-label="Strategy and P&L summary"
+        >
+          <OpenPnlSummary />
+          <DirectionCard />
+          <Today />
+        </div>
+        <div
+          className="live-positions"
+          role="region"
+          aria-label="Open positions"
+        >
+          <ActiveSpreads />
+        </div>
+        <div
+          className="live-activity"
+          role="region"
+          aria-label="Paper activity"
+        >
+          <LastClosed />
           <SignalFeed />
           <Alerts />
-        </div>
-        <div className="live-cards">
-          <DirectionCard />
-          <ActiveSpreads />
-          <LastClosed />
-          <Today />
         </div>
       </div>
     </>

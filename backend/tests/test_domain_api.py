@@ -1170,3 +1170,46 @@ def test_owner_rebind_accepts_verified_rebuilt_grid_without_overwriting_old_stre
     )
     with Session(w.engine) as db:
         assert db.get(MarketCheckpoint, "api-test") is not None
+
+
+def test_live_b1_leg_metadata_and_decimal_mtm(domain):
+    from app.api.domain_service import position_view
+
+    _, identity = admitted(domain)
+    position = domain["wallet"].snapshot().positions[identity]
+    view = position_view(position)
+    total = D(0)
+    for actual, planned in zip(view.legs, (position.plan.short, position.plan.hedge)):
+        assert actual.strike == planned.contract.strike
+        assert actual.expiry == planned.contract.expiry
+        assert actual.lot_size == planned.contract.lot_size
+        assert actual.quantity == planned.quantity
+        mark = position.mark_prices[planned.contract.token]
+        liquidation = mark.ask if actual.role == "SHORT" else mark.bid
+        expected = (liquidation - actual.entry) * actual.quantity
+        if actual.role == "SHORT":
+            expected = -expected
+        assert actual.unrealised == expected.quantize(D("0.01"))
+        total += actual.unrealised
+    assert total == view.unrealised
+    missing = position_view(
+        position.model_copy(update={"mark_prices": {}, "unrealised": None})
+    )
+    assert missing.unrealised is None
+    assert all(leg.mark is None and leg.unrealised is None for leg in missing.legs)
+    no_depth = position_view(
+        position.model_copy(
+            update={
+                "mark_prices": {
+                    token: mark.model_copy(update={"bid": None, "ask": None})
+                    for token, mark in position.mark_prices.items()
+                }
+            }
+        )
+    )
+    assert all(leg.unrealised is None for leg in no_depth.legs)
+    assert no_depth.unrealised == view.unrealised
+    transitioning = position_view(
+        position.model_copy(update={"status": PositionStatus.CLOSING})
+    )
+    assert all(leg.unrealised is None for leg in transitioning.legs)

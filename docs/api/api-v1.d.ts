@@ -1720,6 +1720,10 @@ export interface components {
         LegView: {
             /** Entry */
             entry: string | null;
+            /** Expiry */
+            expiry?: string | null;
+            /** Lot Size */
+            lot_size?: number | null;
             /** Mark */
             mark: string | null;
             /** Quantity */
@@ -1729,10 +1733,14 @@ export interface components {
              * @enum {string}
              */
             role: "SHORT" | "HEDGE";
+            /** Strike */
+            strike?: string | null;
             /** Symbol */
             symbol: string;
             /** Token */
             token: number;
+            /** Unrealised */
+            unrealised?: string | null;
         };
         /** LiveEvent */
         LiveEvent: {

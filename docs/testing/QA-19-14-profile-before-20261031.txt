@@ -1,0 +1,38 @@
+Sat Oct 31 11:33:40 2026    docs/testing/QA-19-14-profile-before-20261031.prof
+
+         5098888 function calls (4418917 primitive calls) in 14.132 seconds
+
+   Ordered by: cumulative time
+   List reduced from 6168 to 30 due to restriction <30>
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+   1093/1    0.032    0.000   14.140   14.140 {built-in method builtins.exec}
+        1    0.000    0.000   14.139   14.139 <frozen runpy>:201(run_module)
+        1    0.000    0.000   14.136   14.136 <frozen runpy>:65(_run_code)
+        1    0.000    0.000   14.136   14.136 ops_benchmark.py:1(<module>)
+        1    0.000    0.000   13.016   13.016 ops_benchmark.py:113(main)
+        1    0.036    0.036   13.014   13.014 ops_benchmark.py:24(benchmark)
+      500    0.029    0.000    9.536    0.019 kite_ticker.py:513(_accept)
+      500    0.026    0.000    9.469    0.019 persistence.py:200(save)
+4580/2684    0.016    0.000    9.150    0.003 state_changes.py:93(_go)
+  646/645    0.001    0.000    9.040    0.014 <sqlalchemy generated _go() wrapper for sqlalchemy.orm.session.SessionTransaction.commit>:1(commit)
+      549    0.003    0.000    9.039    0.016 util.py:126(__exit__)
+  646/645    0.025    0.000    9.036    0.014 session.py:1323(commit)
+      549    0.001    0.000    8.889    0.016 base.py:2607(commit)
+      549    0.007    0.000    8.887    0.016 base.py:2724(_do_commit)
+      549    0.002    0.000    8.879    0.016 base.py:2699(_connection_commit_impl)
+      549    0.003    0.000    8.877    0.016 base.py:1157(_commit_impl)
+      549    0.004    0.000    8.874    0.016 default.py:953(do_commit)
+      549    8.869    0.016    8.869    0.016 {method 'commit' of 'sqlite3.Connection' objects}
+       48    0.005    0.000    2.034    0.042 persistence.py:37(process)
+       62    0.002    0.000    1.788    0.029 __init__.py:1(<module>)
+     1337    0.004    0.000    1.623    0.001 base.py:1419(execute)
+     1395    0.009    0.000    1.446    0.001 base.py:1782(_execute_context)
+     1395    0.012    0.000    1.394    0.001 base.py:1841(_exec_single_context)
+     1394    0.002    0.000    1.342    0.001 default.py:1191(do_execute)
+     1395    1.339    0.001    1.339    0.001 {method 'execute' of 'sqlite3.Cursor' objects}
+     1143    0.017    0.000    1.259    0.001 session.py:2201(_execute_internal)
+   555/15    0.005    0.000    1.145    0.076 <frozen importlib._bootstrap>:1349(_find_and_load)
+   549/15    0.002    0.000    1.144    0.076 <frozen importlib._bootstrap>:1304(_find_and_load_unlocked)
+   533/18    0.002    0.000    1.140    0.063 <frozen importlib._bootstrap>:911(_load_unlocked)
+   489/17    0.002    0.000    1.139    0.067 <frozen importlib._bootstrap_external>:993(exec_module)

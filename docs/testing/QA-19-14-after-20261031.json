@@ -1,0 +1,40 @@
+{
+  "evidence": "SYNTHETIC_BASELINE_ONLY",
+  "platform": "Windows-11-10.0.26200-SP0",
+  "ticks": 500,
+  "completed_bricks": 48,
+  "input": "synthetic spot ticks six seconds apart, executed as a burst",
+  "measured": "normalized tick through SQLite minute-close brick and indicator commits",
+  "all_ticks": {
+    "samples": 500,
+    "p50_ms": 6.565000003320165,
+    "p95_ms": 20.313899993197992,
+    "max_ms": 31.34499999578111
+  },
+  "brick_emitting_ticks": {
+    "samples": 48,
+    "p50_ms": 20.313899993197992,
+    "p95_ms": 28.759999986505136,
+    "max_ms": 31.34499999578111
+  },
+  "market_storage": {
+    "samples": 500,
+    "p50_ms": 5.97090000519529,
+    "p95_ms": 8.1643999874359,
+    "max_ms": 26.82680000725668
+  },
+  "indicator_and_readback_on_brick": {
+    "samples": 48,
+    "p50_ms": 13.49879999179393,
+    "p95_ms": 19.86179999948945,
+    "max_ms": 24.65449999726843
+  },
+  "brick_to_dispatch_ms": null,
+  "representative_load_verified": false,
+  "limitations": [
+    "No network/queue wait or option fanout",
+    "No managed signal-to-order owner",
+    "Short prefix; not a twenty-day warmed history",
+    "Not QA-19-14 acceptance"
+  ]
+}

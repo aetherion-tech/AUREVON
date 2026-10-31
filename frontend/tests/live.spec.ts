@@ -2,7 +2,114 @@ import { test, expect, type Page } from "@playwright/test";
 test.afterEach(async ({ page }) => {
   await page.unrouteAll({ behavior: "wait" });
 });
+test("B1 exact total, metadata, stale and missing prices on mobile", async ({
+  page,
+}) => {
+  let missing = false;
+  await page.route("**/api/positions/open", (route) =>
+    route.fulfill({
+      json: [
+        {
+          trade_id: "B1-fixture",
+          state: "OPEN",
+          created_at: "2026-10-29T09:30:00+05:30",
+          mark_at: "2026-10-29T09:31:00+05:30",
+          margin: "10000.00",
+          unrealised: missing ? null : "49.95",
+          legs: [
+            {
+              role: "SHORT",
+              symbol: "FIXTURE SHORT",
+              quantity: 50,
+              entry: "100.10",
+              mark: "98.10",
+              strike: "24000",
+              expiry: "2026-11-03",
+              lot_size: 25,
+              unrealised: "100.00",
+            },
+            {
+              role: "HEDGE",
+              symbol: "FIXTURE HEDGE",
+              quantity: 50,
+              entry: "10.10",
+              mark: missing ? null : "9.099",
+              strike: "23800",
+              expiry: "2026-11-03",
+              lot_size: 25,
+              unrealised: missing ? null : "-50.05",
+            },
+          ],
+        },
+      ],
+    }),
+  );
+  await login(page);
+  const card = page
+    .getByRole("heading", { name: "Active paper spreads" })
+    .locator("..");
+  await expect(page.locator(".pnl-total")).toHaveText(/49.95/);
+  await expect(
+    card.getByRole("cell", { name: "24000", exact: true }),
+  ).toBeVisible();
+  await expect(
+    card.getByRole("cell", { name: "Sell", exact: true }),
+  ).toBeVisible();
+  await expect(
+    card.getByRole("cell", { name: "Buy", exact: true }),
+  ).toBeVisible();
+  await expect(card.getByRole("cell", { name: "2", exact: true })).toHaveCount(
+    2,
+  );
+  await expect(card.locator(".pnl-loss")).toHaveText(/50.05/);
+  await expect(page.getByText(/total is not a fresh valuation/)).toBeVisible();
+  await page.setViewportSize({ width: 390, height: 844 });
+  expect(
+    await page.evaluate(
+      () => document.documentElement.scrollWidth <= window.innerWidth,
+    ),
+  ).toBeTruthy();
+  missing = true;
+  await page.reload();
+  await expect(page.locator(".pnl-total")).toHaveText("Unavailable");
+  await expect(
+    card
+      .getByRole("row")
+      .filter({ hasText: "FIXTURE HEDGE" })
+      .getByRole("cell", { name: "Unavailable", exact: true }),
+  ).toHaveCount(2);
+});
 import type { Schema } from "../src/live-data";
+test("B1 empty positions and fresh negative aggregate", async ({ page }) => {
+  let empty = true;
+  await page.route("**/api/positions/open", (route) =>
+    route.fulfill({
+      json: empty
+        ? []
+        : [
+            {
+              trade_id: "B1-negative",
+              state: "OPEN",
+              created_at: new Date().toISOString(),
+              mark_at: new Date().toISOString(),
+              margin: "10000.00",
+              unrealised: "-0.30",
+              legs: [],
+            },
+          ],
+    }),
+  );
+  await login(page);
+  const card = page
+    .getByRole("heading", { name: "Active paper spreads" })
+    .locator("..");
+  await expect(card.getByText("No active paper spread.")).toBeVisible();
+  await expect(page.locator(".pnl-total")).toHaveText(/0.00/);
+  empty = false;
+  await page.reload();
+  await expect(page.locator(".pnl-total.pnl-loss")).toHaveText(/0.30/);
+  await expect(page.getByText(/total is not a fresh valuation/)).toHaveCount(0);
+});
 async function login(page: Page) {
   await page.goto("/dashboard/");
   await page.getByLabel("Dashboard password").fill("browser-fixture-only");
@@ -11,6 +118,73 @@ async function login(page: Page) {
     page.getByRole("heading", { name: "Live paper desk" }),
   ).toBeVisible();
 }
+test("B2 chart left, summary right, positions below and responsive stacking", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 1600, height: 1000 });
+  await login(page);
+  await expect(
+    page.getByTestId("renko-chart").locator("[data-brick-index]"),
+  ).toHaveCount(100);
+  const chart = page.getByRole("region", { name: "Market chart", exact: true });
+  const summary = page.getByRole("complementary", {
+    name: "Strategy and P&L summary",
+  });
+  const positions = page.getByRole("region", {
+    name: "Open positions",
+    exact: true,
+  });
+  const activity = page.getByRole("region", {
+    name: "Paper activity",
+    exact: true,
+  });
+  await expect(
+    summary.getByRole("heading", { name: "Open paper P&L" }),
+  ).toBeVisible();
+  await expect(
+    summary.getByRole("heading", { name: "Direction and strength" }),
+  ).toBeVisible();
+  await expect(
+    summary.getByRole("heading", { name: "Today", exact: true }),
+  ).toBeVisible();
+  const c = (await chart.boundingBox())!,
+    s = (await summary.boundingBox())!,
+    p = (await positions.boundingBox())!;
+  expect(c.x + c.width).toBeLessThanOrEqual(s.x);
+  expect(c.width).toBeGreaterThan(s.width * 1.8);
+  expect(Math.abs(c.y - s.y)).toBeLessThan(2);
+  expect(p.y).toBeGreaterThanOrEqual(Math.max(c.y + c.height, s.y + s.height));
+  expect(p.width).toBeGreaterThan(c.width + s.width);
+  expect(Math.abs(p.x + p.width - (s.x + s.width))).toBeLessThan(2);
+  expect((await activity.boundingBox())!.y).toBeGreaterThanOrEqual(
+    p.y + p.height,
+  );
+  await page.screenshot({
+    path: "../docs/testing/UI-LIVE-B2-desktop.png",
+    fullPage: true,
+  });
+  for (const width of [1024, 768, 390]) {
+    await page.setViewportSize({ width, height: 900 });
+    const stackedChart = (await chart.boundingBox())!,
+      stackedSummary = (await summary.boundingBox())!,
+      stackedPositions = (await positions.boundingBox())!;
+    expect(stackedSummary.y).toBeGreaterThanOrEqual(
+      stackedChart.y + stackedChart.height,
+    );
+    expect(stackedPositions.y).toBeGreaterThanOrEqual(
+      stackedSummary.y + stackedSummary.height,
+    );
+    expect(
+      await page.evaluate(
+        () => document.documentElement.scrollWidth <= window.innerWidth,
+      ),
+    ).toBeTruthy();
+  }
+  await page.screenshot({
+    path: "../docs/testing/UI-LIVE-B2-mobile.png",
+    fullPage: true,
+  });
+});
 test("last closed results and today risk values use server projections", async ({
   page,
 }) => {

@@ -1,0 +1,717 @@
+{
+  "evidence": "RETAINED_REAL_FEED_SAMPLE_REVIEW",
+  "source_hashes": {
+    "data\\ticks\\21ce9234a1164b8b877c6804cc0420f0\\2026-10-30.jsonl": "696efc784d9297258842b601b819f3d7064e1a75a2e99836dbfba63c3123715b"
+  },
+  "source_events": 3892,
+  "event_kinds": {
+    "advance": 150,
+    "tick": 3742
+  },
+  "ticks_by_token": {
+    "256265": 3034,
+    "15736578": 708
+  },
+  "first_tick_at": "2026-10-30 10:45:38.611393+05:30",
+  "last_tick_at": "2026-10-30 10:58:18.360021+05:30",
+  "quality": {
+    "reconstructed_stale_events": 2,
+    "reconstructed_clock_or_feed_delay_events": 753,
+    "reconstructed_session_expected_events": 3892
+  },
+  "connected_at_capture": null,
+  "queue_drops_at_capture": null,
+  "reconnects_at_capture": null,
+  "quality_note": "Stale/delay reconstructed at recorded event times; socket status not captured",
+  "event_time_regressions": [
+    {
+      "sequence": 285,
+      "kind": "advance",
+      "delta_ms": -119.509
+    },
+    {
+      "sequence": 596,
+      "kind": "advance",
+      "delta_ms": -71.072
+    },
+    {
+      "sequence": 899,
+      "kind": "advance",
+      "delta_ms": -42.946999999999996
+    },
+    {
+      "sequence": 1031,
+      "kind": "advance",
+      "delta_ms": -5.002999999999999
+    },
+    {
+      "sequence": 1267,
+      "kind": "advance",
+      "delta_ms": -9.008000000000001
+    },
+    {
+      "sequence": 1518,
+      "kind": "advance",
+      "delta_ms": -19.885
+    },
+    {
+      "sequence": 2128,
+      "kind": "advance",
+      "delta_ms": -51.827
+    },
+    {
+      "sequence": 2436,
+      "kind": "advance",
+      "delta_ms": -111.631
+    },
+    {
+      "sequence": 2486,
+      "kind": "advance",
+      "delta_ms": -15.720999999999998
+    },
+    {
+      "sequence": 2748,
+      "kind": "advance",
+      "delta_ms": -122.345
+    },
+    {
+      "sequence": 3198,
+      "kind": "advance",
+      "delta_ms": -10.373999999999999
+    },
+    {
+      "sequence": 3330,
+      "kind": "advance",
+      "delta_ms": -19.18
+    },
+    {
+      "sequence": 3357,
+      "kind": "advance",
+      "delta_ms": -109.418
+    },
+    {
+      "sequence": 3573,
+      "kind": "advance",
+      "delta_ms": -30.897000000000002
+    }
+  ],
+  "deterministic_completed_candles": true,
+  "completed_candles": 15,
+  "comparisons": [
+    {
+      "token": 256265,
+      "time": "2026-10-30 10:45:00+05:30",
+      "end": "2026-10-30 10:46:00+05:30",
+      "partial": true,
+      "vwap_partial": true,
+      "live_sample": {
+        "time": "2026-10-30 10:45:00+05:30",
+        "end": "2026-10-30 10:46:00+05:30",
+        "open": "22953.1",
+        "high": "22953.95",
+        "low": "22949.65",
+        "close": "22952.45",
+        "volume": null,
+        "oi": null,
+        "partial": true,
+        "vwap": null,
+        "vwap_partial": true
+      },
+      "historical": {
+        "open": "22955.65",
+        "high": "22957.9",
+        "low": "22949.65",
+        "close": "22952.45",
+        "volume": "0",
+        "oi": null,
+        "end": "2026-10-30 10:46:00+05:30",
+        "bar_hlc3_session_vwap": null
+      },
+      "live_minus_historical": {
+        "open": "-2.55",
+        "high": "-3.95",
+        "low": "0.00",
+        "close": "0.00",
+        "volume": null,
+        "oi": null
+      },
+      "vwap_comparable": false,
+      "vwap_reason": "Retained sample starts mid-session; historical VWAP has earlier session volume"
+    },
+    {
+      "token": 256265,
+      "time": "2026-10-30 10:46:00+05:30",
+      "end": "2026-10-30 10:47:00+05:30",
+      "partial": false,
+      "vwap_partial": true,
+      "live_sample": {
+        "time": "2026-10-30 10:46:00+05:30",
+        "end": "2026-10-30 10:47:00+05:30",
+        "open": "22951.8",
+        "high": "22952.15",
+        "low": "22940.45",
+        "close": "22943.4",
+        "volume": null,
+        "oi": null,
+        "partial": false,
+        "vwap": null,
+        "vwap_partial": true
+      },
+      "historical": {
+        "open": "22951.75",
+        "high": "22952.15",
+        "low": "22940.15",
+        "close": "22943.4",
+        "volume": "0",
+        "oi": null,
+        "end": "2026-10-30 10:47:00+05:30",
+        "bar_hlc3_session_vwap": null
+      },
+      "live_minus_historical": {
+        "open": "0.05",
+        "high": "0.00",
+        "low": "0.30",
+        "close": "0.0",
+        "volume": null,
+        "oi": null
+      },
+      "vwap_comparable": false,
+      "vwap_reason": "Retained sample starts mid-session; historical VWAP has earlier session volume"
+    },
+    {
+      "token": 256265,
+      "time": "2026-10-30 10:47:00+05:30",
+      "end": "2026-10-30 10:48:00+05:30",
+      "partial": false,
+      "vwap_partial": true,
+      "live_sample": {
+        "time": "2026-10-30 10:47:00+05:30",
+        "end": "2026-10-30 10:48:00+05:30",
+        "open": "22943.3",
+        "high": "22945.9",
+        "low": "22938.7",
+        "close": "22940.1",
+        "volume": null,
+        "oi": null,
+        "partial": false,
+        "vwap": null,
+        "vwap_partial": true
+      },
+      "historical": {
+        "open": "22943.25",
+        "high": "22945.9",
+        "low": "22938.7",
+        "close": "22940",
+        "volume": "0",
+        "oi": null,
+        "end": "2026-10-30 10:48:00+05:30",
+        "bar_hlc3_session_vwap": null
+      },
+      "live_minus_historical": {
+        "open": "0.05",
+        "high": "0.0",
+        "low": "0.0",
+        "close": "0.1",
+        "volume": null,
+        "oi": null
+      },
+      "vwap_comparable": false,
+      "vwap_reason": "Retained sample starts mid-session; historical VWAP has earlier session volume"
+    },
+    {
+      "token": 256265,
+      "time": "2026-10-30 10:48:00+05:30",
+      "end": "2026-10-30 10:49:00+05:30",
+      "partial": false,
+      "vwap_partial": true,
+      "live_sample": {
+        "time": "2026-10-30 10:48:00+05:30",
+        "end": "2026-10-30 10:49:00+05:30",
+        "open": "22939.2",
+        "high": "22943.6",
+        "low": "22929.5",
+        "close": "22930.75",
+        "volume": null,
+        "oi": null,
+        "partial": false,
+        "vwap": null,
+        "vwap_partial": true
+      },
+      "historical": {
+        "open": "22939.4",
+        "high": "22943.7",
+        "low": "22929.4",
+        "close": "22930.75",
+        "volume": "0",
+        "oi": null,
+        "end": "2026-10-30 10:49:00+05:30",
+        "bar_hlc3_session_vwap": null
+      },
+      "live_minus_historical": {
+        "open": "-0.2",
+        "high": "-0.1",
+        "low": "0.1",
+        "close": "0.00",
+        "volume": null,
+        "oi": null
+      },
+      "vwap_comparable": false,
+      "vwap_reason": "Retained sample starts mid-session; historical VWAP has earlier session volume"
+    },
+    {
+      "token": 256265,
+      "time": "2026-10-30 10:49:00+05:30",
+      "end": "2026-10-30 10:50:00+05:30",
+      "partial": false,
+      "vwap_partial": true,
+      "live_sample": {
+        "time": "2026-10-30 10:49:00+05:30",
+        "end": "2026-10-30 10:50:00+05:30",
+        "open": "22930.35",
+        "high": "22932.35",
+        "low": "22925.9",
+        "close": "22928.1",
+        "volume": null,
+        "oi": null,
+        "partial": false,
+        "vwap": null,
+        "vwap_partial": true
+      },
+      "historical": {
+        "open": "22930.35",
+        "high": "22932.65",
+        "low": "22925.75",
+        "close": "22928.1",
+        "volume": "0",
+        "oi": null,
+        "end": "2026-10-30 10:50:00+05:30",
+        "bar_hlc3_session_vwap": null
+      },
+      "live_minus_historical": {
+        "open": "0.00",
+        "high": "-0.30",
+        "low": "0.15",
+        "close": "0.0",
+        "volume": null,
+        "oi": null
+      },
+      "vwap_comparable": false,
+      "vwap_reason": "Retained sample starts mid-session; historical VWAP has earlier session volume"
+    },
+    {
+      "token": 15736578,
+      "time": "2026-10-30 10:45:00+05:30",
+      "end": "2026-10-30 10:50:00+05:30",
+      "partial": true,
+      "vwap_partial": true,
+      "live_sample": {
+        "time": "2026-10-30 10:45:00+05:30",
+        "end": "2026-10-30 10:50:00+05:30",
+        "open": "23006.0",
+        "high": "23006.0",
+        "low": "22972.1",
+        "close": "22972.2",
+        "volume": "12870",
+        "oi": "15860520",
+        "partial": true,
+        "vwap": "22983.43333333333333333333333",
+        "vwap_partial": true
+      },
+      "historical": {
+        "open": "23005",
+        "high": "23008.1",
+        "low": "22972.1",
+        "close": "22972.2",
+        "volume": "16575",
+        "oi": "15860520",
+        "end": "2026-10-30 10:50:00+05:30",
+        "bar_hlc3_session_vwap": "23008.93252012586326672387724"
+      },
+      "live_minus_historical": {
+        "open": "1.0",
+        "high": "-2.1",
+        "low": "0.0",
+        "close": "0.0",
+        "volume": "-3705",
+        "oi": "0"
+      },
+      "vwap_comparable": false,
+      "vwap_reason": "Retained sample starts mid-session; historical VWAP has earlier session volume"
+    },
+    {
+      "token": 256265,
+      "time": "2026-10-30 10:50:00+05:30",
+      "end": "2026-10-30 10:51:00+05:30",
+      "partial": false,
+      "vwap_partial": true,
+      "live_sample": {
+        "time": "2026-10-30 10:50:00+05:30",
+        "end": "2026-10-30 10:51:00+05:30",
+        "open": "22928.05",
+        "high": "22935.35",
+        "low": "22928.05",
+        "close": "22934.9",
+        "volume": null,
+        "oi": null,
+        "partial": false,
+        "vwap": null,
+        "vwap_partial": true
+      },
+      "historical": {
+        "open": "22927.6",
+        "high": "22935.45",
+        "low": "22927.6",
+        "close": "22934.9",
+        "volume": "0",
+        "oi": null,
+        "end": "2026-10-30 10:51:00+05:30",
+        "bar_hlc3_session_vwap": null
+      },
+      "live_minus_historical": {
+        "open": "0.45",
+        "high": "-0.10",
+        "low": "0.45",
+        "close": "0.0",
+        "volume": null,
+        "oi": null
+      },
+      "vwap_comparable": false,
+      "vwap_reason": "Retained sample starts mid-session; historical VWAP has earlier session volume"
+    },
+    {
+      "token": 256265,
+      "time": "2026-10-30 10:51:00+05:30",
+      "end": "2026-10-30 10:52:00+05:30",
+      "partial": false,
+      "vwap_partial": true,
+      "live_sample": {
+        "time": "2026-10-30 10:51:00+05:30",
+        "end": "2026-10-30 10:52:00+05:30",
+        "open": "22935.25",
+        "high": "22948.1",
+        "low": "22934.9",
+        "close": "22945.65",
+        "volume": null,
+        "oi": null,
+        "partial": false,
+        "vwap": null,
+        "vwap_partial": true
+      },
+      "historical": {
+        "open": "22935.25",
+        "high": "22948.15",
+        "low": "22934.9",
+        "close": "22945.65",
+        "volume": "0",
+        "oi": null,
+        "end": "2026-10-30 10:52:00+05:30",
+        "bar_hlc3_session_vwap": null
+      },
+      "live_minus_historical": {
+        "open": "0.00",
+        "high": "-0.05",
+        "low": "0.0",
+        "close": "0.00",
+        "volume": null,
+        "oi": null
+      },
+      "vwap_comparable": false,
+      "vwap_reason": "Retained sample starts mid-session; historical VWAP has earlier session volume"
+    },
+    {
+      "token": 256265,
+      "time": "2026-10-30 10:52:00+05:30",
+      "end": "2026-10-30 10:53:00+05:30",
+      "partial": false,
+      "vwap_partial": true,
+      "live_sample": {
+        "time": "2026-10-30 10:52:00+05:30",
+        "end": "2026-10-30 10:53:00+05:30",
+        "open": "22945.35",
+        "high": "22948.75",
+        "low": "22943.75",
+        "close": "22945.7",
+        "volume": null,
+        "oi": null,
+        "partial": false,
+        "vwap": null,
+        "vwap_partial": true
+      },
+      "historical": {
+        "open": "22945.55",
+        "high": "22948.9",
+        "low": "22943.7",
+        "close": "22945.7",
+        "volume": "0",
+        "oi": null,
+        "end": "2026-10-30 10:53:00+05:30",
+        "bar_hlc3_session_vwap": null
+      },
+      "live_minus_historical": {
+        "open": "-0.20",
+        "high": "-0.15",
+        "low": "0.05",
+        "close": "0.0",
+        "volume": null,
+        "oi": null
+      },
+      "vwap_comparable": false,
+      "vwap_reason": "Retained sample starts mid-session; historical VWAP has earlier session volume"
+    },
+    {
+      "token": 256265,
+      "time": "2026-10-30 10:53:00+05:30",
+      "end": "2026-10-30 10:54:00+05:30",
+      "partial": false,
+      "vwap_partial": true,
+      "live_sample": {
+        "time": "2026-10-30 10:53:00+05:30",
+        "end": "2026-10-30 10:54:00+05:30",
+        "open": "22946.05",
+        "high": "22947.85",
+        "low": "22944.15",
+        "close": "22945.4",
+        "volume": null,
+        "oi": null,
+        "partial": false,
+        "vwap": null,
+        "vwap_partial": true
+      },
+      "historical": {
+        "open": "22945.75",
+        "high": "22947.85",
+        "low": "22944.05",
+        "close": "22945.4",
+        "volume": "0",
+        "oi": null,
+        "end": "2026-10-30 10:54:00+05:30",
+        "bar_hlc3_session_vwap": null
+      },
+      "live_minus_historical": {
+        "open": "0.30",
+        "high": "0.00",
+        "low": "0.10",
+        "close": "0.0",
+        "volume": null,
+        "oi": null
+      },
+      "vwap_comparable": false,
+      "vwap_reason": "Retained sample starts mid-session; historical VWAP has earlier session volume"
+    },
+    {
+      "token": 256265,
+      "time": "2026-10-30 10:54:00+05:30",
+      "end": "2026-10-30 10:55:00+05:30",
+      "partial": false,
+      "vwap_partial": true,
+      "live_sample": {
+        "time": "2026-10-30 10:54:00+05:30",
+        "end": "2026-10-30 10:55:00+05:30",
+        "open": "22945.7",
+        "high": "22963.7",
+        "low": "22945.7",
+        "close": "22962.45",
+        "volume": null,
+        "oi": null,
+        "partial": false,
+        "vwap": null,
+        "vwap_partial": true
+      },
+      "historical": {
+        "open": "22945.55",
+        "high": "22963.85",
+        "low": "22945.55",
+        "close": "22962.45",
+        "volume": "0",
+        "oi": null,
+        "end": "2026-10-30 10:55:00+05:30",
+        "bar_hlc3_session_vwap": null
+      },
+      "live_minus_historical": {
+        "open": "0.15",
+        "high": "-0.15",
+        "low": "0.15",
+        "close": "0.00",
+        "volume": null,
+        "oi": null
+      },
+      "vwap_comparable": false,
+      "vwap_reason": "Retained sample starts mid-session; historical VWAP has earlier session volume"
+    },
+    {
+      "token": 15736578,
+      "time": "2026-10-30 10:50:00+05:30",
+      "end": "2026-10-30 10:55:00+05:30",
+      "partial": false,
+      "vwap_partial": true,
+      "live_sample": {
+        "time": "2026-10-30 10:50:00+05:30",
+        "end": "2026-10-30 10:55:00+05:30",
+        "open": "22972.2",
+        "high": "23018.0",
+        "low": "22972.2",
+        "close": "23013.6",
+        "volume": "15795",
+        "oi": "15859090",
+        "partial": false,
+        "vwap": "22993.25986394557823129251701",
+        "vwap_partial": true
+      },
+      "historical": {
+        "open": "22972.2",
+        "high": "23018",
+        "low": "22972.2",
+        "close": "23013.6",
+        "volume": "15795",
+        "oi": "15859090",
+        "end": "2026-10-30 10:55:00+05:30",
+        "bar_hlc3_session_vwap": "23008.82001167683356485675746"
+      },
+      "live_minus_historical": {
+        "open": "0.0",
+        "high": "0.0",
+        "low": "0.0",
+        "close": "0.0",
+        "volume": "0",
+        "oi": "0"
+      },
+      "vwap_comparable": false,
+      "vwap_reason": "Retained sample starts mid-session; historical VWAP has earlier session volume"
+    },
+    {
+      "token": 256265,
+      "time": "2026-10-30 10:55:00+05:30",
+      "end": "2026-10-30 10:56:00+05:30",
+      "partial": false,
+      "vwap_partial": true,
+      "live_sample": {
+        "time": "2026-10-30 10:55:00+05:30",
+        "end": "2026-10-30 10:56:00+05:30",
+        "open": "22962.6",
+        "high": "22965.2",
+        "low": "22957.05",
+        "close": "22965.2",
+        "volume": null,
+        "oi": null,
+        "partial": false,
+        "vwap": null,
+        "vwap_partial": true
+      },
+      "historical": {
+        "open": "22962.35",
+        "high": "22965.2",
+        "low": "22956.85",
+        "close": "22965.2",
+        "volume": "0",
+        "oi": null,
+        "end": "2026-10-30 10:56:00+05:30",
+        "bar_hlc3_session_vwap": null
+      },
+      "live_minus_historical": {
+        "open": "0.25",
+        "high": "0.0",
+        "low": "0.20",
+        "close": "0.0",
+        "volume": null,
+        "oi": null
+      },
+      "vwap_comparable": false,
+      "vwap_reason": "Retained sample starts mid-session; historical VWAP has earlier session volume"
+    },
+    {
+      "token": 256265,
+      "time": "2026-10-30 10:56:00+05:30",
+      "end": "2026-10-30 10:57:00+05:30",
+      "partial": false,
+      "vwap_partial": true,
+      "live_sample": {
+        "time": "2026-10-30 10:56:00+05:30",
+        "end": "2026-10-30 10:57:00+05:30",
+        "open": "22964.9",
+        "high": "22976.6",
+        "low": "22964.9",
+        "close": "22976.6",
+        "volume": null,
+        "oi": null,
+        "partial": false,
+        "vwap": null,
+        "vwap_partial": true
+      },
+      "historical": {
+        "open": "22964.9",
+        "high": "22976.6",
+        "low": "22964.9",
+        "close": "22976.6",
+        "volume": "0",
+        "oi": null,
+        "end": "2026-10-30 10:57:00+05:30",
+        "bar_hlc3_session_vwap": null
+      },
+      "live_minus_historical": {
+        "open": "0.0",
+        "high": "0.0",
+        "low": "0.0",
+        "close": "0.0",
+        "volume": null,
+        "oi": null
+      },
+      "vwap_comparable": false,
+      "vwap_reason": "Retained sample starts mid-session; historical VWAP has earlier session volume"
+    },
+    {
+      "token": 256265,
+      "time": "2026-10-30 10:57:00+05:30",
+      "end": "2026-10-30 10:58:00+05:30",
+      "partial": false,
+      "vwap_partial": true,
+      "live_sample": {
+        "time": "2026-10-30 10:57:00+05:30",
+        "end": "2026-10-30 10:58:00+05:30",
+        "open": "22975.8",
+        "high": "22980.85",
+        "low": "22971.0",
+        "close": "22974.9",
+        "volume": null,
+        "oi": null,
+        "partial": false,
+        "vwap": null,
+        "vwap_partial": true
+      },
+      "historical": {
+        "open": "22975.7",
+        "high": "22980.85",
+        "low": "22970.8",
+        "close": "22974.9",
+        "volume": "0",
+        "oi": null,
+        "end": "2026-10-30 10:58:00+05:30",
+        "bar_hlc3_session_vwap": null
+      },
+      "live_minus_historical": {
+        "open": "0.1",
+        "high": "0.00",
+        "low": "0.2",
+        "close": "0.0",
+        "volume": null,
+        "oi": null
+      },
+      "vwap_comparable": false,
+      "vwap_reason": "Retained sample starts mid-session; historical VWAP has earlier session volume"
+    }
+  ],
+  "unfinished_tail": {
+    "256265": {
+      "time": "2026-10-30 10:58:00+05:30",
+      "end": "2026-10-30 10:59:00+05:30"
+    },
+    "15736578": {
+      "time": "2026-10-30 10:55:00+05:30",
+      "end": "2026-10-30 11:00:00+05:30"
+    }
+  },
+  "formal_sessions": 0,
+  "g1_accepted": false,
+  "g2_accepted": false,
+  "operator_state_changed": false,
+  "broker_calls": 0
+}

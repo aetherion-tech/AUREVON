@@ -1952,6 +1952,29 @@
             ],
             "title": "Entry"
           },
+          "expiry": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Expiry"
+          },
+          "lot_size": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Lot Size"
+          },
           "mark": {
             "anyOf": [
               {
@@ -1975,6 +1998,17 @@
             "title": "Role",
             "type": "string"
           },
+          "strike": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Strike"
+          },
           "symbol": {
             "title": "Symbol",
             "type": "string"
@@ -1982,6 +2016,18 @@
           "token": {
             "title": "Token",
             "type": "integer"
+          },
+          "unrealised": {
+            "anyOf": [
+              {
+                "pattern": "^-?[0-9]+\\.[0-9]{2}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Unrealised"
           }
         },
         "required": [

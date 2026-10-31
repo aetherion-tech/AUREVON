@@ -1,0 +1,187 @@
+{
+  "status": "PARTIAL_ACTUAL_SCREENSHOT_AND_PINE_SOURCE_RECEIVED",
+  "date_ist": "2026-10-31",
+  "batch": "UI-LIVE-B3",
+  "completed": false,
+  "screenshot": "docs/pine/chart-reference-2026-10-31.png",
+  "screenshot_sha256": "224177e214effcbe1863ee3abc134cdfd52263836715379843935761575518d9",
+  "observed_chart": {
+    "exchange": "NSE",
+    "symbol_label": "NIFTY / Nifty 50 Index",
+    "interval_minutes": 5,
+    "method": "Traditional",
+    "box_points": 50,
+    "timezone_label": "UTC+05:30",
+    "displayed_ohlc": {
+      "open": 23050,
+      "high": 23100,
+      "low": 23050,
+      "close": 23100
+    }
+  },
+  "anchor_accepted": true,
+  "anchor_timestamp": "2026-10-27T13:25:00+05:30",
+  "remaining": [
+    "Loaded history/date range",
+    "Other saved indicator inputs/default confirmation",
+    "5-minute wick-bearing reference versus minute-close/body-only construction reconciliation",
+    "Genuine feed update acceptance"
+  ],
+  "pine_source": "User pasted source declarations in chat; existing original preserved; full byte equivalence not asserted",
+  "source_defaults": {
+    "atrLen": 10,
+    "factor": 2.5,
+    "upCol": "green",
+    "dnCol": "red",
+    "showFill": false,
+    "joinST": true,
+    "boxSize": 50.0,
+    "coreWindow": 3,
+    "sigCooldown": 3,
+    "minGrade": "Moderate and above",
+    "evalBricks": 8,
+    "divFresh": 8,
+    "extMins": 15,
+    "extBricks": 3,
+    "tgt1Pct": 2.5,
+    "tgt2Pct": 4.0,
+    "exitOppN": 1,
+    "exitAtT2": true,
+    "exitOnStop": false,
+    "stopCapBx": 6.0,
+    "showAdds": false,
+    "showPlan": true,
+    "rsiLen": 14,
+    "topType": "Equal or higher",
+    "minRsiGap": 0.5,
+    "maxGap": 60,
+    "rsiHi": 50,
+    "rsiLo": 50,
+    "hdivOn": true,
+    "showDivLn": false,
+    "divCrossDay": true,
+    "pbOn": true,
+    "pbMinAge": 3,
+    "brkOn": true,
+    "brkAge": 40,
+    "trapOn": true,
+    "trapBars": 6,
+    "orbOn": true,
+    "orbUntil": 1130,
+    "orbMinBx": 2,
+    "srgOn": true,
+    "srgMin": 4,
+    "srgNeedVol": true,
+    "flowOn": true,
+    "futSym": "NSE:NIFTY1!",
+    "useOI": true,
+    "flowTf": "5",
+    "flowBars": 3,
+    "oiMinPct": 0.1,
+    "pxMinPct": 0.05,
+    "volMult": 1.5,
+    "outSamples": 20,
+    "stretchBx": 6,
+    "manRes": 0.0,
+    "manSup": 0.0,
+    "dashMode": "Compact",
+    "dashPos": "Top Right",
+    "dashSize": "Normal",
+    "labelMode": "Code + arrow",
+    "labelGap": 1,
+    "lblSz": "Small",
+    "colBull": "green",
+    "colBear": "red",
+    "showBg": true,
+    "showLevels": false,
+    "showNext": false,
+    "useClock": true
+  },
+  "source_defaults_prove_saved_chart_inputs": false,
+  "operator_config_feed_database_changed": false,
+  "counts": {
+    "completed": 237,
+    "pending": 43,
+    "formal_sessions": 0
+  },
+  "extra_paid_usage_inr": 0,
+  "usage_cash_renewal": "Unknown",
+  "additional_tooltip_evidence": {
+    "path": "docs/pine/chart-tooltip-2026-10-31.png",
+    "sha256": "04062b9a0f799b25ddeb5065fbab905131038f9f1fbef8f724cad8eeb058be28",
+    "entry": 23000,
+    "target1": 22425,
+    "target2": 22080,
+    "header_ohlc": {
+      "open": 22950,
+      "high": 23000,
+      "low": 22852.8,
+      "close": 23000
+    },
+    "wick_in_header_ohlc": true,
+    "tooltip_and_header_same_brick_proven": false,
+    "brick_timestamp": null,
+    "anchor_accepted": false
+  },
+  "observed_indicator_inputs": {
+    "path": "docs/pine/chart-inputs-trade-plan-2026-10-31.png",
+    "sha256": "ea3a4a132ba4f175dd6454c4352a3d21db4a13374ad2731c43a706e755e8ae66",
+    "values": {
+      "tgt1Pct": 2.5,
+      "tgt2Pct": 4,
+      "exitOppN": 1,
+      "exitAtT2": true,
+      "exitOnStop": false,
+      "stopCapBx": 6,
+      "showAdds": false,
+      "showPlan": true,
+      "rsiLen": 14
+    },
+    "all_inputs_verified": false
+  },
+  "actual_renko_settings": {
+    "screenshots": [
+      {
+        "path": "docs/pine/chart-renko-settings-1-2026-10-31.png",
+        "sha256": "28aee7cb115dfd8323472658cc378598f4c0e8b5913b0b6cdcdb43bb12e5f821"
+      },
+      {
+        "path": "docs/pine/chart-renko-settings-2-2026-10-31.png",
+        "sha256": "839d06923ad20f06eda9f036bfd83c71d008c924b32d3d100c0591bec6cbf4d3"
+      }
+    ],
+    "source": "Close",
+    "wicks_enabled": true,
+    "method": "Traditional",
+    "box_size": 50,
+    "timezone_label": "(UTC+5:30) Kolk...",
+    "session_label": "Regular trading ..."
+  },
+  "reference_anchor": {
+    "screenshots": [
+      {
+        "path": "docs/pine/chart-anchor-1-2026-10-31.png",
+        "sha256": "df5c2ae05781ec8fa4edb876f2f4fbb8015b86852c780816aa0d9a6a78457872"
+      },
+      {
+        "path": "docs/pine/chart-anchor-2-2026-10-31.png",
+        "sha256": "6d9ff721a6b0c63a3d5016100a0e574e58e8d606544f0f162e40de7713de7e74"
+      },
+      {
+        "path": "docs/pine/chart-anchor-3-2026-10-31.png",
+        "sha256": "5c3dd7117f50f11a21af5693db1d0e4d67fecb87f87f6960d717c8256ca65819"
+      }
+    ],
+    "close": "22700",
+    "timestamp": "2026-10-27T13:25:00+05:30",
+    "ohlc": {
+      "open": "22750",
+      "high": "22804.85",
+      "low": "22700",
+      "close": "22700"
+    },
+    "historical_completed_brick_evidence": true,
+    "runtime_anchor_configured": false,
+    "initial_seed_or_history_start_proven": false
+  }
+}

@@ -27,6 +27,9 @@ def benchmark(count: int = 500) -> dict[str, Any]:
     with tempfile.TemporaryDirectory(prefix="aurevon-benchmark-") as folder:
         engine = database_engine(f"sqlite:///{Path(folder).as_posix()}/benchmark.db")
         Base.metadata.create_all(engine)
+        with engine.connect() as connection:
+            journal = connection.exec_driver_sql("PRAGMA journal_mode").scalar_one()
+            synchronous = connection.exec_driver_sql("PRAGMA synchronous").scalar_one()
         stream = "synthetic-performance"
         store = MarketPersistence(engine, stream, 111, 222, anchor="23900")
         worker = TickerWorker(None, 111, 222, persistence=store)
@@ -89,6 +92,7 @@ def benchmark(count: int = 500) -> dict[str, Any]:
     return {
         "evidence": "SYNTHETIC_BASELINE_ONLY",
         "platform": platform.platform(),
+        "sqlite": {"journal_mode": journal, "synchronous": synchronous},
         "ticks": count,
         "completed_bricks": last + 1,
         "input": "synthetic spot ticks six seconds apart, executed as a burst",

@@ -5,14 +5,116 @@ trading with Zerodha Kite market data. Development follows small, testable steps
 
 ## Current progress
 
-D05 user-priority queue recorded (planning only): hourly Live UI follow-ups
-UI-LIVE-B1 positions/P&L (1-2h), B2 layout (1-2h), B3 actual chart configuration
-(1-2h if reference inputs are ready), B4 integrated checks (0.5-1h). All Pending;
-B3 input-blocked. Next UI-LIVE-B1 then B2; QA-19-14 remains Pending behind this
-priority or available while B3 is blocked. Reuse Completed FE-15 functionality;
-per-batch verification remains required. See [persistent batch queue](docs/plans/NEXT_SESSION.md#immediate-user-priority---hourly-live-screen-batches).
-No implementation, tests or new product completion claimed; counts 237/43,
-formal sessions zero; usage/cash/renewal Unknown and extra paid usage INR 0.
+D06 continuation recheck: no new export candidates found in scoped workspace/
+Downloads/Desktop searches; application calendar has no session today. Existing
+8000/5173 owners preserved. No new completion or repeated tests. Next input is
+actual TradingView debug CSV path for REF-00-05; chart settings/anchor already
+recorded. Counts241/39,formal0; usage/cash/renewal Unknown,extra paidINR0.
+
+D06 retained-source batch: **QA-07-02 and QA-07-07 Completed** for a bounded
+actual30-Oct market-data sample and sampled/historical comparison. Reviewed3892
+ordered events (3742 ticks); two independent replays reproduce13 spot-minute and
+two futures-five-minute candles. Complete10:50 futures bar matches historical
+OHLC/volume/OI; initial partial bar and mid-session VWAP limitations retained.
+Stale/delay reconstructed at recorded times; uncaptured socket state Unknown.
+48 selected backend cases and final5 focused checks, lint/format/mypy PASS.
+[Evidence and scope](docs/testing/QA-07-02-07-recorded-observation.md).
+**241 Completed / 39 Pending**; QA07 3/4. Formal sessions0. No broker calls,
+operator/feed/DB/Pine changes or runtime restart. Remaining controlled reconnect,
+reference/seed/construction,G1/G2/G3,dispatch,SCM and burn-in gates stay Pending.
+Usage/cash/renewal Unknown; extra paid usage INR0.
+
+D06 ready-task audit: **REF-00-03 and QA-07-01 Completed**. Actual chart-setting
+intake is recorded; real authenticated historical downloads verify375 spot bars,
+75 futures bars and positive futures OI75/75 with matching repeated windows.
+**239 Completed / 41 Pending**:21 paper tasks await acceptance prerequisites,
+20 Phase20/21 tasks stay outside funded scope. Formal sessions0.
+QA-19-14 storage optimization delivered: synthetic brick p95 reduced59.62ms to
+28.76ms (confirmation23.97ms), retaining WAL/FULL commits. Full857 backend tests,
+final10 focused tests,3 built HTTPS smoke checks,lint/format/mypy PASS. Representative load/dispatch acceptance
+remains Pending. Existing owners/operator state preserved; backend code requires
+safe restart after observation/flat/feed-stop checks. Usage/cash/renewal Unknown;
+extra paid usage INR0. [Delivery](docs/testing/D06-ready-task-delivery.md),
+[remaining-task audit](docs/testing/D06-pending-task-audit.json).
+
+D06 **UI-LIVE-B4 Completed** for independent isolated engineering checks:
+129 backend tests, 37 frontend tests and 16 built HTTPS browser checks PASS;
+one strengthened final focused browser scenario also PASS. Build/TypeScript/
+ESLint and Pine integrity PASS. Fixed future-dated per-spread marks incorrectly
+appearing received; label now agrees with aggregate freshness warning.
+[Acceptance and limitations](docs/testing/UI-LIVE-B4-acceptance.md).
+B1/B2/B4 done; B3 five-minute/wick construction/reference/feed acceptance remains
+Pending. Next independent task QA-19-14 profiling/optimization. Counts237/43,
+formal sessions0; usage/cash/renewal Unknown, extra paid usage INR0. Frontend-only
+B4: refresh existing5173; no backend restart or operator-state change.
+
+D06 B3 construction check delivered; **B3 remains Pending**. Actual settings and
+anchor are now staged in a separate reference package. New read-only diagnostic
+reports five-minute/wick incompatibility, missing configured anchor/history/input
+confirmation; it cannot activate the current minute-close/body-only pipeline.
+52 selected backend tests pass; extended final diagnostic14 pass; Ruff/format/
+mypy and Pine integrity pass. No configuration/feed/owner changes or new product
+completion. See [B3 engineering status](docs/testing/UI-LIVE-B3-engineering-status.md).
+
+D06 B3 reference anchor now recorded: historical close **22700**, **27 October
+2026 13:25 IST**, OHLC22750/22804.85/22700/22700 from crosshair screenshots.
+Anchor evidence resolved; no runtime configuration changed. B3 construction,
+remaining reference context and feed acceptance still Pending. See
+[reference record](docs/pine/chart_reference.md).
+
+D06 B3 Renko settings confirmed: Close source, Wick enabled, Traditional50,
+Kolkata UTC+05:30. Screenshots retained in docs/pine/chart-renko-settings-*.png.
+Completed-brick close/time and history/input evidence still needed; reconcile
+5-minute/wick reference with minute-close/body-only implementation. B3 Pending;
+no operator configuration changed. See [reference record](docs/pine/chart_reference.md).
+
+D06 B3 actual indicator Inputs screenshot received: visible trade-plan settings
+match source defaults (targets 2.5/4, opposite exit1, T2 on, safety exit off,
+cap6, adds off, plan on; RSI14 visible). Chart source/wicks/time still missing;
+B3 Pending. See docs/pine/chart_reference.md.
+
+D06 B3 additional tooltip evidence: entry23000/T1 22425/T2 22080 displayed;
+separate header OHLC shows a wick (low22852.80 below body22950-23000).
+Exact brick time/source/settings remain absent; B3 still Pending. Retained in
+[reference record](docs/pine/chart_reference.md); no configuration changes.
+
+D06 UI-LIVE-B3 partial inputs received: screenshot retained with NSE Nifty 50,
+5-minute, Traditional 50 and UTC+05:30; pasted Pine source establishes defaults,
+not saved chart overrides. Header close 23100 lacks completed-brick timestamp.
+Source/wicks, anchor/time, history range and override confirmation still required;
+5-minute chart versus minute_close construction unresolved. Updated
+[reference record](docs/pine/chart_reference.md) and [input receipt](docs/testing/UI-LIVE-B3-input-evidence.json).
+No config/feed/Pine changes or completion; counts 237/43. B3 remains Pending.
+
+D06 UI-LIVE-B3 preflight: still input-blocked. Read-only local settings show
+box 50, minute_close mode and no anchor; actual chart reference fields remain
+Pending. Screenshot observations are unconfirmed; apparent 5-minute resolution
+needs reconciliation with minute-close mode. Actual settings/anchor question
+sent; no configuration/feed/owner changes or new completion. Readiness BLOCKED;
+original/debug Pine integrity check PASS. See [B3 preflight](docs/testing/UI-LIVE-B3-preflight.json).
+Next: actual B3 chart inputs; independent B4 remains available. Counts 237/43;
+usage/cash/renewal Unknown, extra paid usage INR 0, formal sessions zero.
+
+D06 UI-LIVE-B2 Completed: larger Renko chart left, strategy/open P&L/Today
+summary right, full-width positions below and activity panels after positions.
+Responsive stacking verified at 1024/768/390px. Reuses existing renderer,
+source/history guidance, projections and guarded close. 37 frontend tests,
+13 built HTTPS browser checks, build/TypeScript/ESLint PASS. Frontend-only;
+refresh existing 5173, no B2 backend restart. See [B2 evidence](docs/testing/UI-LIVE-B2-acceptance.md).
+Next independent batch UI-LIVE-B4; B3 remains input-blocked on actual reference
+settings. Counts 237/43, formal sessions zero, usage/cash/renewal Unknown;
+extra paid usage INR 0.
+
+D06 (2026-10-31) UI-LIVE-B1 Completed: compact option positions table with side,
+strike, expiry, lots/quantity, entry/current prices and supported per-leg P&L;
+prominent green/red total open MTM uses exact rupee arithmetic. Liquidation quote
+basis, missing/stale marks and guarded close retained. 75 selected backend tests,
+37 frontend tests, three built HTTPS browser checks, build/lint/types/contracts
+PASS. See [B1 evidence](docs/testing/UI-LIVE-B1-acceptance.md).
+B2 subsequently completed as recorded above; B3 input-blocked; B4 Pending. Counts remain 237/43,
+formal sessions zero; usage/cash/renewal Unknown, extra paid usage INR 0.
+Backend projection changed: safely restart the existing 8000 owner only after
+observation/feed-stop and flat-state checks; refresh the existing 5173 dashboard.
 
 D05 Live UI 404 repair: quote-only/missing chart and unavailable signals show
 clear guidance; archived replay history remains accessible. No guessed anchor
@@ -99,7 +201,7 @@ verified startup/use instructions in [local paper UI readiness](docs/operations/
 
 ## Start here - delivery plan v2 (45-day target, 60-day review)
 
-**Plan updated: 2026-10-30. Product status: 237 Completed / 43 Pending of 280.**
+**Plan updated: 2026-10-31. Product status: 241 Completed / 39 Pending of 280.**
 **Cash target: INR 10,000; absolute project ceiling: INR 20,000 including taxes/fees.**
 This replaces the execution schedule, not the product acceptance requirements.
 The original master checklist, stable IDs and all unfinished scope remain below.
@@ -109,13 +211,13 @@ The original master checklist, stable IDs and all unfinished scope remain below.
 | Short next-session handoff | [NEXT_SESSION.md](docs/plans/NEXT_SESSION.md) |
 | Immutable Version 1 backup | [README.v1.md](docs/plans/README.v1.md), [SHA-256](docs/plans/README.v1.sha256) |
 | Plan preparation | Completed on 2026-10-26; documentation only, outside the 280 product tasks |
-| Current implementation slot | User-priority hourly UI queue: next UI-LIVE-B1 then B2; B3 reference-input blocked; B4 integrated checks, with focused checks each batch. All Pending; see NEXT_SESSION. Prior engineering pointer retained: D05 QA-19-11 recovery engineering drills accepted: 47 selected backend/two HTTPS browser checks pass. QA-19-09/11/12/13 done; 10/14/15/16/17 remain Pending. Next engineering batch QA-19-14 profiling/optimization; representative-load and dispatch acceptance still required. REF inputs and SCM lifecycle remain separately pending. Continue 5173/8000; no production owner changes. docs/testing/QA-19-11-recovery-drills.md. |
-| Kickoff / elapsed day | 2026-10-26 IST / current D05 (2026-10-30); task carry-over and early batches are recorded without renumbering elapsed days |
+| Current implementation slot | D06 retained actual source reviewed: QA-07-02/07 Completed; QA07 now3/4, project241/39. Next prerequisites: real controlled reconnect/restart for QA-07-03 or actual TradingView export/seed/remaining inputs for REF-00-05 and five-minute/wick reconciliation. QA-19-14 optimized but representative load/dispatch unaccepted; SCM/shadow/burn-in prerequisites remain. B1/B2/B4 done; B3 Pending. docs/testing/QA-07-02-07-recorded-observation.md. |
+| Kickoff / elapsed day | 2026-10-26 IST / current D06 (2026-10-31); task carry-over and early batches are recorded without renumbering elapsed days |
 | Existing plan, all-in price, renewal and usage-reset times | Unverified; obtain actual account readings, never assume a reset/renewal date |
 | Cash already spent / reserved / remaining | Unverified; reconcile receipts before proposing any purchase |
 | Paper status | Manual Pine practice remains separate. Isolated execution/accounting code is ready; managed automated paper and the local trading UI remain inactive. Readiness: python -m app.tools.local_ui_readiness; docs/operations/local-paper-ui.md. |
 | Qualified formal paper sessions | 0 evidenced; dates, release/config identity, shadow checks and reconciliation required |
-| Latest application verification | D05 Live availability UI repair: 12/12 selected built HTTPS browser checks and 35 frontend unit cases pass; production build/TypeScript/ESLint pass. Quotes-only/missing history guidance replaces expected 404 panels, archived replay/source/paging/incremental behavior retained. No new backend broad run; prior 47 recovery and 114 control selected checks retained separately. docs/testing/live-source-availability.md. |
+| Latest application verification | D06 recorded-source reviewer:48 selected replay/recording/candle/calendar cases plus final5 focused repeats PASS; targeted Ruff/format/mypy PASS. Actual3892-event sample/hash checks and deterministic15-candle comparison PASS; partial/unavailable values and timing anomalies retained. No runtime/FE changes or new browser run. Prior857 full BE/10 focused/3 WAL browser checks remain separate. Formal0; G1/G2/G3 still unaccepted. |
 
 ### Delivery scope, day numbering and realistic targets
 
@@ -305,12 +407,12 @@ Day statuses below are separate from the 280 product-task counts.
 
 | Day | Status | Batch / acceptance focus | Primary product IDs | Usage profile | Paper, budget or dependency action |
 | --- | --- | --- | --- | --- | --- |
-| D01 | Pending | Code Completed: correction + bounded retry; input still Pending | BE-05-10, BE-05-11, REF-00-03 | H; extra cash 0 by default | BE-05-10 through BE-05-17 and BE-06-01 through BE-06-11 and BE-13-01 Completed; latest checks below; REF-00-03 awaits actual settings. Billing/tokens Unknown; no recharge initiated. Next ready code: BE-13-02. |
+| D01 | Completed | Assigned correction/retry/chart-setting intake tasks now all accepted | BE-05-10, BE-05-11, REF-00-03 | H; extra cash 0 by default | Backend IDs completed earlier; REF-00-03 closed late D06 from actual chart-settings screenshots. Historical D01 delay preserved; no on-time/market-session claim. Reference data/parity and account facts remain outstanding. docs/pine/chart_reference.md. |
 | D02 | Completed | REST pacing and recording/checkpoint crash reconciliation | BE-05-12, BE-05-13, REF-00-04 | H; extra cash 0 by default | BE-05-12/13 complete early D01; REF-00-04 debug source created D05, original preserved, generation check/91 focused cases pass. Actual TradingView compile/export remains REF-00-05 acceptance work; docs/pine/reference_workflow.md. No purchase or formal observation. |
 | D03 | Completed | Readiness, delay, recovery checks and explicit tick-fidelity policy | BE-05-14, BE-05-15, BE-05-16, BE-05-17 | H; extra cash 0 by default | BE-05-14/15/16/17 verified early on D01 with 290 tests and quality checks. Calibration/account readings remain Unknown; no entries enabled. |
 | D04 | Completed | Managed worker ownership and initial typed contracts | BE-06-01, BE-06-02, BE-06-03, BE-13-01 | H; extra cash 0 by default | BE-06-01/02/03 and BE-13-01 Completed early on D01; 328 tests and quality checks passed. FE-14-01 through 15 also completed D04: 8 component/unit and 6 HTTPS browser flows, 94 backend regressions; FE-15-01 through 15 also completed D04: 771 backend tests, 15 frontend tests and 13 HTTPS browser flows; FE-16-01 through 08 also completed D04: 780 backend tests, 21 frontend tests and 20 browser flows; FE-17-01 through 08 also completed D04: 100 backend regressions, 27 frontend tests, 26 distinct browser flows; FE-18-01 through 11 also completed D04: 101 targeted backend cases, 35 frontend tests, 36 distinct browser flows; next OPS-19-01. No managed paper activation. |
 | D05 | Completed | Expiry, calendar, morning catalog and scheduled sessions | BE-06-04, BE-06-05, BE-06-06, BE-06-07 | H; extra cash 0 by default | D05 follow-up: OPS-19-04/05 and QA-19-12 accepted; section 19 now 9 Completed / 9 Pending; shadow code added but real ingress/G2 pending. 797/798 broad backend, corrected affected 69 pass, 35 frontend; docs/testing/OPS-19-followup.md. D05 REF-00-04 now complete; intake tools and 91 focused pass; counts 235/45. New QA-19-13 accepted: 114 selected backend/four browser pass; total 236/44, section 19 10/8. QA-19-11 now accepted: 47 selected backend/two browser pass; counts 237/43, section 19 11/7. Next QA-19-14 profiling; actual reference/market/burn-in and SCM tracks remain Pending. No observation/purchase. Live 404 UI fix: final 12 selected HTTPS/35 frontend tests and build/type/lint pass; no task-count increase; docs/testing/live-source-availability.md. |
-| D06 | Pending | Day context, quality events, production replay and lifecycle tests | BE-06-08, BE-06-09, BE-06-10, BE-06-11 | H; extra cash 0 by default | BE-06-08/09/10/11 Completed early on D01 (308 tests); actual market recording/observation remains unperformed, so daily observation acceptance stays Pending. |
+| D06 | Pending | Day context, quality events, production replay and lifecycle tests | BE-06-08, BE-06-09, BE-06-10, BE-06-11 | H; extra cash 0 by default | BE-06-08/09/10/11 Completed early on D01 (308 tests); D05 retained market-data sample is now reviewed, but no D06 full-day paper observation is supplied, so daily paper observation acceptance stays Pending. D06 UI-LIVE-B1 follow-up Completed with 75 BE/37 FE/3 HTTPS checks; B2 also Completed: 37 FE/13 HTTPS checks and build/types/lint PASS; B3 source/wicks/timezone/anchor recorded; 52 selected BE and final diagnostic14 PASS; five-minute/wick construction plus actual reference/feed acceptance still Pending; B4 independent checks Completed:129 BE/37 FE/16 browser plus final focused repeat PASS; future-mark label fixed; next QA-19-14; B3 construction/feed acceptance blocked; counts unchanged, no observation inferred. D06 ready-task audit accepted REF-00-03 and QA-07-01;239/41 total. Storage WAL/FULL optimization verified by857 BE plus final10 focused cases; QA-19-14 representative/dispatch acceptance remains Pending. No observation acceptance inferred. QA-07-02/07 accepted D06 from retained actual sample;241/39 total;48 selected and final5 focused tests PASS;formal0. |
 | D07 | Pending | Reference exports and real historical/feed checks | REF-00-05, REF-00-06, REF-00-07, QA-07-01, QA-07-02 | M; extra cash 0 by default | Weekly usage/cash review; input-dependent work stays Pending if exports/feed unavailable. |
 | D08 | Pending | Reconnect evidence and ten-reference-day Renko acceptance | QA-07-03, QA-07-04, QA-07-05, QA-07-06, QA-07-07 | H; extra cash 0 by default | Historical exports can cover past sessions; never substitute synthetic G1 evidence. |
 | D09 | Completed | Pine inputs and streaming RSI/ATR/Supertrend helpers | BE-08-01, BE-08-02, BE-08-03, BE-08-04, BE-08-05, BE-08-06 | H; extra cash 0 by default | Completed early D03: BE-08-01 through 06; hand-calculated seeding, boundaries and missing values; 54 focused cases. |
@@ -493,7 +595,7 @@ and TradingView exports must be real reference evidence, not invented fixtures.
 | --- | --- | --- | --- |
 | REF-00-01 | Completed | Save the original Pine script at its reference path and preserve its contents. | `docs/pine/renko_indicator.pine`; placed by user, 2026-10-24 |
 | REF-00-02 | Completed | Preserve the original project specification for implementation decisions. | `docs/SPEC.md` |
-| REF-00-03 | Pending | Record actual TradingView symbol, chart resolution, Traditional Renko box, close source, wick setting, timezone and grid anchor. Done when reproducible chart settings are documented. | Actual user chart; required for G1 |
+| REF-00-03 | Completed | Record actual TradingView symbol, chart resolution, Traditional Renko box, close source, wick setting, timezone and grid anchor. Done when reproducible chart settings are documented. | D06 actual screenshots record NSE NIFTY50, 5-minute Traditional50, Close, Wick enabled, Asia/Kolkata and historical anchor22700 at 2026-10-27T13:25+05:30. Chart-setting intake accepted; downstream exports/seed/input/parity remain Pending. docs/pine/chart_reference.md. |
 | REF-00-04 | Completed | Create a separate Pine debug version exposing RSI, Supertrend, scores, signal flags and trade events for export. Keep the original unchanged. | D05: append-only renko_indicator_debug.pine, 30 Data Window plots, reversible original IDs; original SHA-256 unchanged. Generation drift check and 91 focused tests pass; TradingView compilation/export not verified. docs/pine/reference_workflow.md. |
 | REF-00-05 | Pending | Export ten trading days of Renko OHLC and indicator/debug values with matching settings. Preserve original files and export metadata. | REF-00-03/04; TradingView export |
 | REF-00-06 | Pending | Obtain matching spot minute closes, futures volume/OI and daily context for the reference period; record contract identities and rollover boundaries. | Historical downloader; REF-00-05 |
@@ -624,13 +726,13 @@ until real reference comparisons pass. Never substitute synthetic tests for it.
 
 | ID | Status | Task and completion requirement | Evidence / prerequisite |
 | --- | --- | --- | --- |
-| QA-07-01 | Pending | Verify real authenticated spot/futures historical downloads, timestamp boundaries and optional OI; store sanitized results. | Broker session/market-data entitlement |
-| QA-07-02 | Pending | Observe real market-hours spot/futures ticks, stale flags, candle boundaries and daily recording. | Actual trading session; BE-06 |
+| QA-07-01 | Completed | Verify real authenticated spot/futures historical downloads, timestamp boundaries and optional OI; store sanitized results. | D06 actual authenticated 2026-10-30 download:375 spot-minute/75 futures-five-minute bars; exact processing-session coverage and overlapping boundary repeat agree; OI positive75/75 futures bars. Read-only catalog identities, copied auth session, sanitized hashes/receipts retained. docs/testing/QA-07-01-acceptance.json; initial failed end-boundary receipt retained. No live-session/G1 claim. |
+| QA-07-02 | Completed | Observe real market-hours spot/futures ticks, stale flags, candle boundaries and daily recording. | D06 review of retained actual2026-10-30 10:45:38?10:58:18 IST source:3742 ticks/150 advances;3892 ordered events;13 spot-minute/2 futures-five-minute completed candles. Gap flags recorded; stale/delay states explicitly reconstructed at event times; socket/reconnect/drop capture Unknown. Short sample only; formal sessions0. docs/testing/QA-07-02-07-recorded-observation.md. |
 | QA-07-03 | Pending | Verify a real controlled reconnect and restart restores/replays missing data without duplicate bars/bricks. | BE-05/06; QA-07-02 |
 | QA-07-04 | Pending | Align TradingView grid, seed period and source history; verify wick/source assumptions with actual exports. | REF-00-03–07 |
 | QA-07-05 | Pending | Run ten-day brick comparison, diagnose first mismatch, correct implementation and retain regression evidence. | QA-07-04; comparison CLI |
 | QA-07-06 | Pending | Accept G1 only with zero open/close/direction mismatches across agreed reference days and documented settings. | QA-07-05 |
-| QA-07-07 | Pending | Compare sampled live candle volume/OI/VWAP with historical data; document feed approximations and remaining partial flags. | QA-07-01/02 |
+| QA-07-07 | Completed | Compare sampled live candle volume/OI/VWAP with historical data; document feed approximations and remaining partial flags. | D06 actual sampled/historical comparison: complete10:50?10:55 futures candle matches OHLC/volume15795/OI15859090; initial partial volume difference -3705 retained. VWAP remains partial mid-session; spot volume/OI/VWAP unavailable. All15 sampled candle comparisons and source hashes retained; no G1/G2 equality claim. docs/testing/QA-07-recorded-sample-acceptance.json. |
 
 ### 08. Pine maths, state and market context
 
@@ -885,7 +987,7 @@ paper-first acceptance gates; actual observation periods cannot be replaced by t
 | QA-19-11 | Completed | Drill disconnect/overflow/token expiry and prove entries are blocked until recovery. | D05: four new isolated real worker/history-validation/API-admission scenarios; 47 selected backend and two injected-fault HTTPS browser checks PASS. Faults, reconnect-only, failed REST recovery and partial-source/entry-hold stages deny admission; no wallet mutations. Engineering evidence only; G5 unaccepted. docs/testing/QA-19-11-recovery-drills.md. |
 | QA-19-12 | Completed | Drill crash/restart mid-position, partial-leg failure and duplicate signals without double booking fills or ledger entries. | D05 follow-up: actual isolated child-process abrupt exit with OPEN position; fresh process restores one position/four fills, unique ledger and exact net/balance/margin. Partial-leg/duplicate/rollback cases retained. Synthetic engineering evidence only; G5 unaccepted. |
 | QA-19-13 | Completed | Drill daily-loss lock, kill switch, manual close, square-off retry and wrong-clock warning; retain results. | D05: five new integrated temporary-book API/execution/ticker scenarios; 114 selected backend cases pass, four built HTTPS browser checks (mixed real API/mocked UI) pass; exact settlement/reconciliation, lock restore and durable clock rejection proved. Engineering drills only; G5 unaccepted. docs/testing/QA-19-13-control-drills.md. |
-| QA-19-14 | Pending | Measure tick-to-brick-to-indicator under 50 ms and brick-to-order-dispatch under 1 second at representative load; diagnose bottlenecks. | D05 measured synthetic 500-tick/48-brick baseline: phase run p95 63.89 ms (target missed); storage 23.49 ms and indicator/readback 41.69 ms p95. No representative warmed option load or order-dispatch timing; JSON evidence retained. |
+| QA-19-14 | Pending | Measure tick-to-brick-to-indicator under 50 ms and brick-to-order-dispatch under 1 second at representative load; diagnose bottlenecks. | D06 measured storage hotspot fixed with local SQLite WAL/FULL: same synthetic500-tick/48-brick p95 before59.62ms, after28.76ms, confirm23.97ms. Full857 BE and final10 focused checks pass. Prior D05 synthetic63.89ms receipt retained. Representative warmed option/network/queue load and actual managed order-dispatch timing still absent; no gate accepted. docs/testing/D06-ready-task-delivery.md. |
 | QA-19-15 | Pending | Run at least the specified 20 paper trading days with daily notes on signals, trades, rejects and anomalies. | G1/G2/G3; failure drills |
 | QA-19-16 | Pending | Compare daily TradingView shadow events and review weekly results by family/grade/time; log one-at-a-time settings changes. | QA-19-15; OPS-19-08 |
 | QA-19-17 | Pending | Accept paper burn-in gates G4/G5 from reconciled results, resolved anomalies and recorded failure-drill evidence. | QA-19-09–16; SPEC gate criteria |

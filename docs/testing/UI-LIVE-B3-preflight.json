@@ -1,0 +1,44 @@
+{
+  "checked_at_utc": "2026-10-31T02:48:04.876445+00:00",
+  "batch": "UI-LIVE-B3",
+  "status": "BLOCKED_ACTUAL_CHART_INPUTS",
+  "local_settings": {
+    "renko_box": 50.0,
+    "renko_anchor": null,
+    "renko_mode": "minute_close",
+    "market_stream": "NIFTY-paper"
+  },
+  "settings_source": "Read-only Settings() selected non-secret fields; not runtime-owner verification or confirmed TradingView settings",
+  "actual_chart_reference": "docs/pine/chart_reference.md: all confirmation fields Pending",
+  "screenshot_observations_only": [
+    "Nifty 50",
+    "5-minute",
+    "Traditional 50"
+  ],
+  "unresolved": [
+    "Actual exchange/symbol, method, box, source, wicks and timezone",
+    "Completed brick close with timestamp for anchor",
+    "Loaded history/date range and indicator input overrides",
+    "Reconcile observed 5-minute reference with application minute_close mode",
+    "Genuine feed-driven update evidence after compatible configuration and safe source lifecycle"
+  ],
+  "checks": {
+    "local_ui_readiness": "BLOCKED; paper_trading_ready=false; runtime NOT_CHECKED",
+    "reference_debug": "Original hash and append-only debug copy verified; Pine not compiled"
+  },
+  "changes": {
+    "operator_configuration": false,
+    "operator_database": false,
+    "feed_start_stop": false,
+    "service_or_process_start_stop": false,
+    "pine": false,
+    "product_completion": false
+  },
+  "counts": {
+    "completed": 237,
+    "pending": 43,
+    "formal_sessions": 0
+  },
+  "usage_cash_renewal": "Unknown",
+  "extra_paid_usage_inr": 0
+}

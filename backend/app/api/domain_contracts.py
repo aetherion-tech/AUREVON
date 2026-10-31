@@ -105,6 +105,10 @@ class LegView(Contract):
     quantity: int
     entry: DecimalValue | None
     mark: DecimalValue | None
+    strike: DecimalValue | None = None
+    expiry: date | None = None
+    lot_size: int | None = None
+    unrealised: RupeeAmount | None = None
 
 
 class PositionView(Contract):

@@ -3,7 +3,7 @@
 import json
 from collections.abc import Callable
 from datetime import datetime
-from decimal import Decimal
+from decimal import ROUND_HALF_UP, Decimal
 from typing import Any
 
 from fastapi import HTTPException
@@ -125,6 +125,8 @@ def position_view(p: Position, engine: Engine | None = None) -> PositionView:
     for label, leg in (("entry_short", p.plan.short), ("entry_hedge", p.plan.hedge)):
         order = p.orders.get(label)
         mark = p.mark_prices.get(leg.contract.token)
+        # Match liquidation MTM. Missing depth requires executor slippage settings.
+        valuation = (mark.ask if leg.role == "SHORT" else mark.bid) if mark else None
         legs.append(
             LegView(
                 role=leg.role,
@@ -133,6 +135,22 @@ def position_view(p: Position, engine: Engine | None = None) -> PositionView:
                 quantity=leg.quantity,
                 entry=order.fill.price if order and order.fill else None,
                 mark=mark.last if mark else None,
+                strike=leg.contract.strike,
+                expiry=leg.contract.expiry,
+                lot_size=leg.contract.lot_size,
+                unrealised=(
+                    (
+                        (valuation - order.fill.price)
+                        * leg.quantity
+                        * (-1 if leg.role == "SHORT" else 1)
+                    ).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
+                    if valuation is not None
+                    and order
+                    and order.fill
+                    and p.unrealised is not None
+                    and p.status.value == "OPEN"
+                    else None
+                ),
             )
         )
     return PositionView(

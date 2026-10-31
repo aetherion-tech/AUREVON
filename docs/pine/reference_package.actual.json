@@ -1,0 +1,58 @@
+{
+  "status": "CHART_SETTINGS_RECORDED_REFERENCE_DATA_PENDING",
+  "reference_verified": false,
+  "chart": {
+    "exchange_symbol": "NSE:NIFTY",
+    "resolution": "5",
+    "renko_method": "Traditional",
+    "box_size": "50",
+    "price_source": "Close",
+    "wicks_enabled": true,
+    "timezone": "Asia/Kolkata",
+    "anchor_completed_brick_close": "22700",
+    "anchor_timestamp": "2026-10-27T13:25:00+05:30",
+    "loaded_history_start": null,
+    "reference_start": null,
+    "reference_end": null,
+    "confirmed_at": null
+  },
+  "indicator_input_overrides": null,
+  "pine_original_sha256": "d1b4e220a8e575c3e6839ca5e2058d2de190ee56fcf308ccf31e7864088170b2",
+  "pine_debug_sha256": null,
+  "tradingview_compile_verified": false,
+  "tradingview_export_files": [],
+  "spot_minute_files": [],
+  "futures_contracts": [],
+  "futures_five_minute_ohlcv_oi_files": [],
+  "daily_context_files": [],
+  "rollover_boundaries": [],
+  "missing_data": [
+    "Loaded-history start and reference range",
+    "Remaining saved indicator input overrides or explicit default confirmation",
+    "Actual reference exports and genuine feed acceptance"
+  ],
+  "settings_sha256": null,
+  "calendar_sha256": null,
+  "confirmed_exchange_sessions": [],
+  "comparison_policy": {
+    "continuous_absolute_tolerance": 1e-08,
+    "categorical_tolerance": 0,
+    "status": "EXISTING_CLI_DEFAULTS_REQUIRING_REFERENCE_BASELINE_REVIEW",
+    "never_change_expected_values_to_hide_mismatches": true
+  },
+  "g1_accepted": false,
+  "g2_accepted": false,
+  "known_indicator_inputs": {
+    "tgt1Pct": 2.5,
+    "tgt2Pct": 4,
+    "exitOppN": 1,
+    "exitAtT2": true,
+    "exitOnStop": false,
+    "stopCapBx": 6,
+    "showAdds": false,
+    "showPlan": true,
+    "rsiLen": 14
+  },
+  "evidence_record": "docs/testing/UI-LIVE-B3-input-evidence.json",
+  "ref_00_03_completed_on": "2026-10-31"
+}
